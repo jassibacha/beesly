@@ -6,6 +6,14 @@ import { CreatePost } from "@/app/_components/create-post";
 import { api } from "@/trpc/server";
 import MaxWidthWrapper from "@/components/MaxWidthWrapper";
 import { ArrowRight, CalendarCheck2, Clock, Smile, Star } from "lucide-react";
+import {
+  SignedIn,
+  SignedOut,
+  UserButton,
+  SignInButton,
+  SignOutButton,
+  SignUpButton,
+} from "@clerk/nextjs";
 
 export default async function Home() {
   noStore();
@@ -81,6 +89,38 @@ export default async function Home() {
         {/* How It Works Section */}
         {/* Repeat for each step */}
         <section className="my-10 text-center">
+          <SignedOut>
+            {/* <Link
+              href="/pricing"
+              className={buttonVariants({
+                variant: "ghost",
+                size: "sm",
+              })}
+            >
+              Pricing
+            </Link> */}
+            <Button variant="ghost" size="sm" asChild>
+              <SignInButton>Sign In</SignInButton>
+            </Button>
+            <Button variant="default" size="sm" asChild>
+              <SignUpButton>
+                Get Started
+                {/* <ArrowRight className="ml-1.5 h-5 w-5" /> */}
+              </SignUpButton>
+            </Button>
+          </SignedOut>
+          <SignedIn>
+            <Link
+              href="/dashboard"
+              className={buttonVariants({
+                variant: "ghost",
+                size: "sm",
+              })}
+            >
+              Dashboard
+            </Link>
+            <UserButton />
+          </SignedIn>
           <h2 className="mb-4 text-2xl font-bold">Sign Up and Customize</h2>
           <p>VR lounge owners can register for an account...</p>
         </section>

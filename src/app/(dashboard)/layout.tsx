@@ -17,7 +17,7 @@ export const metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-export default function DashboardLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -25,7 +25,7 @@ export default function DashboardLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={`font-sans ${inter.variable} grainy antialiased`}>
+        <body className={`font-sans ${inter.variable} antialiased`}>
           <TRPCReactProvider>
             {/* <NavBar /> */}
             {children}
