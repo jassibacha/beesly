@@ -4,18 +4,11 @@ import { Button, buttonVariants } from "@/components/ui/button";
 
 import { CreatePost } from "@/app/_components/create-post";
 import { api } from "@/trpc/server";
-import {
-  SignedIn,
-  SignedOut,
-  UserButton,
-  SignInButton,
-  SignOutButton,
-  SignUpButton,
-} from "@clerk/nextjs";
 import MaxWidthWrapper from "@/components/MaxWidthWrapper";
 import { ArrowRight, CalendarCheck2, Clock, Smile, Star } from "lucide-react";
 
 export default async function Home() {
+  noStore();
   return (
     <div className="min-h-screen bg-gray-100">
       <MaxWidthWrapper className="flex flex-col items-center justify-center pb-12 pt-28 text-center sm:pt-40">
