@@ -54,31 +54,96 @@ export async function POST(req: Request) {
   }
 
   // Get the ID and type
-  const { id } = evt.data;
+  // const { id, username, email, first_name, last_name, image_url } = evt.data;
   const eventType = evt.type;
 
-  console.log(`Webhook with and ID of ${id} and type of ${eventType}`);
+  console.log(`Webhook with and ID of ${evt.data.id} and type of ${eventType}`);
   console.log("Webhook body:", body);
 
-  if (eventType === "user.created") {
-    console.log("Clerk User created: ", evt.data.id);
-    // Get the user ID
-    const userId = evt.data.id;
+  // 👉 If the type is "user.updated" the important values in the database will be updated in the users table
+  if (eventType === "user.updated") {
+    try {
+      // Check if user exists in the database first
+      const dbUser = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, evt.data.id ?? ""));
 
-    // Check if user exists in the database
-    const dbUser = await db.select().from(users).where(eq(users.id, userId));
+      // If user does not exist, return an error
+      if (dbUser.length === 0) {
+        return new Response("Error occured -- user not found in database", {
+          status: 400,
+        });
+      }
 
-    // If user does not exist, create a new user with their id
-    if (dbUser.length === 0) {
-      await db.insert(users).values({
-        id: userId,
-      });
+      await db
+        .update(users)
+        .set({
+          username: evt.data.username ?? "",
+          displayName: `${evt.data.first_name} ${evt.data.last_name}`,
+          userImage: evt.data.image_url,
+          email: evt.data.email_addresses[0]?.email_address ?? "",
+        })
+        .where(eq(users.id, evt.data.id));
+    } catch (err) {
+      console.error("Error updating user:", err);
+      return new Response("Error occurred in user update", { status: 500 });
     }
-    console.log("DB User created, id: ", userId);
-
-    // Respond with success
-    return new Response("Webhook processed successfully", { status: 200 });
   }
 
-  return new Response("", { status: 200 });
+  // 👉 If the type is "user.created" create a record in the users table
+  if (eventType === "user.created") {
+    await db.insert(users).values({
+      id: evt.data.id,
+      username: evt.data.username ?? "",
+      displayName: `${evt.data.first_name} ${evt.data.last_name}`,
+      userImage: evt.data.image_url,
+      email: evt.data.email_addresses[0]?.email_address ?? "",
+    });
+  }
+
+  // 👉 If the type is "user.deleted", delete the user record and associated blocks
+  if (eventType === "user.deleted") {
+    try {
+      // Check if user exists in the database first
+      const dbUser = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, evt.data.id ?? ""));
+
+      // If user does not exist, return an error
+      if (dbUser.length === 0) {
+        return new Response("Error occured -- user not found in database", {
+          status: 400,
+        });
+      }
+
+      await db.delete(users).where(eq(users.id, evt.data.id ?? ""));
+    } catch (err) {
+      console.error("Error deleting user:", err);
+      return new Response("Error occurred in user deletion", { status: 500 });
+    }
+  }
+
+  return new Response("Webhook processed successfully", { status: 201 });
+
+  // if (eventType === "user.created") {
+  //   console.log("Clerk User created: ", evt.data.id);
+  //   // Get the user ID
+  //   const userId = evt.data.id;
+
+  //   // Check if user exists in the database
+  //   const dbUser = await db.select().from(users).where(eq(users.id, userId));
+
+  //   // If user does not exist, create a new user with their id
+  //   if (dbUser.length === 0) {
+  //     await db.insert(users).values({
+  //       id: userId,
+  //     });
+  //   }
+  //   console.log("DB User created, id: ", userId);
+
+  //   // Respond with success
+  //   return new Response("Webhook processed successfully", { status: 200 });
+  // }
 }

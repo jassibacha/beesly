@@ -3,6 +3,7 @@
 
 import { sql } from "drizzle-orm";
 import {
+  boolean,
   bigint,
   index,
   mysqlTableCreator,
@@ -23,6 +24,10 @@ export const users = createTable(
   {
     id: varchar("id", { length: 256 }).primaryKey(),
     email: varchar("email", { length: 256 }).unique(),
+    username: varchar("username", { length: 256 }).unique(),
+    displayName: varchar("display_name", { length: 256 }),
+    userImage: varchar("user_image", { length: 2048 }),
+    onboarded: boolean("onboarded").default(false).notNull(),
     stripeCustomerId: varchar("stripe_customer_id", { length: 256 }).unique(),
     stripeSubscriptionId: varchar("stripe_subscription_id", {
       length: 256,
