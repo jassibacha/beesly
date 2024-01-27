@@ -31,7 +31,8 @@ export async function POST(req: Request) {
   }
 
   // Get the body
-  const payload = (await req.json()) as Record<string, unknown>;
+  // const payload = await req.json();
+  const payload = (await req.json()) as Record<string, unknown>; // Taken from https://github.com/jaronheard/Soonlist/blob/main/app/api/webhooks/clerk/route.ts
   const body = JSON.stringify(payload);
 
   // Create a new Svix instance with your secret.
