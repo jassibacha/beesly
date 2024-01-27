@@ -64,14 +64,13 @@ export async function POST(req: Request) {
   // 👉 If the type is "user.updated" the important values in the database will be updated in the users table
   if (eventType === "user.updated") {
     try {
-      // Check if user exists in the database first
-      const dbUser = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, evt.data.id ?? ""));
+      // Check if user exists, or null if not found
+      const dbUser = await db.query.users.findFirst({
+        where: (users, { eq }) => eq(users.id, evt.data.id ?? ""),
+      });
 
       // If user does not exist, return an error
-      if (dbUser.length === 0) {
+      if (!dbUser) {
         return new Response("Error occured -- user not found in database", {
           status: 400,
         });
@@ -94,26 +93,42 @@ export async function POST(req: Request) {
 
   // 👉 If the type is "user.created" create a record in the users table
   if (eventType === "user.created") {
-    await db.insert(users).values({
-      id: evt.data.id,
-      username: evt.data.username ?? "",
-      displayName: `${evt.data.first_name} ${evt.data.last_name}`,
-      userImage: evt.data.image_url,
-      email: evt.data.email_addresses[0]?.email_address ?? "",
-    });
+    try {
+      // Check if user exists, or null if not found
+      const dbUser = await db.query.users.findFirst({
+        where: (users, { eq }) => eq(users.id, evt.data.id ?? ""),
+      });
+
+      // If user does exist, return an error
+      if (dbUser) {
+        return new Response("Error occured -- user already exists", {
+          status: 400,
+        });
+      }
+
+      await db.insert(users).values({
+        id: evt.data.id,
+        username: evt.data.username ?? "",
+        displayName: `${evt.data.first_name} ${evt.data.last_name}`,
+        userImage: evt.data.image_url,
+        email: evt.data.email_addresses[0]?.email_address ?? "",
+      });
+    } catch (err) {
+      console.error("Error creating user:", err);
+      return new Response("Error occurred in user creation", { status: 500 });
+    }
   }
 
   // 👉 If the type is "user.deleted", delete the user record and associated blocks
   if (eventType === "user.deleted") {
     try {
-      // Check if user exists in the database first
-      const dbUser = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, evt.data.id ?? ""));
+      // Check if user exists, or null if not found
+      const dbUser = await db.query.users.findFirst({
+        where: (users, { eq }) => eq(users.id, evt.data.id ?? ""),
+      });
 
       // If user does not exist, return an error
-      if (dbUser.length === 0) {
+      if (!dbUser) {
         return new Response("Error occured -- user not found in database", {
           status: 400,
         });

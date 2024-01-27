@@ -37,7 +37,7 @@ async function NavBar() {
             </Link> */}
               <Button variant="ghost" size="sm" asChild>
                 {/* <SignInButton>Sign In</SignInButton> */}
-                <Link href="/sign-in?redirect_url=/dashboard">Sign In</Link>
+                <Link href="/sign-in">Sign In</Link>
               </Button>
               <Button variant="default" size="sm" asChild>
                 {/* <SignUpButton>
@@ -45,7 +45,7 @@ async function NavBar() {
                   <ArrowRight className="ml-1.5 h-5 w-5" /> 
                 </SignUpButton> */}
 
-                <Link href="/sign-up?redirect_url=/dashboard">
+                <Link href="/sign-up">
                   Get Started <ArrowRight className="ml-1.5 h-5 w-5" />
                 </Link>
               </Button>

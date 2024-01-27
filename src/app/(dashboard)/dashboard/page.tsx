@@ -13,13 +13,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDateRangePicker } from "@/components/dashboard/date-range-picker";
 import { Overview } from "@/components/dashboard/overview";
 import { RecentSales } from "@/components/dashboard/recent-sales";
+import { syncUser } from "@/lib/auth/utils";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Dashboard",
   description: "Example dashboard app built using the components.",
 };
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  // Check & sync the currentUser to db if they don't exist
+  const user = await syncUser();
+
+  // If user has been onboarded, redirect to dashboard
+  // This is handled in middleware but this is one last check
+  if (!user?.onboarded) {
+    redirect("/dashboard/setup");
+  }
+
   return (
     <>
       <div className="flex-1 space-y-4 p-8 pt-6">
