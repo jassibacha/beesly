@@ -1,10 +1,7 @@
 import { Webhook } from "svix";
 import { headers } from "next/headers";
 import { type WebhookEvent } from "@clerk/nextjs/server";
-
-import { db } from "@/server/db";
-import { users } from "@/server/db/schema";
-import { eq } from "drizzle-orm";
+import { userCreated, userUpdated, userDeleted } from "./_webhook-actions";
 
 export async function POST(req: Request) {
   console.log("Webhook Received: Clerk");
@@ -54,112 +51,52 @@ export async function POST(req: Request) {
     });
   }
 
-  // Get the ID and type
-  // const { id, username, email, first_name, last_name, image_url } = evt.data;
+  // Get the event type
   const eventType = evt.type;
 
   console.log(`Webhook with and ID of ${evt.data.id} and type of ${eventType}`);
   console.log("Webhook body:", body);
 
-  // 👉 If the type is "user.updated" the important values in the database will be updated in the users table
-  if (eventType === "user.updated") {
-    try {
-      // Check if user exists, or null if not found
-      const dbUser = await db.query.users.findFirst({
-        where: (users, { eq }) => eq(users.id, evt.data.id ?? ""),
-      });
-
-      // If user does not exist, return an error
-      if (!dbUser) {
-        return new Response("Error occured -- user not found in database", {
+  try {
+    // 👉 If the type is "user.created"
+    if (eventType === "user.created") {
+      const success = await userCreated(evt.data);
+      if (!success) {
+        return new Response("Error occurred -- user already exists", {
           status: 400,
         });
       }
-
-      await db
-        .update(users)
-        .set({
-          username: evt.data.username ?? "",
-          displayName: `${evt.data.first_name} ${evt.data.last_name}`,
-          userImage: evt.data.image_url,
-          email: evt.data.email_addresses[0]?.email_address ?? "",
-        })
-        .where(eq(users.id, evt.data.id));
-    } catch (err) {
-      console.error("Error updating user:", err);
-      return new Response("Error occurred in user update", { status: 500 });
     }
-  }
-
-  // 👉 If the type is "user.created" create a record in the users table
-  if (eventType === "user.created") {
-    try {
-      // Check if user exists, or null if not found
-      const dbUser = await db.query.users.findFirst({
-        where: (users, { eq }) => eq(users.id, evt.data.id ?? ""),
-      });
-
-      // If user does exist, return an error
-      if (dbUser) {
-        return new Response("Error occured -- user already exists", {
+    // 👉 If the type is "user.deleted", delete the user record and associated blocks
+    if (eventType === "user.updated") {
+      const success = await userUpdated(evt.data);
+      if (!success) {
+        return new Response("Error occurred -- user not found", {
           status: 400,
         });
       }
-
-      await db.insert(users).values({
-        id: evt.data.id,
-        username: evt.data.username ?? "",
-        displayName: `${evt.data.first_name} ${evt.data.last_name}`,
-        userImage: evt.data.image_url,
-        email: evt.data.email_addresses[0]?.email_address ?? "",
-      });
-    } catch (err) {
-      console.error("Error creating user:", err);
-      return new Response("Error occurred in user creation", { status: 500 });
     }
-  }
-
-  // 👉 If the type is "user.deleted", delete the user record and associated blocks
-  if (eventType === "user.deleted") {
-    try {
-      // Check if user exists, or null if not found
-      const dbUser = await db.query.users.findFirst({
-        where: (users, { eq }) => eq(users.id, evt.data.id ?? ""),
-      });
-
-      // If user does not exist, return an error
-      if (!dbUser) {
-        return new Response("Error occured -- user not found in database", {
+    // 👉 If the type is "user.deleted", delete the user record and associated blocks
+    if (eventType === "user.deleted") {
+      if (!evt.data.id) {
+        console.error("Error: User ID is missing in the webhook data");
+        return new Response("Error occurred -- missing user ID", {
           status: 400,
         });
       }
-
-      await db.delete(users).where(eq(users.id, evt.data.id ?? ""));
-    } catch (err) {
-      console.error("Error deleting user:", err);
-      return new Response("Error occurred in user deletion", { status: 500 });
+      const success = await userDeleted(evt.data.id);
+      if (!success) {
+        return new Response("Error occurred -- user not found", {
+          status: 400,
+        });
+      }
     }
+  } catch (err) {
+    console.error(`Error running webhook action: ${eventType}`, err);
+    return new Response("Error occured", {
+      status: 400,
+    });
   }
 
-  return new Response("Webhook processed successfully", { status: 201 });
-
-  // if (eventType === "user.created") {
-  //   console.log("Clerk User created: ", evt.data.id);
-  //   // Get the user ID
-  //   const userId = evt.data.id;
-
-  //   // Check if user exists in the database
-  //   const dbUser = await db.select().from(users).where(eq(users.id, userId));
-
-  //   // If user does not exist, create a new user with their id
-  //   if (dbUser.length === 0) {
-  //     await db.insert(users).values({
-  //       id: userId,
-  //     });
-  //   }
-  //   console.log("DB User created, id: ", userId);
-
-  //   // Respond with success
-  //   return new Response("Webhook processed successfully", { status: 200 });
-  // }
+  return new Response("", { status: 200 });
 }
