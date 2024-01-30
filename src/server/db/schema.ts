@@ -9,6 +9,7 @@ import {
   mysqlTableCreator,
   timestamp,
   varchar,
+  datetime,
 } from "drizzle-orm/mysql-core";
 
 /**
@@ -20,7 +21,7 @@ import {
 export const createTable = mysqlTableCreator((name) => `beesly_${name}`);
 
 export const users = createTable(
-  "user",
+  "users",
   {
     id: varchar("id", { length: 256 }).primaryKey(),
     email: varchar("email", { length: 256 }).unique(),
@@ -34,9 +35,13 @@ export const users = createTable(
     }).unique(),
     stripePriceId: varchar("stripe_price_id", { length: 256 }),
     stripeCurrentPeriodEnd: timestamp("stripe_current_period_end"),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updatedAt").onUpdateNow(),
   },
-  (user) => ({
-    emailIndex: index("email_idx").on(user.email),
+  (table) => ({
+    emailIndex: index("email_idx").on(table.email),
   }),
 );
 
