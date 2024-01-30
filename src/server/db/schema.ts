@@ -79,6 +79,7 @@ export const locations = createTable(
   },
   (table) => ({
     ownerIdIdx: index("owner_id_idx").on(table.ownerId),
+    slugIdx: index("slug_idx").on(table.slug),
   }),
 );
 
@@ -113,6 +114,7 @@ export const locationSettings = createTable(
   },
   (table) => ({
     locationIdIdx: index("location_id_idx").on(table.locationId),
+    // timeZoneIdx: index("time_zone_idx").on(table.timeZone),
   }),
 );
 
