@@ -83,6 +83,8 @@ export const locations = createTable(
   }),
 );
 
+export type Location = typeof locations.$inferSelect;
+
 export const locationsRelations = relations(locations, ({ one }) => ({
   owner: one(users, {
     fields: [locations.ownerId],
