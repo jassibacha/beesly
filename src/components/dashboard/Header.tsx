@@ -1,4 +1,5 @@
 import { MainNav } from "./main-nav";
+import { ModeToggle } from "./mode-toggle";
 import { Search } from "./search";
 import TeamSwitcher from "./team-switcher";
 import { UserNav } from "./user-nav";
@@ -12,6 +13,7 @@ function Header() {
         <div className="ml-auto flex items-center space-x-4">
           <Search />
           <UserNav />
+          <ModeToggle />
         </div>
       </div>
     </div>
