@@ -59,19 +59,19 @@ export const usersRelations = relations(users, ({ one, many }) => ({
 export const locations = createTable(
   "locations",
   {
-    id: varchar("id", { length: 256 }).primaryKey(),
-    ownerId: varchar("owner_id", { length: 256 }).notNull(), // Foreign key didn't work here
+    id: varchar("id", { length: 50 }).primaryKey(),
+    ownerId: varchar("owner_id", { length: 36 }).notNull(), // Foreign key didn't work here
     name: varchar("name", { length: 256 }).notNull(),
-    slug: varchar("slug", { length: 256 }).unique().notNull(),
-    type: varchar("type", { length: 256 }),
-    phone: varchar("phone", { length: 256 }),
-    email: varchar("email", { length: 256 }),
+    slug: varchar("slug", { length: 50 }).unique().notNull(),
+    type: varchar("type", { length: 50 }),
+    phone: varchar("phone", { length: 30 }),
+    email: varchar("email", { length: 100 }),
     website: varchar("website", { length: 256 }),
     streetAddress: varchar("street_address", { length: 256 }),
-    city: varchar("city", { length: 256 }),
-    state: varchar("state", { length: 256 }),
-    country: varchar("country", { length: 256 }),
-    postalCode: varchar("postal_code", { length: 256 }),
+    city: varchar("city", { length: 100 }),
+    state: varchar("state", { length: 20 }),
+    zipCode: varchar("zip_code", { length: 20 }),
+    country: varchar("country", { length: 100 }),
     //settings: json("settings"), // Phase2
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
