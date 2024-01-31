@@ -60,7 +60,8 @@ function CreateLocationForm() {
           description: "Your Business has been created.",
         });
         reset();
-        // Redirect to Settings page or make this a 2 step process on single page?
+        // TODO: Set onboarded to true on the user here or in tRPC
+        // Redirect back to the dashboard
       },
       onError: (error) => {
         // Handle error

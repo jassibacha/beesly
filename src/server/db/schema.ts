@@ -66,6 +66,7 @@ export const locations = createTable(
     type: varchar("type", { length: 256 }),
     phone: varchar("phone", { length: 256 }),
     email: varchar("email", { length: 256 }),
+    website: varchar("website", { length: 256 }),
     streetAddress: varchar("street_address", { length: 256 }),
     city: varchar("city", { length: 256 }),
     state: varchar("state", { length: 256 }),
@@ -89,6 +90,10 @@ export const locationsRelations = relations(locations, ({ one }) => ({
   owner: one(users, {
     fields: [locations.ownerId],
     references: [users.id],
+  }),
+  settings: one(locationSettings, {
+    fields: [locations.id],
+    references: [locationSettings.locationId],
   }),
 }));
 
@@ -117,6 +122,16 @@ export const locationSettings = createTable(
   (table) => ({
     locationIdIdx: index("location_id_idx").on(table.locationId),
     // timeZoneIdx: index("time_zone_idx").on(table.timeZone),
+  }),
+);
+
+export const locationSettingsRelations = relations(
+  locationSettings,
+  ({ one }) => ({
+    location: one(locations, {
+      fields: [locationSettings.locationId],
+      references: [locations.id],
+    }),
   }),
 );
 
