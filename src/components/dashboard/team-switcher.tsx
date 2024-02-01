@@ -89,7 +89,7 @@ export default function TeamSwitcher({ className }: PopoverTriggerProps) {
 
   return (
     <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>
-      <Popover open={open} onOpenChange={setOpen}>
+      {/* <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
@@ -210,7 +210,7 @@ export default function TeamSwitcher({ className }: PopoverTriggerProps) {
           </Button>
           <Button type="submit">Continue</Button>
         </DialogFooter>
-      </DialogContent>
+      </DialogContent> */}
     </Dialog>
   );
 }

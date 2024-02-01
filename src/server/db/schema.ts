@@ -86,7 +86,7 @@ export const locations = createTable(
 
 export type Location = typeof locations.$inferSelect;
 
-export const locationsRelations = relations(locations, ({ one }) => ({
+export const locationsRelations = relations(locations, ({ one, many }) => ({
   owner: one(users, {
     fields: [locations.ownerId],
     references: [users.id],
@@ -95,6 +95,7 @@ export const locationsRelations = relations(locations, ({ one }) => ({
     fields: [locations.id],
     references: [locationSettings.locationId],
   }),
+  resources: many(resources),
 }));
 
 export const locationSettings = createTable(
@@ -135,17 +136,104 @@ export const locationSettingsRelations = relations(
   }),
 );
 
-export const posts = createTable(
-  "post",
+export const resources = createTable(
+  "resources",
   {
-    id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
-    name: varchar("name", { length: 256 }),
+    id: varchar("id", { length: 36 }).primaryKey(),
+    locationId: varchar("location_id", { length: 36 }).notNull(),
+    type: varchar("type", { length: 50 }),
+    name: varchar("name", { length: 256 }).notNull(),
+    status: varchar("status", { length: 50 }),
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
     updatedAt: timestamp("updated_at").onUpdateNow(),
   },
   (table) => ({
-    nameIndex: index("name_idx").on(table.name),
+    locationIdIdx: index("location_id_idx").on(table.locationId),
   }),
 );
+
+export const resourcesRelations = relations(resources, ({ one }) => ({
+  location: one(locations, {
+    fields: [resources.locationId],
+    references: [locations.id],
+  }),
+}));
+
+export const bookings = createTable(
+  "bookings",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    locationId: varchar("location_id", { length: 36 }),
+    customerName: varchar("customer_name", { length: 256 }),
+    customerEmail: varchar("customer_email", { length: 256 }),
+    customerPhone: varchar("customer_phone", { length: 50 }),
+    startTime: datetime("start_time"),
+    endTime: datetime("end_time"),
+    totalCost: decimal("total_cost", { precision: 10, scale: 2 }),
+    taxAmount: decimal("tax_amount", { precision: 10, scale: 2 }),
+    status: varchar("status", { length: 50 }),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updated_at").onUpdateNow(),
+  },
+  (table) => ({
+    locationIdIdx: index("location_id_idx").on(table.locationId),
+  }),
+);
+
+export const bookingsRelations = relations(bookings, ({ one, many }) => ({
+  location: one(locations, {
+    fields: [bookings.locationId],
+    references: [locations.id],
+  }),
+  resourceBookings: many(resourceBookings),
+}));
+
+export const resourceBookings = createTable(
+  "resource_bookings",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    bookingId: varchar("booking_id", { length: 36 }).notNull(),
+    resourceId: varchar("resource_id", { length: 36 }).notNull(),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updated_at").onUpdateNow(),
+  },
+  (table) => ({
+    bookingIdIdx: index("booking_id_idx").on(table.bookingId),
+    resourceIdIdx: index("resource_id_idx").on(table.resourceId),
+  }),
+);
+
+export const resourceBookingsRelations = relations(
+  resourceBookings,
+  ({ one }) => ({
+    booking: one(bookings, {
+      fields: [resourceBookings.bookingId],
+      references: [bookings.id],
+    }),
+    resource: one(resources, {
+      fields: [resourceBookings.resourceId],
+      references: [resources.id],
+    }),
+  }),
+);
+
+// export const posts = createTable(
+//   "post",
+//   {
+//     id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
+//     name: varchar("name", { length: 256 }),
+//     createdAt: timestamp("created_at")
+//       .default(sql`CURRENT_TIMESTAMP`)
+//       .notNull(),
+//     updatedAt: timestamp("updated_at").onUpdateNow(),
+//   },
+//   (table) => ({
+//     nameIndex: index("name_idx").on(table.name),
+//   }),
+// );

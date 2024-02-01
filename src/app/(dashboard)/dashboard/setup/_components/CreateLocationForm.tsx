@@ -22,9 +22,11 @@ import {
 } from "@/lib/schemas/locationSchemas";
 import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/trpc/react";
+import { useRouter } from "next/navigation";
 
 function CreateLocationForm() {
   const { toast } = useToast();
+  const router = useRouter();
 
   // 1. Define your form.
   const form = useForm<CreateLocationSchemaValues>({
@@ -59,15 +61,17 @@ function CreateLocationForm() {
 
     createLocationMutation.mutate(values, {
       onSuccess: () => {
-        // Handle success
+        // Lazy initialize the router inside the onSuccess callback
+
+        // Redirect to the dashboard
+
+        // Once redirected, show the toast
         toast({
           variant: "success",
           title: "Success!",
           description: "Your Business has been created.",
         });
-        reset();
-        // TODO: Set onboarded to true on the user here or in tRPC
-        // Redirect back to the dashboard
+        router.push("/dashboard");
       },
       onError: (error) => {
         // Handle error
@@ -268,19 +272,7 @@ function CreateLocationForm() {
           )}
         />
 
-        {/* Time Zone field */}
-        <FormField
-          control={control}
-          name="timeZone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="timeZone">Time Zone</FormLabel>
-              <FormControl>
-                <Input id="timeZone" placeholder="Time Zone" {...field} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
+        {/* Country field */}
         <FormField
           control={control}
           name="country"
@@ -299,6 +291,24 @@ function CreateLocationForm() {
                 />
               </FormControl>
               <FormDescription>Your country of business.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Time Zone field */}
+        <FormField
+          control={control}
+          name="timeZone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor="timeZone">Time Zone</FormLabel>
+              <FormControl>
+                <Input id="timeZone" placeholder="Time Zone" {...field} />
+              </FormControl>
+              <FormDescription>
+                Timezone of Business. Default: America/Los_Angeles
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

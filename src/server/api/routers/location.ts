@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { locations, locationSettings } from "@/server/db/schema";
+import { locations, locationSettings, users } from "@/server/db/schema";
 
 import {
   createLocationSchema,
@@ -9,6 +9,7 @@ import {
 } from "@/lib/schemas/locationSchemas";
 import { TRPCError } from "@trpc/server";
 import { ZodError } from "zod";
+import { eq } from "drizzle-orm";
 
 export const locationRouter = createTRPCRouter({
   create: protectedProcedure
@@ -75,6 +76,12 @@ export const locationRouter = createTRPCRouter({
             locationId: newLocationId,
             ...settings,
           });
+
+          // Update the onboarded status of the user
+          await tx
+            .update(users)
+            .set({ onboarded: true })
+            .where(eq(users.id, userId));
 
           return { success: true, id: newLocationId };
         } catch (error) {
