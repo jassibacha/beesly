@@ -69,7 +69,7 @@ export const locations = createTable(
     website: varchar("website", { length: 256 }),
     streetAddress: varchar("street_address", { length: 256 }),
     city: varchar("city", { length: 100 }),
-    state: varchar("state", { length: 20 }),
+    state: varchar("state", { length: 30 }),
     zipCode: varchar("zip_code", { length: 20 }),
     country: varchar("country", { length: 100 }),
     //settings: json("settings"), // Phase2

@@ -34,7 +34,13 @@ function CreateLocationForm() {
       slug: "",
       phone: "",
       email: "",
+      website: "",
+      streetAddress: "",
+      city: "",
+      state: "",
+      zipCode: "",
       country: "",
+      timeZone: "",
     },
   });
   const {
@@ -89,13 +95,14 @@ function CreateLocationForm() {
         className="w-2/3 space-y-6"
         onSubmit={handleSubmit(onSubmit)}
       >
+        {/* Name field */}
         <FormField
           control={control}
           name="name"
           render={({ field }) => (
             <FormItem>
               <FormLabel htmlFor="name" aria-required={true}>
-                Location Name
+                Business Name
               </FormLabel>
               <FormControl>
                 <Input
@@ -110,6 +117,8 @@ function CreateLocationForm() {
             </FormItem>
           )}
         />
+
+        {/* Slug field */}
         <FormField
           control={control}
           name="slug"
@@ -128,6 +137,8 @@ function CreateLocationForm() {
             </FormItem>
           )}
         />
+
+        {/* Phone field */}
         <FormField
           control={control}
           name="phone"
@@ -150,6 +161,8 @@ function CreateLocationForm() {
             </FormItem>
           )}
         />
+
+        {/* Email field */}
         <FormField
           control={control}
           name="email"
@@ -169,6 +182,102 @@ function CreateLocationForm() {
               </FormControl>
               <FormDescription>Your business phone number.</FormDescription>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Website field */}
+        <FormField
+          control={control}
+          name="website"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor="website">Website</FormLabel>
+              <FormControl>
+                <Input
+                  id="website"
+                  placeholder="https://www.example.com"
+                  {...field}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        {/* Street Address field */}
+        <FormField
+          control={control}
+          name="streetAddress"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor="streetAddress">Street Address</FormLabel>
+              <FormControl>
+                <Input
+                  id="streetAddress"
+                  placeholder="123 Main St"
+                  {...field}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        {/* City field */}
+        <FormField
+          control={control}
+          name="city"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor="city">City</FormLabel>
+              <FormControl>
+                <Input id="city" placeholder="City Name" {...field} />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        {/* State field */}
+        <FormField
+          control={control}
+          name="state"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor="state">State/Province</FormLabel>
+              <FormControl>
+                <Input id="state" placeholder="State or Province" {...field} />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        {/* Zip Code field */}
+        <FormField
+          control={control}
+          name="zipCode"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor="zipCode">Zip/Postal Code</FormLabel>
+              <FormControl>
+                <Input
+                  id="zipCode"
+                  placeholder="Zip or Postal Code"
+                  {...field}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        {/* Time Zone field */}
+        <FormField
+          control={control}
+          name="timeZone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor="timeZone">Time Zone</FormLabel>
+              <FormControl>
+                <Input id="timeZone" placeholder="Time Zone" {...field} />
+              </FormControl>
             </FormItem>
           )}
         />

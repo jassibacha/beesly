@@ -41,7 +41,6 @@ export const locationRouter = createTRPCRouter({
 
           // Define default location settings
           const defaultSettings = {
-            timeZone: "America/Los_Angeles",
             dailyAvailability: {
               Monday: { open: "10:00", close: "22:00" },
               Tuesday: { open: "10:00", close: "22:00" },
@@ -62,13 +61,19 @@ export const locationRouter = createTRPCRouter({
             bufferTimeInMinutes: 15,
           };
 
+          const settings = {
+            // Merge default settings with user-provided settings
+            timeZone: input.timeZone,
+            ...defaultSettings,
+          };
+
           const newLocationSettingsId = uuidv4();
 
           // Insert default location settings for this location
           await tx.insert(locationSettings).values({
             id: newLocationSettingsId,
             locationId: newLocationId,
-            ...defaultSettings,
+            ...settings,
           });
 
           return { success: true, id: newLocationId };

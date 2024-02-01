@@ -1,20 +1,48 @@
 import * as z from "zod";
 
 export const createLocationSchema = z.object({
-  name: z.string().min(1),
+  name: z
+    .string()
+    .min(1, "Please enter a business name.")
+    .max(256, "Business name must be less than 256 characters."),
   slug: z
     .string()
-    .min(2, {
-      message: "URL slug must be at least 2 characters.",
-    })
-    .max(14, {
-      message: "URL slug must be 14 characters or less.",
-    }),
-  phone: z.string(),
-  email: z.string().email(),
-  // website
-  // streetAddress, city, state, postalCode
-  country: z.string(),
+    .min(2, "URL slug must be at least 2 characters long.")
+    .max(50, "URL slug must be no more than 50 characters."),
+  phone: z
+    .string()
+    .min(1, "Please provide a phone number.")
+    .max(30, "Phone number must be less than 30 characters."),
+  email: z
+    .string()
+    .email("Please enter a valid email address.")
+    .min(1, "Email is required.")
+    .max(100, "Email must be less than 100 characters."),
+  website: z
+    .string()
+    .url("Please enter a valid URL (e.g., https://www.example.com).")
+    .max(256, "Website URL must be less than 256 characters."),
+  streetAddress: z
+    .string()
+    .min(1, "Street address is required.")
+    .max(256, "Street address must be less than 256 characters."),
+  city: z
+    .string()
+    .min(1, "Please enter the city name.")
+    .max(100, "City name must be less than 100 characters."),
+  state: z
+    .string()
+    .min(1, "State or province is required.")
+    .max(20, "State or province must be less than 30 characters."),
+  zipCode: z
+    .string()
+    .min(1, "Zip or postal code is required.")
+    .max(20, "Zip or postal code must be less than 20 characters."),
+  country: z
+    .string()
+    .min(1, "Country selection is required.")
+    .max(100, "Country name must be less than 100 characters."),
+  timeZone: z.string().min(1, "Time zone is required."),
 });
 export type CreateLocationSchemaValues = z.infer<typeof createLocationSchema>;
 
@@ -23,9 +51,13 @@ export const updateLocationSchema = z.object({
   slug: z.string().min(2).max(14).optional(),
   phone: z.string().optional(),
   email: z.string().email().optional(),
-  // website
-  // streetAddress, city, state, postalCode
+  website: z.string().url().optional(),
+  streetAddress: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  zipCode: z.string().optional(),
   country: z.string().optional(),
+  timeZone: z.string().optional(),
 });
 export type UpdateLocationSchemaValues = z.infer<typeof updateLocationSchema>;
 
