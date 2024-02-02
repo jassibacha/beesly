@@ -11,6 +11,7 @@ import {
 
 // Seeding tsx instructions
 // https://discord.com/channels/966627436387266600/1200193597870448780/1200222130093162496
+// Make a gist
 
 // Grab the userId from the env file to link the seed data correctly
 const ownerId = process.env.OWNER_ID ?? "user_test_asx79aSjsx7U";
@@ -46,10 +47,10 @@ async function seedDatabase() {
       displayName: "Owner Display Name",
       userImage: "https://example.com/user_image.jpg",
       onboarded: true,
-      stripeCustomerId: "cus_Ibq3q4tui2ubde",
-      stripeSubscriptionId: "sub_Ibq4q3tui2ubdf",
-      stripePriceId: "price_1HgatRIbq3q3tui2ubdg",
-      stripeCurrentPeriodEnd: new Date(),
+      stripeCustomerId: null,
+      stripeSubscriptionId: null,
+      stripePriceId: null,
+      stripeCurrentPeriodEnd: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -122,9 +123,9 @@ async function seedDatabase() {
         customerPhone: "123-456-7890",
         startTime: startTime, // toISOString() broke this ?
         endTime: endTime, // toISOString() broke this ?
-        totalCost: "200.00",
-        taxAmount: "40.00",
-        status: "Confirmed",
+        // totalCost: "200.00",
+        // taxAmount: "40.00",
+        // status: "Confirmed",
         createdAt: new Date(),
         updatedAt: new Date(),
       });
@@ -137,7 +138,7 @@ async function seedDatabase() {
         updatedAt: new Date(),
       });
     }
-    console.log("DB Seed Finished");
+    console.log("Database seeding finished");
   } catch (error) {
     console.error("Error seeding database:", error);
   }
