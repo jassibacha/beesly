@@ -11,10 +11,10 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDateRangePicker } from "@/components/dashboard/date-range-picker";
-import { Overview } from "@/components/dashboard/overview";
 import { RecentSales } from "@/components/dashboard/recent-sales";
 import { syncUser } from "@/lib/auth/utils";
 import { redirect } from "next/navigation";
+import DailyBookings from "@/components/dashboard/DailyBookings";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -62,7 +62,7 @@ export default async function DashboardPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pl-2">
-                  <Overview />
+                  <DailyBookings />
                 </CardContent>
               </Card>
             </div>
