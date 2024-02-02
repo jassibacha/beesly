@@ -7,6 +7,7 @@
     "build": "next build",
     "db:push": "drizzle-kit push:mysql",
     "db:studio": "drizzle-kit studio",
+    "db:seed": "node --import tsx --env-file .env ./src/server/db/seed.ts",
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start"
@@ -49,6 +50,7 @@
     "svix": "^1.15.0",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.7.0",
     "uuid": "^9.0.1",
     "zod": "^3.22.4"
   },
