@@ -8,10 +8,58 @@ import {
   locationSettingsSchema,
 } from "@/lib/schemas/locationSchemas";
 import { TRPCError } from "@trpc/server";
-import { ZodError } from "zod";
-import { eq } from "drizzle-orm";
+import { ZodError, z } from "zod";
+import { asc, eq } from "drizzle-orm";
 
 export const locationRouter = createTRPCRouter({
+  getLocationBySlug: protectedProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const location = await ctx.db.query.locations.findFirst({
+        where: (q) => eq(q.slug, input.slug),
+      });
+
+      if (!location) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Location not found",
+        });
+      }
+
+      return location;
+    }),
+
+  // get locationSettings by locationId
+  getLocationSettingsByLocationId: protectedProcedure
+    .input(z.object({ locationId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const locationSettings = await ctx.db.query.locationSettings.findFirst({
+        where: (q) => eq(q.locationId, input.locationId),
+      });
+
+      if (!locationSettings) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Location settings not found",
+        });
+      }
+
+      return locationSettings;
+    }),
+
+  listBookingsByLocationId: protectedProcedure
+    .input(z.object({ locationId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const bookingsList = await ctx.db.query.bookings.findMany({
+        // where: (q) => eq(q.locationId, input.locationId),
+        // orderBy: [asc(bookings.startTime)],
+        where: (bookings, { eq }) => eq(bookings.locationId, input.locationId),
+        orderBy: (bookings, { asc }) => [asc(bookings.startTime)],
+      });
+
+      return bookingsList;
+    }),
+
   create: protectedProcedure
     .input(createLocationSchema)
     .mutation(async ({ ctx, input }) => {
@@ -97,64 +145,5 @@ export const locationRouter = createTRPCRouter({
           throw error; // Re-throw other errors
         }
       });
-      // try {
-      //   // Validate the input using the Zod schema
-      //   createLocationSchema.parse(input);
-
-      //   const userId = ctx.auth.userId;
-      //   if (!userId) {
-      //     throw new TRPCError({
-      //       code: "INTERNAL_SERVER_ERROR",
-      //       message: "No user id found in session",
-      //     });
-      //   }
-
-      //   const newLocationId = uuidv4();
-      //   await ctx.db.insert(locations).values({
-      //     id: newLocationId,
-      //     ownerId: userId,
-      //     name: input.name,
-      //     slug: input.slug,
-      //     phone: input.phone,
-      //     email: input.email,
-      //     country: input.country,
-      //   });
-      //   return { success: true, id: newLocationId };
-      // } catch (error) {
-      //   if (error instanceof ZodError) {
-      //     // Construct a custom error message from Zod error details
-      //     const errorMessage = error.errors
-      //       .map((e) => `${e.path.join(".")} - ${e.message}`)
-      //       .join("; ");
-      //     throw new TRPCError({
-      //       code: "BAD_REQUEST",
-      //       message: `Validation failed: ${errorMessage}`,
-      //     });
-      //   }
-      //   throw error; // Re-throw other errors
-      // }
     }),
-  // .mutation(async ({ ctx, input }) => {
-  //   return ctx.db.transaction(async (tx) => {
-  //     try {
-  //       // ... validate input, generate IDs, etc.
-
-  //       // Insert the new location
-  //       await tx.insert(locations).values({
-  //         // ... location values
-  //       });
-
-  //       // Insert default loungeSettings for this location
-  //       await tx.insert(loungeSettings).values({
-  //         locationId: newLocationId,
-  //         // ... default settings values
-  //       });
-
-  //       return { success: true, id: newLocationId };
-  //     } catch (error) {
-  //       // Handle errors (e.g., ZodError, TRPCError)
-  //       // ...
-  //     }
-  //   });
-  // }),
 });
