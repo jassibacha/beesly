@@ -13,7 +13,7 @@ import {
   resources,
 } from "@/server/db/schema";
 import { v4 as uuidv4 } from "uuid";
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { DateTime } from "luxon";
 
 export const bookingRouter = createTRPCRouter({
@@ -156,6 +156,80 @@ export const bookingRouter = createTRPCRouter({
       bookingId: newBookingId,
     };
   }),
+  listBookings: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.auth.userId;
+    if (!userId) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "User must be logged in to list bookings",
+      });
+    }
+
+    const userLocation = await ctx.db.query.locations.findFirst({
+      where: (locations, { eq }) => eq(locations.ownerId, userId),
+    });
+
+    if (!userLocation) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "User location not found",
+      });
+    }
+
+    // Fetch bookings associated with the user's location
+    const userBookings = await ctx.db.query.bookings.findMany({
+      where: (bookings, { eq }) => eq(bookings.locationId, userLocation.id),
+      orderBy: [asc(bookings.startTime)], // Assuming you want to order them by the start time
+    });
+
+    return {
+      success: true,
+      bookings: userBookings,
+    };
+  }),
+  listBookingsByLocation: protectedProcedure
+    .input(
+      z.object({
+        locationId: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      // Retrieve userId from context
+      const userId = ctx.userId;
+      if (!userId) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "User must be logged in",
+        });
+      }
+
+      const { locationId } = input;
+
+      // Fetch the location to verify ownership
+      const userLocation = await ctx.db.query.locations.findFirst({
+        where: (locations, { eq }) => eq(locations.id, locationId),
+      });
+
+      // Verify that the location belongs to the current user
+      if (!userLocation || userLocation.ownerId !== userId) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You are not authorized to view bookings for this location",
+        });
+      }
+
+      // Fetch bookings associated with the verified locationId
+      const userBookings = await ctx.db.query.bookings.findMany({
+        where: (bookings, { eq }) => eq(bookings.locationId, locationId),
+        orderBy: [asc(bookings.startTime)], // Order by the start time in ascending order
+      });
+
+      return {
+        success: true,
+        locationid: locationId,
+        bookings: userBookings,
+      };
+    }),
 
   // test: publicProcedure
   //   .input(
