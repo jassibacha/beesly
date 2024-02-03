@@ -1,5 +1,6 @@
 import { db } from "./index";
 import { v4 as uuidv4 } from "uuid";
+import { DateTime } from "luxon";
 import {
   bookings,
   locationSettings,
@@ -26,6 +27,14 @@ const tablesToWipe = [
   users,
 ];
 
+// Function to round DateTime to the nearest 15 minutes, breaks the JSDate() we try to return
+function roundToNearest15(dateTime: DateTime): DateTime {
+  const minutes = dateTime.minute;
+  const remainder = minutes % 15;
+  const minutesToAdd = remainder < 8 ? -remainder : 15 - remainder;
+  return dateTime.plus({ minutes: minutesToAdd }).startOf("minute");
+}
+
 async function wipeTables() {
   try {
     for (const table of tablesToWipe) {
@@ -39,6 +48,7 @@ async function wipeTables() {
 
 async function seedDatabase() {
   try {
+    const now = DateTime.now().toUTC().toJSDate();
     // User details
     await db.insert(users).values({
       id: ownerId,
@@ -51,8 +61,8 @@ async function seedDatabase() {
       stripeSubscriptionId: null,
       stripePriceId: null,
       stripeCurrentPeriodEnd: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: now,
+      updatedAt: now,
     });
 
     // Location details
@@ -71,8 +81,8 @@ async function seedDatabase() {
       state: "EX",
       zipCode: "12345",
       country: "Exampleland",
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: now,
+      updatedAt: now,
     });
 
     // Location Settings details
@@ -81,7 +91,13 @@ async function seedDatabase() {
       locationId,
       timeZone: "America/Los_Angeles",
       dailyAvailability: JSON.stringify({
-        Monday: { open: "09:00", close: "17:00" },
+        1: { open: "09:00", close: "22:00" },
+        2: { open: "09:00", close: "22:00" },
+        3: { open: "09:00", close: "22:00" },
+        4: { open: "09:00", close: "22:00" },
+        5: { open: "09:00", close: "23:00" },
+        6: { open: "09:00", close: "23:00" },
+        7: { open: "09:00", close: "22:00" },
       }),
       taxSettings: JSON.stringify({ VAT: 20 }),
       initialCostOfBooking: "100.0",
@@ -90,8 +106,8 @@ async function seedDatabase() {
       maxAdvanceBookingDays: 180,
       minTimeBetweenBookings: 15,
       bufferTimeInMinutes: 10,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: now,
+      updatedAt: now,
     });
 
     // Resource details
@@ -100,19 +116,43 @@ async function seedDatabase() {
       id: resourceId,
       locationId,
       type: "VR Booth",
-      name: "VR Booth 1",
+      name: "Station 1",
       status: "Available",
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: now,
+      updatedAt: now,
     });
 
     // Bookings details
-    const bookingTimes = [4, 6]; // hours later
+    const bookingTimes = [4, 7, 9]; // hours later
     for (const hoursLater of bookingTimes) {
-      const startTime = new Date(
-        new Date().getTime() + hoursLater * 60 * 60 * 1000,
-      );
-      const endTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000); // 2 hours duration
+      // Calculate start and end times using Luxon, rounded to the nearest
+      // 15 minutes and ensuring seconds are at 00
+      const nowPlusHours = DateTime.now()
+        .setZone("utc")
+        .plus({ hours: hoursLater });
+      const roundedStartTime = nowPlusHours
+        .plus({ minutes: (15 - (nowPlusHours.minute % 15)) % 15 })
+        .startOf("minute");
+      const startTime = roundedStartTime.toJSDate();
+      const endTime = roundedStartTime
+        .plus({ hours: 2 })
+        .startOf("minute")
+        .toJSDate();
+
+      // THIS WORKS FINE, NO ERRORS WITH BOOKINGS INSERT
+      // const startTime = DateTime.now()
+      //   .plus({ hours: hoursLater })
+      //   .toUTC()
+      //   .toJSDate();
+      // const endTime = DateTime.now()
+      //   .plus({ hours: hoursLater + 2 })
+      //   .toUTC()
+      //   .toJSDate();
+
+      // const startTime = new Date(
+      //   new Date().getTime() + hoursLater * 60 * 60 * 1000,
+      // );
+      // const endTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000); // 2 hours duration
       const bookingId = uuidv4();
 
       await db.insert(bookings).values({
@@ -126,16 +166,16 @@ async function seedDatabase() {
         // totalCost: "200.00",
         // taxAmount: "40.00",
         // status: "Confirmed",
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: now,
+        updatedAt: now,
       });
 
       await db.insert(resourceBookings).values({
         id: uuidv4(),
         bookingId: bookingId,
         resourceId: resourceId,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: now,
+        updatedAt: now,
       });
     }
     console.log("Database seeding finished");

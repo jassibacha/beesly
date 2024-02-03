@@ -14,6 +14,7 @@ import {
 } from "@/server/db/schema";
 import { v4 as uuidv4 } from "uuid";
 import { eq } from "drizzle-orm";
+import { DateTime } from "luxon";
 
 export const bookingRouter = createTRPCRouter({
   create: protectedProcedure
@@ -116,8 +117,19 @@ export const bookingRouter = createTRPCRouter({
     const newResourceBookingId = uuidv4();
 
     // Calculate start and end times
-    const startTime = new Date(new Date().getTime() + 4 * 60 * 60 * 1000); // 4 hours later
-    const endTime = new Date(new Date().getTime() + 6 * 60 * 60 * 1000); // 6 hours later
+    const nowPlus2Hours = DateTime.now().setZone("utc").plus({ hours: 2 });
+    const roundedStartTime = nowPlus2Hours
+      .plus({
+        minutes: (15 - (nowPlus2Hours.minute % 15)) % 15,
+      })
+      .startOf("minute");
+    const startTime = roundedStartTime.toJSDate();
+    const endTime = roundedStartTime
+      .plus({ hours: 2 })
+      .startOf("minute")
+      .toJSDate();
+    // const startTime = new Date(new Date().getTime() + 4 * 60 * 60 * 1000); // 4 hours later
+    // const endTime = new Date(new Date().getTime() + 6 * 60 * 60 * 1000); // 6 hours later
 
     await ctx.db.insert(bookings).values({
       id: newBookingId,
