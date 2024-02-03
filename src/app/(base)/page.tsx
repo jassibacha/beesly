@@ -2,8 +2,6 @@ import { unstable_noStore as noStore } from "next/cache";
 import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 
-import { CreatePost } from "@/app/_components/create-post";
-import { api } from "@/trpc/server";
 import MaxWidthWrapper from "@/components/MaxWidthWrapper";
 import { ArrowRight, CalendarCheck2, Clock, Smile, Star } from "lucide-react";
 import {
