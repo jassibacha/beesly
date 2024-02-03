@@ -13,10 +13,12 @@ const dateOrIsoString = z.union([z.date(), z.string()]).transform((val) => {
 });
 
 export const createBookingSchema = z.object({
-  startTime: dateOrIsoString,
-  endTime: dateOrIsoString,
-  // startTime: z.string().or(z.date()),
-  // endTime: z.string().or(z.date()),
+  startTime: z.date().min(new Date(), "Start time must be in the future."),
+  endTime: z.date().min(new Date(), "End time must be in the future."),
+  // startTime: dateOrIsoString,
+  // endTime: dateOrIsoString,
+  // startTime: z.date(), // For the refinement version
+  // endTime: z.date(), // For the refinement version
   customerName: z.string().min(1, "Customer name is required."),
   customerEmail: z
     .string()
@@ -34,3 +36,17 @@ export const createBookingSchema = z.object({
 });
 
 export type CreateBookingSchemaValues = z.infer<typeof createBookingSchema>;
+
+// // Adding a separate refinement to ensure endTime is after startTime
+// export const createBookingSchemaWithRefinement = createBookingSchema.refine(
+//   (data) => data.endTime > data.startTime,
+//   {
+//     message: "End time must be after start time",
+//     // Optional: specifying the path helps Zod understand which part of the object the error relates to
+//     path: ["endTime"],
+//   },
+// );
+
+// export type CreateBookingSchemaValues = z.infer<
+//   typeof createBookingSchemaWithRefinement
+// >;

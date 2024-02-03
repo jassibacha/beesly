@@ -103,7 +103,7 @@ export const locationSettings = createTable(
   {
     id: varchar("id", { length: 256 }).primaryKey(),
     locationId: varchar("location_id", { length: 256 }).notNull(), // Foreign key didn't work here
-    timeZone: varchar("time_zone", { length: 256 }),
+    timeZone: varchar("time_zone", { length: 256 }).notNull(),
     dailyAvailability: json("daily_availability"),
     taxSettings: json("tax_settings"),
     initialCostOfBooking: decimal("initial_cost_of_booking", {
@@ -165,12 +165,12 @@ export const bookings = createTable(
   "bookings",
   {
     id: varchar("id", { length: 36 }).primaryKey(),
-    locationId: varchar("location_id", { length: 36 }),
-    customerName: varchar("customer_name", { length: 256 }),
-    customerEmail: varchar("customer_email", { length: 256 }),
-    customerPhone: varchar("customer_phone", { length: 50 }),
-    startTime: datetime("start_time"),
-    endTime: datetime("end_time"),
+    locationId: varchar("location_id", { length: 36 }).notNull(),
+    customerName: varchar("customer_name", { length: 256 }).notNull(),
+    customerEmail: varchar("customer_email", { length: 256 }).notNull(),
+    customerPhone: varchar("customer_phone", { length: 50 }).notNull(),
+    startTime: datetime("start_time").notNull(),
+    endTime: datetime("end_time").notNull(),
     totalCost: decimal("total_cost", { precision: 10, scale: 2 }),
     taxAmount: decimal("tax_amount", { precision: 10, scale: 2 }),
     status: varchar("status", { length: 50 }),
