@@ -1,16 +1,9 @@
+// "use client";
+
 import "@/styles/globals.css";
 
-import { Inter } from "next/font/google";
-
-import { TRPCReactProvider } from "@/trpc/react";
-import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/toaster";
 import NavBar from "@/components/NavBar";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
 
 export const metadata = {
   title: "Beesly.io",
@@ -18,22 +11,12 @@ export const metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className={`font-sans ${inter.variable} grainy antialiased`}>
-          <TRPCReactProvider>
-            <NavBar />
-            {children}
-            <Toaster />
-          </TRPCReactProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+    <>
+      <NavBar />
+      {children}
+      <Toaster />
+    </>
   );
 }
