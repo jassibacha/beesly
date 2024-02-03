@@ -1,101 +1,91 @@
 // "use client";
-// import Form from "@/app/ui/invoices/edit-form";
-// import Breadcrumbs from "@/app/ui/invoices/breadcrumbs";
-// import { fetchCustomers, fetchInvoiceById } from "@/app/lib/data";
 import { notFound } from "next/navigation";
-// import { type Metadata } from "next";
-// import Head from "next/head";
-// //import { api } from "@/trpc/server";
-// import { useRouter } from "next/router"; // Correct hook for client-side routing
-// import { api } from "@/trpc/react"; // Assuming this is the correct import path for your TRPC api
-
-// export const metadata: Metadata = {
-//   title: `${slug} Booking`,
-// };
-
-// export default function Page() {
-//   const router = useRouter();
-//   const { slug } = router.query;
-
-//   if (!slug) {
-//     notFound();
-//   }
-
-//   // Using TRPC's useQuery hook correctly within the component body to fetch location data
-//   const {
-//     data: location,
-//     isLoading,
-//     error,
-//   } = api.location.getLocationBySlug.useQuery(
-//     { slug: slug as string },
-//     {
-//       enabled: !!slug, // This ensures the query runs only if slug is available
-//     },
-//   );
-
-//   // Conditional rendering based on loading/error states or if the location data is present
-//   if (isLoading) return <div>Loading...</div>;
-//   if (error) return <div>Error: {error.message}</div>;
-//   if (!location) return <div>Location not found</div>; // Handling not found location
-
-//   return (
-//     <>
-//       <Head>
-//         <title>{slug} Booking</title>
-//       </Head>
-//       <main>
-//         Slug: {slug}
-//         {location ? "Location found" : "Location not found"}
-//         {/* <Breadcrumbs
-//         breadcrumbs={[
-//           { label: "Invoices", href: "/dashboard/invoices" },
-//           {
-//             label: "Edit Invoice",
-//             href: `/dashboard/invoices/${id}/edit`,
-//             active: true,
-//           },
-//         ]}
-//       />
-//       <Form invoice={invoice} customers={customers} /> */}
-//       </main>
-//     </>
-//   );
-// }
 
 import { api } from "@/trpc/server";
 import { BookingPage } from "./_components/BookingPage";
+import { type Metadata, type ResolvingMetadata } from "next/types";
 
-export default async function Page({ params }: { params: { slug: string } }) {
+type Props = {
+  params: {
+    slug: string;
+  };
+};
+
+// REMOVE: Referenced from SL event/[eventid]/page.tsx
+
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  // const event = await api.event.get.query({ eventId: params.eventId });
+  // if (!event) {
+  //   return {
+  //     title: "No event found | Soonlist",
+  //     openGraph: {
+  //       images: [],
+  //     },
+  //   };
+  // }
+  const location = await api.location.getLocationBySlug.query({
+    slug: params.slug,
+  });
+  if (!location) {
+    return {
+      title: "Not Found",
+      openGraph: {
+        images: [],
+      },
+    };
+  }
+
+  // optionally access and extend (rather than replace) parent metadata
+  // images are in the order of square, 4:3, 16:9, cropped
+  // const hasAllImages = eventData.images && eventData.images.length === 4;
+  // const previewImage = hasAllImages ? eventData.images?.slice(2, 3) : undefined;
+
+  return {
+    title: `${location.name} | Soonlist`,
+    openGraph: {
+      title: `${location.name}`,
+      // description: `(${eventData.startDate} ${eventData.startTime}-${eventData.endTime}) ${eventData.description}`,
+      url: `${process.env.NEXT_PUBLIC_URL}/${location.slug}`,
+      // type: "article",
+      // images: previewImage || (await parent).openGraph?.images || [],
+    },
+  };
+}
+
+export default async function Page({ params }: Props) {
   const slug = params.slug;
 
-  // const location = await api.location.getLocationBySlug.query({ slug });
+  const location = await api.location.getLocationBySlug.query({
+    slug: params.slug,
+  });
+
+  if (!slug || !location) {
+    notFound();
+  }
+
+  const locationSettings =
+    await api.location.getLocationSettingsByLocationId.query({
+      locationId: location.id,
+    });
+
+  // TODO: We can grab all of the stuff here, because we're a server component
+  // And then pass all of it in as props to a bookingForm component that is client
+  // We can probably wait to grab the individual bookings until the client component
+  // Or we can grab bookings every time the day changes, eventually at least
 
   // const [invoice, customers] = await Promise.all([
   //   fetchInvoiceById(id),
   //   fetchCustomers(),
   // ]);
 
-  if (!slug) {
-    notFound();
-  }
-
   return (
     <>
       <main>
         Slug: {slug}
         <BookingPage slug={slug} />
-        {/* {location ? "Location found" : "Location not found"} */}
-        {/* <Breadcrumbs
-        breadcrumbs={[
-          { label: "Invoices", href: "/dashboard/invoices" },
-          {
-            label: "Edit Invoice",
-            href: `/dashboard/invoices/${id}/edit`,
-            active: true,
-          },
-        ]}
-      />
-      <Form invoice={invoice} customers={customers} /> */}
       </main>
     </>
   );
