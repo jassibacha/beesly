@@ -7,6 +7,7 @@ import { TRPCReactProvider } from "@/trpc/react";
 // import { Toaster } from "@/components/ui/toaster";
 // import NavBar from "@/components/NavBar";
 import { Providers, ThemeProvider } from "./providers";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -27,16 +28,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans ${inter.variable} grainy antialiased`}>
-        <TRPCReactProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Providers>{children}</Providers>
-          </ThemeProvider>
-        </TRPCReactProvider>
+        <ClerkProvider>
+          <TRPCReactProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <Providers>{children}</Providers>
+            </ThemeProvider>
+          </TRPCReactProvider>
+        </ClerkProvider>
       </body>
     </html>
   );

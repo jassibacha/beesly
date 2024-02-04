@@ -1,6 +1,6 @@
 "use client";
 
-import { ClerkProvider, useUser } from "@clerk/nextjs";
+// import { ClerkProvider, useUser } from "@clerk/nextjs";
 import ContextProvider from "@/context/ContextProvider";
 
 import * as React from "react";
@@ -14,10 +14,9 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
 
 // We can write analytics stuff into here
 
+// NOTE: Clerk Provider needed to be moved back to the RootLayout, and it needed to be before tRPC,
+// This is because we're passing Clerk auth & user data into tRPC context.
+
 export function Providers({ children }: { children: React.ReactNode }) {
-  return (
-    <ClerkProvider>
-      <ContextProvider>{children}</ContextProvider>
-    </ClerkProvider>
-  );
+  return <ContextProvider>{children}</ContextProvider>;
 }
