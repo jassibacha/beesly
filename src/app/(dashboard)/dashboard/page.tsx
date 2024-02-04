@@ -15,6 +15,7 @@ import { RecentSales } from "@/components/dashboard/recent-sales";
 import { syncUser } from "@/lib/auth/utils";
 import { redirect } from "next/navigation";
 import DailyBookings from "@/components/dashboard/DailyBookings";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -62,7 +63,9 @@ export default async function DashboardPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pl-2">
-                  <DailyBookings />
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <DailyBookings />
+                  </Suspense>
                 </CardContent>
               </Card>
             </div>
