@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { api } from "@/trpc/server";
 import { BookingPage } from "./_components/BookingPage";
 import { type Metadata, type ResolvingMetadata } from "next/types";
+import { Suspense } from "react";
 
 type Props = {
   params: {
@@ -44,9 +45,9 @@ export async function generateMetadata(
   // const previewImage = hasAllImages ? eventData.images?.slice(2, 3) : undefined;
 
   return {
-    title: `${location.name} | Soonlist`,
+    title: `Book a Session | ${location.name}`,
     openGraph: {
-      title: `${location.name}`,
+      title: `Book a Session | ${location.name}`,
       // description: `(${eventData.startDate} ${eventData.startTime}-${eventData.endTime}) ${eventData.description}`,
       url: `${process.env.NEXT_PUBLIC_URL}/${location.slug}`,
       // type: "article",
@@ -66,10 +67,16 @@ export default async function Page({ params }: Props) {
     notFound();
   }
 
-  const locationSettings =
-    await api.location.getLocationSettingsByLocationId.query({
+  const [locationSettings, resources] = await Promise.all([
+    api.location.getLocationSettingsByLocationId.query({
       locationId: location.id,
-    });
+    }),
+    api.resource.getResourcesByLocationId.query({ locationId: location.id }),
+  ]);
+
+  if (!locationSettings || !resources) {
+    notFound();
+  }
 
   // TODO: We can grab all of the stuff here, because we're a server component
   // And then pass all of it in as props to a bookingForm component that is client
@@ -83,10 +90,14 @@ export default async function Page({ params }: Props) {
 
   return (
     <>
-      <main>
-        Slug: {slug}
-        <BookingPage slug={slug} />
-      </main>
+      <Suspense fallback={<div>Loading...</div>}>
+        {/* With the suspense, we can pull in everything else inside BookingPage and wait for it to all load */}
+        <BookingPage
+          location={location}
+          locationSettings={locationSettings}
+          resources={resources}
+        />
+      </Suspense>
     </>
   );
 }
