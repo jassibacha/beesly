@@ -3,6 +3,7 @@
 import * as React from "react";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { addDays, format } from "date-fns";
+import { DateTime } from "luxon";
 import type { DateRange } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
@@ -18,8 +19,10 @@ export function CalendarDateRangePicker({
   className,
 }: React.HTMLAttributes<HTMLDivElement>) {
   const [date, setDate] = React.useState<DateRange | undefined>({
-    from: new Date(2023, 0, 20),
-    to: addDays(new Date(2023, 0, 20), 20),
+    // from: new Date(2023, 0, 20),
+    // to: addDays(new Date(2023, 0, 20), 20),
+    from: DateTime.now().toJSDate(),
+    to: DateTime.now().plus({ days: 20 }).toJSDate(), // TODO: Change days to locationSettings max days
   });
 
   return (
@@ -38,11 +41,11 @@ export function CalendarDateRangePicker({
             {date?.from ? (
               date.to ? (
                 <>
-                  {format(date.from, "LLL dd, y")} -{" "}
-                  {format(date.to, "LLL dd, y")}
+                  {DateTime.fromJSDate(date.from).toFormat("LLL dd, y")} -{" "}
+                  {DateTime.fromJSDate(date.to).toFormat("LLL dd, y")}
                 </>
               ) : (
-                format(date.from, "LLL dd, y")
+                DateTime.fromJSDate(date.from).toFormat("LLL dd, y")
               )
             ) : (
               <span>Pick a date</span>
@@ -56,7 +59,7 @@ export function CalendarDateRangePicker({
             defaultMonth={date?.from}
             selected={date}
             onSelect={setDate}
-            numberOfMonths={2}
+            numberOfMonths={1}
           />
         </PopoverContent>
       </Popover>

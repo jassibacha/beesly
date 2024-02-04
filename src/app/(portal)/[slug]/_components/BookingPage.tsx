@@ -6,6 +6,7 @@ import { api } from "@/trpc/react";
 import { Phone } from "lucide-react";
 import { TimezoneContext } from "@/context/TimezoneContext";
 import { useContext } from "react";
+import { BookingForm } from "./BookingForm";
 
 interface BookingPageProps {
   location: Location;
@@ -37,10 +38,15 @@ export function BookingPage({
         </div>
       </header>
       <main className="flex-1 p-8">
-        <div className="mx-auto max-w-xl py-4 text-center">
+        <div className="mx-auto max-w-xl py-4">
           {/* Additional content will go here */}
-          <p>Content area</p>
-          <p>Current Timezone: {timezone}</p>
+          <pre>
+            <p>Current Timezone: {timezone}</p>
+          </pre>
+
+          <p>&nbsp;</p>
+          <p>&nbsp;</p>
+          <BookingForm />
         </div>
       </main>
     </div>
