@@ -10,6 +10,7 @@ import {
 import { TRPCError } from "@trpc/server";
 import { ZodError, z } from "zod";
 import { asc, eq } from "drizzle-orm";
+import type { Booking, Location, LocationSetting } from "@/server/db/types";
 
 export const locationRouter = createTRPCRouter({
   getLocationBySlug: protectedProcedure
@@ -26,7 +27,7 @@ export const locationRouter = createTRPCRouter({
         });
       }
 
-      return location;
+      return location as Location;
     }),
 
   // get locationSettings by locationId
@@ -44,7 +45,7 @@ export const locationRouter = createTRPCRouter({
         });
       }
 
-      return locationSettings;
+      return locationSettings as LocationSetting;
     }),
 
   listBookingsByLocationId: protectedProcedure
@@ -57,7 +58,7 @@ export const locationRouter = createTRPCRouter({
         orderBy: (bookings, { asc }) => [asc(bookings.startTime)],
       });
 
-      return bookingsList;
+      return bookingsList as Booking[];
     }),
 
   create: protectedProcedure
