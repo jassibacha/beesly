@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import type { Location, LocationSetting, Resource } from "@/server/db/types";
 import { api } from "@/trpc/react";
 import { Phone } from "lucide-react";
+import { TimezoneContext } from "@/context/TimezoneContext";
+import { useContext } from "react";
 
 interface BookingPageProps {
   location: Location;
@@ -16,6 +18,8 @@ export function BookingPage({
   locationSettings,
   resources,
 }: BookingPageProps) {
+  // Context variables
+  const { timezone } = useContext(TimezoneContext);
   return (
     <div className="flex h-screen flex-col">
       <header className="flex w-full items-center justify-between border-b px-8 py-4">
@@ -36,6 +40,7 @@ export function BookingPage({
         <div className="mx-auto max-w-xl py-4 text-center">
           {/* Additional content will go here */}
           <p>Content area</p>
+          <p>Current Timezone: {timezone}</p>
         </div>
       </main>
     </div>
