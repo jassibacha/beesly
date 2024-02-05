@@ -16,7 +16,7 @@ import {
 export default async function Home() {
   noStore();
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-black ">
       <MaxWidthWrapper className="flex flex-col items-center justify-center pb-12 pt-28 text-center sm:pt-40">
         {/* Hero Section */}
         <div className="flex max-w-4xl flex-col items-center py-10 text-center">
@@ -24,7 +24,7 @@ export default async function Home() {
             Effortlessly optimize your{" "}
             <span className="text-primary">VR bookings</span>
           </h1>
-          <p className="mb-4 leading-relaxed text-slate-700">
+          <p className="mb-4 leading-relaxed text-slate-700 dark:text-white/85">
             Our advanced booking system is designed for VR lounges to manage
             appointments, group bookings, and station allocations efficiently,
             ensuring a seamless experience for both customers and lounge owners.
@@ -46,22 +46,22 @@ export default async function Home() {
             <div className="rounded-md bg-violet-100 p-6 shadow-md">
               <Smile className="mx-auto mb-2 h-16 w-16 text-primary" />
               <p className="mb-2 text-3xl font-extrabold text-primary">20+</p>
-              <p className="text-lg">Happy Customers</p>
+              <p className="text-lg text-primary">Happy Customers</p>
             </div>
             <div className="rounded-md bg-violet-100 p-6 shadow-md">
               <CalendarCheck2 className="mx-auto mb-2 h-16 w-16 text-primary" />
               <p className="mb-2 text-3xl font-extrabold text-primary">3K+</p>
-              <p className="text-lg">Monthly Bookings</p>
+              <p className="text-lg text-primary">Monthly Bookings</p>
             </div>
             <div className="rounded-md bg-violet-100 p-6 shadow-md">
               <Star className="mx-auto mb-2 h-16 w-16 text-primary" />
               <p className="mb-2 text-3xl font-extrabold text-primary">100%</p>
-              <p className="text-lg">Positive Feedback</p>
+              <p className="text-lg text-primary">Positive Feedback</p>
             </div>
             <div className="rounded-md bg-violet-100 p-6 shadow-md">
               <Clock className="mx-auto mb-2 h-16 w-16 text-primary" />
               <p className="mb-2 text-3xl font-extrabold text-primary">40%</p>
-              <p className="text-lg">Save Time</p>
+              <p className="text-lg text-primary">Save Time</p>
             </div>
           </div>
         </section>
@@ -73,7 +73,7 @@ export default async function Home() {
               <h2 className="mb-4 text-4xl font-bold">
                 Smarter scheduling for your VR lounge
               </h2>
-              <p className="mb-4 leading-relaxed text-slate-700">
+              <p className="mb-4 leading-relaxed text-slate-700 dark:text-white/85">
                 Our smart system is designed to manage multiple VR station
                 bookings and group reservations with ease.
               </p>

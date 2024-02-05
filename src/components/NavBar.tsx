@@ -11,13 +11,14 @@ import {
   SignOutButton,
   SignUpButton,
 } from "@clerk/nextjs";
+import { ModeToggle } from "./dashboard/mode-toggle";
 
 async function NavBar() {
   return (
-    <nav className="background-blur-lg sticky inset-x-0 top-0 z-30 h-14 w-full border-b border-gray-200 bg-white/75 transition-all">
+    <nav className="background-blur-lg sticky inset-x-0 top-0 z-30 h-14 w-full border-b bg-white/75 transition-all dark:bg-black/75">
       {/* <MaxWidthWrapper> */}
       <div className="container mx-auto">
-        <div className="flex h-14 items-center justify-between border-b border-zinc-200">
+        <div className="border- flex h-14 items-center justify-between">
           <Link href="/" className="z-40 flex font-semibold">
             <span>Beesly</span>
           </Link>
@@ -63,6 +64,7 @@ async function NavBar() {
               <UserButton />
             </SignedIn>
           </div>
+          <ModeToggle />
         </div>
       </div>
       {/* </MaxWidthWrapper> */}
