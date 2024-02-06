@@ -17,6 +17,42 @@ import { and, asc, eq, gte, lte } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { Booking } from "@/server/db/types";
 
+type DailyAvailability = {
+  [day in
+    | "Monday"
+    | "Tuesday"
+    | "Wednesday"
+    | "Thursday"
+    | "Friday"
+    | "Saturday"
+    | "Sunday"]: {
+    open: string;
+    close: string;
+  };
+};
+
+const isDailyAvailability = (obj: unknown): obj is DailyAvailability => {
+  if (typeof obj !== "object" || obj === null) return false;
+  const entries = Object.entries(obj as Record<string, unknown>);
+  return entries.every(([day, value]) => {
+    if (typeof value !== "object" || value === null) return false;
+    const schedule = value as Record<string, unknown>;
+    return (
+      typeof schedule.open === "string" && typeof schedule.close === "string"
+    );
+  });
+};
+
+// // Utility function to check if the object matches the DailyAvailability type
+// const isDailyAvailability = (obj: any): obj is DailyAvailability => {
+//   // Implement necessary checks to ensure obj matches the DailyAvailability structure
+//   // For simplicity, this is a basic check. Expand as needed for robustness.
+//   return typeof obj === 'object' && obj !== null && ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].every(day => {
+//     const daySchedule = obj[day];
+//     return daySchedule && typeof daySchedule.open === 'string' && typeof daySchedule.close === 'string';
+//   });
+// };
+
 export const bookingRouter = createTRPCRouter({
   create: protectedProcedure
     .input(createBookingSchema)
@@ -231,7 +267,7 @@ export const bookingRouter = createTRPCRouter({
         bookings: userBookings,
       };
     }),
-  getBookingsForDate: publicProcedure
+  fetchAvailabilityAndBookingsForDate: publicProcedure
     .input(
       z.object({
         locationId: z.string(),
@@ -244,23 +280,97 @@ export const bookingRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const { locationId, dayOfWeek, date } = input;
 
-      console.log("trpc dayOfWeek: ", dayOfWeek);
-      console.log("trpc date: ", date);
-
-      // luxon date from right now
-      const dateNow = DateTime.now().setZone("utc").toJSDate();
-
-      // WE NEED TO PULL IN LOCATIONSETTINGS TO GET THE OPEN AND CLOSE TIMES
+      // Query for location settings based on the given location ID
       const locationSettings = await ctx.db.query.locationSettings.findFirst({
         where: (locationSettings, { eq }) =>
           eq(locationSettings.locationId, locationId),
       });
 
+      // Initialize a variable to hold parsed daily availability if applicable
+      let dailyAvailability: DailyAvailability | undefined;
+
+      // Check if locationSettings exists and dailyAvailability is a string
+      if (
+        locationSettings &&
+        typeof locationSettings.dailyAvailability === "string"
+      ) {
+        console.log("dailyAvailability is a string");
+        try {
+          // Attempt to parse the JSON string into an object
+          const parsed: unknown = JSON.parse(
+            locationSettings.dailyAvailability,
+          );
+          // Validate the parsed object against the expected structure using isDailyAvailability
+          if (isDailyAvailability(parsed)) {
+            console.log("dailyAvailabilityParsed: ", parsed);
+            // If valid, assign parsed data to dailyAvailability
+            dailyAvailability = parsed;
+          } else {
+            console.error(
+              "dailyAvailability does not match the expected structure.",
+            );
+          }
+        } catch (error) {
+          console.error("Error parsing dailyAvailability:", error);
+        }
+      } else {
+        console.error("dailyAvailability is not a string.");
+      }
+
+      // Adjust the provided date to the timezone specified in locationSettings
+      // This is crucial for ensuring that any date-related operations are performed
+      // in the context of the location's local timezone, such as determining the day of the week
+      // or comparing against business hours defined in local time.
+      const tzDate = DateTime.fromJSDate(date).setZone(
+        locationSettings?.timeZone,
+      );
+
+      //const dailyAvailability = locationSettings?.dailyAvailability;
+      //const dailyHours = dailyAvailability[dayOfWeek];
+
+      // console.log("trpc date: ", date);
+      // console.log("trpc dayOfWeek: ", dayOfWeek);
+      // console.log("timezone: ", locationSettings?.timeZone);
+      // // console.log("trpc date proper timezone: ", tzDate);
+      // console.log("Original Date:", date.toISOString());
+      // console.log("Timezone-adjusted Date:", tzDate.toISO());
+      // console.log("Timezone-adjusted Date (toString):", tzDate.toString());
+
+      // Check if parsed daily availability matches expected structure
+      if (dailyAvailability && locationSettings?.timeZone) {
+        // Extract schedule for the specific day of the week
+        const daySchedule =
+          dailyAvailability[dayOfWeek as keyof DailyAvailability];
+
+        // Convert opening time to UTC: Combine the date with opening time, apply location's timezone, then convert to UTC
+        const openTime = DateTime.fromISO(
+          `${tzDate.toISODate()}T${daySchedule.open}`,
+          {
+            zone: locationSettings.timeZone,
+          },
+        ).toUTC();
+
+        // Convert closing time to UTC: Same process as opening time, but for closing
+        const closeTime = DateTime.fromISO(
+          `${tzDate.toISODate()}T${daySchedule.close}`,
+          {
+            zone: locationSettings.timeZone,
+          },
+        ).toUTC();
+
+        console.log("Open Time in UTC: ", openTime.toISO());
+        console.log("Close Time in UTC: ", closeTime.toISO());
+      }
+
+      // luxon date from right now
+      const dateNow = DateTime.now().setZone("utc").toJSDate();
+
       // const luxonDate = DateTime.fromJSDate(date).toUTC();
       // const startDate: Date = luxonDate.startOf("day").toJSDate();
       // const endDate: Date = luxonDate.endOf("day").toJSDate();
 
-      // Since we're working in specific timezones, and we need to figure out the open and close of the location, this is going be a bit more complex. For now we'll just return all bookings.
+      // Since we're working in specific timezones, and we need to figure out the open and close of the location,
+      // this is going be a bit more complex. For now we'll just return all bookings.
 
       // V2
       const dateBookings = await ctx.db

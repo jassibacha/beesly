@@ -124,18 +124,19 @@ export function BookingForm({
 
   // tRPC query to fetch bookings, dependent on selectedDate
   // TODO: Add in availability filters for open/close times
-  const bookingsForDate = api.booking.getBookingsForDate.useQuery(
-    {
-      locationId: location.id,
-      // Ensure selectedDate is in an appropriate format for your backend
-      date: selectedDate,
-      dayOfWeek: dayOfWeek,
-    },
-    {
-      // Only run the query if a date is selected, or changed
-      enabled: !!selectedDate,
-    },
-  );
+  const bookingsForDate =
+    api.booking.fetchAvailabilityAndBookingsForDate.useQuery(
+      {
+        locationId: location.id,
+        // Ensure selectedDate is in an appropriate format for your backend
+        date: selectedDate,
+        dayOfWeek: dayOfWeek,
+      },
+      {
+        // Only run the query if a date is selected, or changed
+        enabled: !!selectedDate,
+      },
+    );
 
   // Add a new state for duration in your BookingForm component
   const [selectedDuration, setSelectedDuration] = useState(null);
