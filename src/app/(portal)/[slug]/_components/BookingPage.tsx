@@ -19,8 +19,14 @@ export function BookingPage({
   locationSettings,
   resources,
 }: BookingPageProps) {
-  // Context variables
-  const { timezone } = useContext(TimezoneContext);
+  const { timezone, setTimezone } = useContext(TimezoneContext);
+
+  if (locationSettings.timeZone) {
+    console.log("Auto generated timezone: ", timezone);
+    setTimezone(locationSettings.timeZone);
+    console.log("Timezone set to: ", locationSettings.timeZone);
+  }
+
   return (
     <div className="flex h-screen flex-col">
       <header className="flex w-full items-center justify-between border-b px-8 py-4">
@@ -46,7 +52,11 @@ export function BookingPage({
 
           <p>&nbsp;</p>
           <p>&nbsp;</p>
-          <BookingForm />
+          <BookingForm
+            location={location}
+            locationSettings={locationSettings}
+            resources={resources}
+          />
         </div>
       </main>
     </div>

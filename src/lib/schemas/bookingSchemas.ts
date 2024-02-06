@@ -1,17 +1,5 @@
 import * as z from "zod";
 
-// Custom transformer to handle both Date objects and ISO string dates
-const dateOrIsoString = z.union([z.date(), z.string()]).transform((val) => {
-  if (typeof val === "string") {
-    const parsedDate = new Date(val);
-    if (isNaN(parsedDate.getTime())) {
-      throw new Error("Invalid date format");
-    }
-    return parsedDate;
-  }
-  return val; // If it's already a Date object, just return it
-});
-
 export const createBookingSchema = z.object({
   startTime: z.date().min(new Date(), "Start time must be in the future."),
   endTime: z.date().min(new Date(), "End time must be in the future."),

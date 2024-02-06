@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { api } from "@/trpc/server";
 import { BookingPage } from "./_components/BookingPage";
 import { type Metadata, type ResolvingMetadata } from "next/types";
-import { Suspense } from "react";
+import { Suspense, useContext } from "react";
+import { TimezoneContext } from "@/context/TimezoneContext";
 
 type Props = {
   params: {

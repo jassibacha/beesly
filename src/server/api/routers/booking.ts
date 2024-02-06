@@ -13,8 +13,9 @@ import {
   resources,
 } from "@/server/db/schema";
 import { v4 as uuidv4 } from "uuid";
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq, gte, lte } from "drizzle-orm";
 import { DateTime } from "luxon";
+import { Booking } from "@/server/db/types";
 
 export const bookingRouter = createTRPCRouter({
   create: protectedProcedure
@@ -229,6 +230,58 @@ export const bookingRouter = createTRPCRouter({
         locationid: locationId,
         bookings: userBookings,
       };
+    }),
+  getBookingsForDate: publicProcedure
+    .input(
+      z.object({
+        locationId: z.string(),
+        date: z.date(),
+        dayOfWeek: z.string(),
+        //open: z.date(), // utc-0 of opening time
+        //close: z.date(), // utc-0 of closing time
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { locationId, dayOfWeek, date } = input;
+
+      console.log("trpc dayOfWeek: ", dayOfWeek);
+      console.log("trpc date: ", date);
+
+      // luxon date from right now
+      const dateNow = DateTime.now().setZone("utc").toJSDate();
+
+      // WE NEED TO PULL IN LOCATIONSETTINGS TO GET THE OPEN AND CLOSE TIMES
+      const locationSettings = await ctx.db.query.locationSettings.findFirst({
+        where: (locationSettings, { eq }) =>
+          eq(locationSettings.locationId, locationId),
+      });
+
+      // const luxonDate = DateTime.fromJSDate(date).toUTC();
+      // const startDate: Date = luxonDate.startOf("day").toJSDate();
+      // const endDate: Date = luxonDate.endOf("day").toJSDate();
+
+      // Since we're working in specific timezones, and we need to figure out the open and close of the location, this is going be a bit more complex. For now we'll just return all bookings.
+
+      // V2
+      const dateBookings = await ctx.db
+        .select({
+          id: bookings.id,
+          startTime: bookings.startTime,
+          endTime: bookings.endTime,
+        })
+        .from(bookings)
+        .where(
+          and(
+            eq(bookings.locationId, locationId),
+            // gte(startDate, date),
+            // lte(endDate, date),
+          ),
+        )
+        .orderBy(asc(bookings.startTime));
+
+      console.log("trpc dateBookings: ", dateBookings);
+
+      return dateBookings;
     }),
 
   // test: publicProcedure
