@@ -62,6 +62,8 @@ function calculateAvailableSlots(
   durationString: string,
   timezone: string,
 ): TimeSlot[] {
+  // TODO: Possibly display not available slots as well, so we can make those buttons disabled
+  // TODO: If it's current day, only display slots that are in the future (and eventually 2H ahead from locationSettings)
   const duration = parseFloat(durationString); // Convert duration to float
   let currentTime = DateTime.fromISO(openISO, { zone: timezone });
   const closeTime = DateTime.fromISO(closeISO, { zone: timezone });

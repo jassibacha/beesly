@@ -256,8 +256,7 @@ export function BookingForm({
                         DateTime.fromJSDate(date) <
                           DateTime.now().startOf("day") ||
                         DateTime.fromJSDate(date) >
-                          DateTime.now().plus({ days: 60 }) // Assuming 60 days is your max range
-                      // TODO: Change this to dynamic setting for max days
+                          DateTime.now().plus({ days: 60 }) // TOOD: Change this to dynamic setting for max days
                     }
                     initialFocus
                   />
