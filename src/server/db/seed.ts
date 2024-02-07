@@ -123,10 +123,11 @@ async function seedDatabase() {
     });
 
     // Bookings details
-    const bookingTimes = [4, 7, 9]; // hours later
+    const bookingTimes = [15, 17, 19]; // hours later
     for (const hoursLater of bookingTimes) {
       // Calculate start and end times using Luxon, rounded to the nearest
       // 15 minutes and ensuring seconds are at 00
+      // CANNOT BE EDITED IN DRIZZLE STUDIO
       const nowPlusHours = DateTime.now()
         .setZone("utc")
         .plus({ hours: hoursLater });
@@ -135,17 +136,39 @@ async function seedDatabase() {
         .startOf("minute");
       const startTime = roundedStartTime.toJSDate();
       const endTime = roundedStartTime
-        .plus({ hours: 2 })
+        .plus({ hours: 1 })
         .startOf("minute")
         .toJSDate();
 
+      // Generate a DateTime.now and a new Date for now
+      const dateTimeNow = DateTime.now().toUTC().toJSDate();
+      const dateNow = new Date();
+
+      console.log("dateTimeNow", dateTimeNow);
+      console.log("dateNow", dateNow);
+
+      // Start time: hours later from now
+      // const startTime = new Date(
+      //   new Date().getTime() + hoursLater * 60 * 60 * 1000,
+      // );
+
+      // // End time: 1 hour after start time
+      // const endTime = new Date(startTime.getTime() + 1 * 60 * 60 * 1000);
+
+      // const startTime = roundedStartTime.toISO();
+      // const endTime = roundedStartTime
+      //   .plus({ hours: 1 })
+      //   .startOf("minute")
+      //   .toISO();
+
       // THIS WORKS FINE, NO ERRORS WITH BOOKINGS INSERT
+      // STILL CANNOT EDIT IT IN DRIZZLE STUDIO
       // const startTime = DateTime.now()
       //   .plus({ hours: hoursLater })
       //   .toUTC()
       //   .toJSDate();
       // const endTime = DateTime.now()
-      //   .plus({ hours: hoursLater + 2 })
+      //   .plus({ hours: hoursLater + 1 })
       //   .toUTC()
       //   .toJSDate();
 

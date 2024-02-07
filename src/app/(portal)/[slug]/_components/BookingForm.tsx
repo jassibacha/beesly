@@ -53,6 +53,17 @@ interface BookingFormProps {
   resources: Resource[];
 }
 
+interface TimeSlot {
+  startTime: string; // Should this be ISOString or Date Obj? We can't save as ISO to DB right now for some reason
+  endTime: string; // Same as above
+}
+
+interface BookingSlot {
+  id: string;
+  startTime: string; // Should this be ISOString or Date Obj? We can't save as ISO to DB right now for some reason
+  endTime: string; // Same as above
+}
+
 export const bookingFormSchema = z.object({
   date: z.date({
     required_error: "Booking date is required.",
@@ -120,37 +131,63 @@ export function BookingForm({
   const selectedDate = watch("date");
   console.log("SELECTEDDATE: ", selectedDate);
 
-  const dayOfWeek = DateTime.fromJSDate(selectedDate).toFormat("cccc");
+  //const dayOfWeek = DateTime.fromJSDate(selectedDate).toFormat("cccc");
+
+  const selectedDuration = watch("duration");
 
   // tRPC query to fetch bookings, dependent on selectedDate
   // TODO: Add in availability filters for open/close times
-  const bookingsForDate =
-    api.booking.fetchAvailabilityAndBookingsForDate.useQuery(
-      {
-        locationId: location.id,
-        // Ensure selectedDate is in an appropriate format for your backend
-        date: selectedDate,
-        dayOfWeek: dayOfWeek,
-      },
-      {
-        // Only run the query if a date is selected, or changed
-        enabled: !!selectedDate,
-      },
-    );
+  const {
+    data: availabilityAndBookingsForDate,
+    isLoading,
+    error,
+  } = api.booking.getAvailableTimeSlots.useQuery(
+    {
+      locationId: location.id,
+      // Ensure selectedDate is in an appropriate format for your backend
+      date: selectedDate,
+      duration: selectedDuration,
+      // dayOfWeek: dayOfWeek,
+    },
+    {
+      // Only run the query if a date is selected, or changed
+      enabled: !!selectedDate,
+    },
+  );
 
   // Add a new state for duration in your BookingForm component
-  const [selectedDuration, setSelectedDuration] = useState(null);
+  //const [selectedDuration, setSelectedDuration] = useState(null);
 
-  const fetchAvailableTimeSlots = async (
-    date: DateTime,
-    duration: string,
-    bookings: [],
-  ) => {
-    // Calculate available time slots based on `date`, `duration`, and existing `bookings`
-    // This could involve checking each potential start time within the day against the existing bookings
-    // to ensure there's enough room for the specified duration
-    // Return an array of strings representing the start times of available slots
-  };
+  // States for open/close times and bookings
+  const [openCloseTimes, setOpenCloseTimes] = useState<{
+    open: string;
+    close: string;
+  } | null>(null);
+  const [existingBookings, setExistingBookings] = useState<BookingSlot[]>([]);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<TimeSlot[]>([]);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
+
+  // Effect hook to set data once it's loaded
+  useEffect(() => {
+    if (availabilityAndBookingsForDate && !isLoading && !error) {
+      const { openTimeISO, closeTimeISO, existingBookings, availableSlots } =
+        availabilityAndBookingsForDate;
+
+      // Map over existingBookings and ensure startTime and endTime are not null
+      const adjustedExistingBookings = existingBookings.map((booking) => ({
+        id: booking.id,
+        startTime: booking.startTime ?? "", // Convert null to empty string
+        endTime: booking.endTime ?? "", // Convert null to empty string
+      }));
+
+      setOpenCloseTimes({
+        open: openTimeISO!,
+        close: closeTimeISO!,
+      });
+      setExistingBookings(adjustedExistingBookings);
+      setAvailableTimeSlots(availableSlots);
+    }
+  }, [availabilityAndBookingsForDate, isLoading, error]);
 
   // // State to hold available time slots
   // const [timeSlots, setTimeSlots] = useState<string[]>([]);

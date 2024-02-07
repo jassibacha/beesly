@@ -171,6 +171,8 @@ export const bookings = createTable(
     customerPhone: varchar("customer_phone", { length: 50 }).notNull(),
     startTime: datetime("start_time").notNull(),
     endTime: datetime("end_time").notNull(),
+    // startTime: datetime("start_time", { mode: "string" }).notNull(),
+    // endTime: datetime("end_time", { mode: "string" }).notNull(),
     totalCost: decimal("total_cost", { precision: 10, scale: 2 }),
     taxAmount: decimal("tax_amount", { precision: 10, scale: 2 }),
     status: varchar("status", { length: 50 }),

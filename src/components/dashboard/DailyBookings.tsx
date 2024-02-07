@@ -22,6 +22,16 @@ function DailyBookings() {
       .toFormat("ff"); // Customize this format as needed
   };
 
+  // Log raw startTime and endTime
+  console.log(
+    "Raw Booking Times:",
+    data.bookings?.map((booking) => ({
+      id: booking.id,
+      startTime: booking.startTime,
+      endTime: booking.endTime,
+    })),
+  );
+
   return (
     <div>
       {data.bookings?.length ? (

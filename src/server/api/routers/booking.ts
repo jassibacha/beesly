@@ -31,6 +31,17 @@ type DailyAvailability = {
   };
 };
 
+interface BookingSlot {
+  id: string;
+  startTime: string; // Assuming ISO string, adjust if it's a Date object
+  endTime: string; // Same as above
+}
+
+interface TimeSlot {
+  startTime: string;
+  endTime: string;
+}
+
 const isDailyAvailability = (obj: unknown): obj is DailyAvailability => {
   if (typeof obj !== "object" || obj === null) return false;
   const entries = Object.entries(obj as Record<string, unknown>);
@@ -43,15 +54,48 @@ const isDailyAvailability = (obj: unknown): obj is DailyAvailability => {
   });
 };
 
-// // Utility function to check if the object matches the DailyAvailability type
-// const isDailyAvailability = (obj: any): obj is DailyAvailability => {
-//   // Implement necessary checks to ensure obj matches the DailyAvailability structure
-//   // For simplicity, this is a basic check. Expand as needed for robustness.
-//   return typeof obj === 'object' && obj !== null && ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].every(day => {
-//     const daySchedule = obj[day];
-//     return daySchedule && typeof daySchedule.open === 'string' && typeof daySchedule.close === 'string';
-//   });
-// };
+// Function to calculate available slots
+function calculateAvailableSlots(
+  openISO: string, // ISOString
+  closeISO: string, // ISOString
+  existingBookings: BookingSlot[],
+  durationString: string,
+  timezone: string,
+): TimeSlot[] {
+  const duration = parseFloat(durationString); // Convert duration to float
+  let currentTime = DateTime.fromISO(openISO, { zone: timezone });
+  const closeTime = DateTime.fromISO(closeISO, { zone: timezone });
+  const availableSlots = [];
+
+  while (currentTime < closeTime) {
+    const endTime = currentTime.plus({ hours: duration });
+    // Ensure the slot does not exceed the closing time
+    if (endTime <= closeTime) {
+      // Check if the slot overlaps with any existing bookings
+      const isOverlap = existingBookings.some((booking) => {
+        const bookingStart = DateTime.fromISO(booking.startTime, {
+          zone: timezone,
+        });
+        const bookingEnd = DateTime.fromISO(booking.endTime, {
+          zone: timezone,
+        });
+        return currentTime < bookingEnd && endTime > bookingStart;
+      });
+
+      // If no overlap, add the slot to available slots
+      if (!isOverlap) {
+        availableSlots.push({
+          startTime: currentTime.toISO() ?? "", // Fallback to empty string if null
+          endTime: endTime.toISO() ?? "", // Fallback to empty string if null
+        });
+      }
+    }
+    // Move to the next potential slot
+    currentTime = endTime;
+  }
+
+  return availableSlots;
+}
 
 export const bookingRouter = createTRPCRouter({
   create: protectedProcedure
@@ -267,55 +311,63 @@ export const bookingRouter = createTRPCRouter({
         bookings: userBookings,
       };
     }),
-  fetchAvailabilityAndBookingsForDate: publicProcedure
+  getAvailableTimeSlots: publicProcedure
     .input(
       z.object({
         locationId: z.string(),
         date: z.date(),
-        dayOfWeek: z.string(),
-        //open: z.date(), // utc-0 of opening time
-        //close: z.date(), // utc-0 of closing time
+        duration: z.string().optional(), // Make duration optional for flexibility
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { locationId, dayOfWeek, date } = input;
+      const { locationId, date, duration } = input;
+      console.log("*** getAvailableTimeSlots firing ***");
 
-      // Query for location settings based on the given location ID
+      // Fetch location settings to get open and close times
       const locationSettings = await ctx.db.query.locationSettings.findFirst({
         where: (locationSettings, { eq }) =>
           eq(locationSettings.locationId, locationId),
       });
 
+      if (!locationSettings?.dailyAvailability) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Location settings not found",
+        });
+      }
+
+      if (typeof locationSettings.dailyAvailability !== "string") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Daily availability settings are not properly configured.",
+        });
+      }
+
       // Initialize a variable to hold parsed daily availability if applicable
       let dailyAvailability: DailyAvailability | undefined;
-
-      // Check if locationSettings exists and dailyAvailability is a string
-      if (
-        locationSettings &&
-        typeof locationSettings.dailyAvailability === "string"
-      ) {
-        console.log("dailyAvailability is a string");
-        try {
-          // Attempt to parse the JSON string into an object
-          const parsed: unknown = JSON.parse(
-            locationSettings.dailyAvailability,
+      try {
+        // Attempt to parse the JSON string into an object
+        const parsed: unknown = JSON.parse(locationSettings.dailyAvailability);
+        // Validate the parsed object against the expected structure using isDailyAvailability
+        if (isDailyAvailability(parsed)) {
+          console.log("dailyAvailabilityParsed: ", parsed);
+          // If valid, assign parsed data to dailyAvailability
+          dailyAvailability = parsed;
+        } else {
+          throw new Error(
+            "Parsed daily availability does not match expected structure.",
           );
-          // Validate the parsed object against the expected structure using isDailyAvailability
-          if (isDailyAvailability(parsed)) {
-            console.log("dailyAvailabilityParsed: ", parsed);
-            // If valid, assign parsed data to dailyAvailability
-            dailyAvailability = parsed;
-          } else {
-            console.error(
-              "dailyAvailability does not match the expected structure.",
-            );
-          }
-        } catch (error) {
-          console.error("Error parsing dailyAvailability:", error);
         }
-      } else {
-        console.error("dailyAvailability is not a string.");
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to parse daily availability settings.",
+        });
       }
+
+      const dayOfWeek = DateTime.fromJSDate(date).setZone(
+        locationSettings.timeZone,
+      ).weekdayLong!;
 
       // Adjust the provided date to the timezone specified in locationSettings
       // This is crucial for ensuring that any date-related operations are performed
@@ -324,56 +376,50 @@ export const bookingRouter = createTRPCRouter({
       const tzDate = DateTime.fromJSDate(date).setZone(
         locationSettings?.timeZone,
       );
+      // Extract schedule for the specific day of the week
+      const daySchedule =
+        dailyAvailability[dayOfWeek as keyof DailyAvailability];
 
-      //const dailyAvailability = locationSettings?.dailyAvailability;
-      //const dailyHours = dailyAvailability[dayOfWeek];
+      // Convert opening time to UTC: Combine the date with opening time, apply location's timezone, then convert to UTC
+      const openTime = DateTime.fromISO(
+        `${tzDate.toISODate()}T${daySchedule.open}`,
+        {
+          zone: locationSettings.timeZone,
+        },
+      ).toUTC();
 
-      // console.log("trpc date: ", date);
-      // console.log("trpc dayOfWeek: ", dayOfWeek);
-      // console.log("timezone: ", locationSettings?.timeZone);
-      // // console.log("trpc date proper timezone: ", tzDate);
-      // console.log("Original Date:", date.toISOString());
-      // console.log("Timezone-adjusted Date:", tzDate.toISO());
-      // console.log("Timezone-adjusted Date (toString):", tzDate.toString());
+      // Convert closing time to UTC: Same process as opening time, but for closing
+      const closeTime = DateTime.fromISO(
+        `${tzDate.toISODate()}T${daySchedule.close}`,
+        {
+          zone: locationSettings.timeZone,
+        },
+      ).toUTC();
 
-      // Check if parsed daily availability matches expected structure
-      if (dailyAvailability && locationSettings?.timeZone) {
-        // Extract schedule for the specific day of the week
-        const daySchedule =
-          dailyAvailability[dayOfWeek as keyof DailyAvailability];
+      // Directly create ISO strings for open and close times
+      const openTimeISO = DateTime.fromISO(
+        `${tzDate.toISODate()}T${daySchedule.open}`,
+        { zone: locationSettings.timeZone },
+      )
+        .toUTC()
+        .toISO();
+      const closeTimeISO = DateTime.fromISO(
+        `${tzDate.toISODate()}T${daySchedule.close}`,
+        { zone: locationSettings.timeZone },
+      )
+        .toUTC()
+        .toISO();
 
-        // Convert opening time to UTC: Combine the date with opening time, apply location's timezone, then convert to UTC
-        const openTime = DateTime.fromISO(
-          `${tzDate.toISODate()}T${daySchedule.open}`,
-          {
-            zone: locationSettings.timeZone,
-          },
-        ).toUTC();
+      console.log("Day of week: ", dayOfWeek);
+      console.log("daySchedule: ", daySchedule);
+      console.log("tzDate: ", tzDate.toISO());
+      console.log("Open Time in UTC: ", openTimeISO);
+      console.log("Close Time in UTC: ", closeTimeISO);
 
-        // Convert closing time to UTC: Same process as opening time, but for closing
-        const closeTime = DateTime.fromISO(
-          `${tzDate.toISODate()}T${daySchedule.close}`,
-          {
-            zone: locationSettings.timeZone,
-          },
-        ).toUTC();
+      //const { open, close } = dailyAvailability[dayOfWeek];
 
-        console.log("Open Time in UTC: ", openTime.toISO());
-        console.log("Close Time in UTC: ", closeTime.toISO());
-      }
-
-      // luxon date from right now
-      const dateNow = DateTime.now().setZone("utc").toJSDate();
-
-      // const luxonDate = DateTime.fromJSDate(date).toUTC();
-      // const startDate: Date = luxonDate.startOf("day").toJSDate();
-      // const endDate: Date = luxonDate.endOf("day").toJSDate();
-
-      // Since we're working in specific timezones, and we need to figure out the open and close of the location,
-      // this is going be a bit more complex. For now we'll just return all bookings.
-
-      // V2
-      const dateBookings = await ctx.db
+      // Fetch existing bookings for the selected date within the open/close parameters
+      const existingBookingsData = await ctx.db
         .select({
           id: bookings.id,
           startTime: bookings.startTime,
@@ -383,15 +429,47 @@ export const bookingRouter = createTRPCRouter({
         .where(
           and(
             eq(bookings.locationId, locationId),
-            // gte(startDate, date),
-            // lte(endDate, date),
+            gte(bookings.startTime, DateTime.fromISO(openTimeISO!).toJSDate()),
+            lte(bookings.endTime, DateTime.fromISO(closeTimeISO!).toJSDate()),
           ),
         )
         .orderBy(asc(bookings.startTime));
 
-      console.log("trpc dateBookings: ", dateBookings);
+      // Convert existing bookings to ISO strings
+      const existingBookings = existingBookingsData.map((booking) => ({
+        id: booking.id,
+        startTime: DateTime.fromJSDate(booking.startTime).toISO(), // Convert to ISO String
+        endTime: DateTime.fromJSDate(booking.endTime).toISO(), // Convert to ISO String
+      }));
 
-      return dateBookings;
+      let availableSlots: TimeSlot[] = [];
+      if (duration) {
+        // Calculate available slots based on duration and existing bookings
+        // This logic would involve iterating over potential start times within open-close range
+        // and checking against existing bookings to find slots where the duration fits
+        //availableSlots = calculateAvailableSlots(openTime, closeTime, existingBookings, duration, timezone);
+        availableSlots = calculateAvailableSlots(
+          openTime.toISO()!,
+          closeTime.toISO()!,
+          existingBookings.map((booking) => ({
+            id: booking.id,
+            startTime: booking.startTime!, // Ensure these are ISO strings
+            endTime: booking.endTime!,
+          })),
+          duration,
+          locationSettings.timeZone, // Pass the location's timezone
+        );
+      }
+
+      console.log("Existing Bookings: ", existingBookings);
+      console.log("Available Slots: ", availableSlots);
+
+      return {
+        openTimeISO,
+        closeTimeISO,
+        existingBookings,
+        availableSlots,
+      };
     }),
 
   // test: publicProcedure
