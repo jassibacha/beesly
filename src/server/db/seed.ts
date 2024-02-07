@@ -196,8 +196,8 @@ async function seedDatabase() {
         customerPhone: "123-456-7890",
         // startTime: formattedStartTime, // STRING FORMATTED
         // endTime: formattedEndTime, // STRING FORMATTED
-        startTime: startTime, // toISOString() broke this ?
-        endTime: endTime, // toISOString() broke this ?
+        startTime: startTime, // TODO: Possibly swap this from JSDate to String once we figure out the Drizzle bug
+        endTime: endTime, // TODO: Possibly swap this from JSDate to String once we figure out the Drizzle bug
         // totalCost: "200.00",
         // taxAmount: "40.00",
         // status: "Confirmed",

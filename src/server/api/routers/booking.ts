@@ -33,7 +33,7 @@ type DailyAvailability = {
 
 interface BookingSlot {
   id: string;
-  startTime: string; // Assuming ISO string, adjust if it's a Date object
+  startTime: string; // We work with ISO strings and store as JSDate for now
   endTime: string; // Same as above
 }
 
@@ -139,8 +139,8 @@ export const bookingRouter = createTRPCRouter({
       await ctx.db.insert(bookings).values({
         id: newBookingId,
         locationId: userLocation.id,
-        startTime: input.startTime,
-        endTime: input.endTime,
+        startTime: input.startTime, // TODO: Possibly swap this from JSDate to String once we figure out the Drizzle bug
+        endTime: input.endTime, // TODO: Possibly swap this from JSDate to String once we figure out the Drizzle bug
         customerName: input.customerName,
         customerEmail: input.customerEmail,
         customerPhone: input.customerPhone,
