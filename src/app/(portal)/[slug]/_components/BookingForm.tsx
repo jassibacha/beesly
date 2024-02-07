@@ -139,8 +139,8 @@ export function BookingForm({
   // TODO: Add in availability filters for open/close times
   const {
     data: availabilityAndBookingsForDate,
-    isLoading,
-    error,
+    isLoading: availabilityIsLoading,
+    error: availabilityError,
   } = api.booking.getAvailableTimeSlots.useQuery(
     {
       locationId: location.id,
@@ -169,7 +169,11 @@ export function BookingForm({
 
   // Effect hook to set data once it's loaded
   useEffect(() => {
-    if (availabilityAndBookingsForDate && !isLoading && !error) {
+    if (
+      availabilityAndBookingsForDate &&
+      !availabilityIsLoading &&
+      !availabilityError
+    ) {
       const { openTimeISO, closeTimeISO, existingBookings, availableSlots } =
         availabilityAndBookingsForDate;
 
@@ -187,45 +191,16 @@ export function BookingForm({
       setExistingBookings(adjustedExistingBookings);
       setAvailableTimeSlots(availableSlots);
     }
-  }, [availabilityAndBookingsForDate, isLoading, error]);
+  }, [
+    availabilityAndBookingsForDate,
+    availabilityIsLoading,
+    availabilityError,
+  ]);
 
-  // // State to hold available time slots
-  // const [timeSlots, setTimeSlots] = useState<string[]>([]);
-  // const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
-
-  // // Fetch available time slots when the date or duration changes
-  // useEffect(() => {
-  //   const fetchTimeSlots = async () => {
-  //     const date = DateTime.fromJSDate(form.watch("date"));
-  //     const duration = form.watch("duration");
-  //     const slots = await fetchAvailableTimeSlots(date, duration, bookings);
-  //     setTimeSlots(slots || []);
-  //     setSelectedTimeSlot(""); // Optionally reset selected time slot
-  //   };
-
-  //   fetchTimeSlots();
-  // }, [form.watch("date"), form.watch("duration"), bookings]); // Note the addition of bookings as a dependency
-
-  // const handleTimeSlotSelect = (slot: string) => {
-  //   setSelectedTimeSlot(slot);
-  //   form.setValue("timeSlot", slot); // Update the form's timeSlot field
-  // };
-
-  // const transformFormData = (formData) => {
-  //   // Example: Transforming formData to match the createBookingSchema
-  //   const startTime = DateTime.fromJSDate(formData.date)
-  //     .set({
-  //       hour: extractHour(formData.timeSlot),
-  //       minute: extractMinute(formData.timeSlot),
-  //     })
-  //     .toJSDate();
-
-  //   const endTime = DateTime.fromJSDate(startTime)
-  //     .plus({ hours: formData.duration })
-  //     .toJSDate();
-
-  //   return { startTime, endTime };
-  // };
+  // Function to get the variant for a time slot button
+  const getTimeSlotButtonVariant = (slotStartTime: string) => {
+    return selectedTimeSlot === slotStartTime ? "default" : "outline";
+  };
 
   const onSubmit: SubmitHandler<CreateBookingSchemaValues> = (values) => {
     console.log(values);
@@ -330,18 +305,66 @@ export function BookingForm({
           render={() => (
             <FormItem className="flex flex-col">
               <FormLabel>Time Slot</FormLabel>
-              <div className="flex flex-wrap">
-                Timeslots will go here
-                {/* {timeSlots.map((slot) => (
-                  <Button
-                    key={slot}
-                    variant={selectedTimeSlot === slot ? "default" : "outline"}
-                    onClick={() => handleTimeSlotSelect(slot)}
-                    // className={`m-1 ${selectedTimeSlot === slot ? "bg-blue-500 text-white" : "bg-transparent"}`}
-                  >
-                    {slot}
-                  </Button>
-                ))} */}
+              <div className="flex flex-col flex-wrap">
+                {availabilityIsLoading ? (
+                  <div>Loading...</div>
+                ) : (
+                  <>
+                    {openCloseTimes && (
+                      <div>
+                        Open:{" "}
+                        {DateTime.fromISO(openCloseTimes.open)
+                          .setZone(locationSettings.timeZone)
+                          .toLocaleString(DateTime.TIME_SIMPLE)}
+                        {" - "}
+                        Close:{" "}
+                        {DateTime.fromISO(openCloseTimes.close)
+                          .setZone(locationSettings.timeZone)
+                          .toLocaleString(DateTime.TIME_SIMPLE)}
+                      </div>
+                    )}
+
+                    {existingBookings.length > 0 && (
+                      <div>
+                        <h3>Existing Bookings:</h3>
+                        {existingBookings.map((booking, index) => (
+                          <div key={index}>
+                            {DateTime.fromISO(booking.startTime)
+                              .setZone(locationSettings.timeZone)
+                              .toLocaleString(DateTime.DATETIME_SHORT)}
+                            {" - "}
+                            {DateTime.fromISO(booking.endTime)
+                              .setZone(locationSettings.timeZone)
+                              .toLocaleString(DateTime.DATETIME_SHORT)}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div>
+                      <h3>Available Slots:</h3>
+                      <div className="flex flex-wrap">
+                        {availableTimeSlots.map((slot, index) => (
+                          <Button
+                            key={index}
+                            type="button"
+                            size="sm"
+                            variant={getTimeSlotButtonVariant(slot.startTime)}
+                            onClick={() => setSelectedTimeSlot(slot.startTime)}
+                          >
+                            {DateTime.fromISO(slot.startTime)
+                              .setZone(locationSettings.timeZone)
+                              .toLocaleString(DateTime.TIME_SIMPLE)}
+                            {" - "}
+                            {DateTime.fromISO(slot.endTime)
+                              .setZone(locationSettings.timeZone)
+                              .toLocaleString(DateTime.TIME_SIMPLE)}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
               {/* {timeSlots.length === 0 && (
                 <FormDescription>No available time slots.</FormDescription>
@@ -357,7 +380,7 @@ export function BookingForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel htmlFor="customerName" aria-required={true}>
-                Business Name
+                Name
               </FormLabel>
               <FormControl>
                 <Input required id="customerName" placeholder="" {...field} />
@@ -374,7 +397,7 @@ export function BookingForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel htmlFor="customerPhone" aria-required={true}>
-                Business Name
+                Phone
               </FormLabel>
               <FormControl>
                 <Input required id="customerPhone" placeholder="" {...field} />
