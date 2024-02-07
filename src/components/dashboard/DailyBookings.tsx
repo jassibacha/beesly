@@ -14,7 +14,8 @@ function DailyBookings() {
   if (error) return <div>Error: {error.message}</div>;
 
   // Function to safely format booking times
-  const formatBookingTime = (time: Date | null) => {
+  const formatBookingTime = (time: string | Date) => {
+    // TODO: Remove Date type if not needed
     if (!time) return "N/A"; // Handle null dates
     return DateTime.fromJSDate(new Date(time))
       .setZone("America/Los_Angeles") // Ensure time is treated as UTC

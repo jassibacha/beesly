@@ -141,7 +141,7 @@ async function seedDatabase() {
         .toJSDate();
 
       // Generate a DateTime.now and a new Date for now
-      const dateTimeNow = DateTime.now().toUTC().toJSDate();
+      const dateTimeNow = DateTime.now().toUTC();
       const dateNow = new Date();
 
       console.log("dateTimeNow", dateTimeNow);
@@ -154,6 +154,16 @@ async function seedDatabase() {
 
       // // End time: 1 hour after start time
       // const endTime = new Date(startTime.getTime() + 1 * 60 * 60 * 1000);
+
+      // CORRECT STRING FORMAT FEB 6 2024 WITH MODE: STRING ON DATETIME
+
+      // const startTime = DateTime.now()
+      //   .setZone("utc")
+      //   .plus({ hours: hoursLater });
+      // const endTime = startTime.plus({ hours: 1 });
+      // // Format startTime and endTime to "YYYY-MM-DD HH:MM:SS" format
+      // const formattedStartTime = startTime.toFormat("yyyy-MM-dd HH:mm:ss");
+      // const formattedEndTime = endTime.toFormat("yyyy-MM-dd HH:mm:ss");
 
       // const startTime = roundedStartTime.toISO();
       // const endTime = roundedStartTime
@@ -184,6 +194,8 @@ async function seedDatabase() {
         customerName: "Customer Name",
         customerEmail: "customer@example.com",
         customerPhone: "123-456-7890",
+        // startTime: formattedStartTime, // STRING FORMATTED
+        // endTime: formattedEndTime, // STRING FORMATTED
         startTime: startTime, // toISOString() broke this ?
         endTime: endTime, // toISOString() broke this ?
         // totalCost: "200.00",
