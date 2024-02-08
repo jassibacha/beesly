@@ -31,8 +31,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  type CreateBookingSchemaValues,
-  createBookingSchema,
+  type BookingFormSchemaValues,
+  bookingFormSchema,
 } from "@/lib/schemas/bookingSchemas";
 
 import { useToast, toast } from "@/components/ui/use-toast";
@@ -59,11 +59,11 @@ interface ExtendedTimeSlot {
   isAvailable: boolean;
 }
 
-interface BookingSlot {
-  id: string;
-  startTime: string; // Should this be ISOString or Date Obj? We can't save as ISO to DB right now for some reason
-  endTime: string; // Same as above
-}
+// interface BookingSlot {
+//   id: string;
+//   startTime: string; // Should this be ISOString or Date Obj? We can't save as ISO to DB right now for some reason
+//   endTime: string; // Same as above
+// }
 
 type ButtonVariant =
   | "link"
@@ -77,29 +77,6 @@ interface ButtonProps {
   variant?: ButtonVariant; // This ensures variant accepts specific values only
   // Other props
 }
-
-export const bookingFormSchema = z.object({
-  date: z.date({
-    required_error: "Booking date is required.",
-  }),
-  duration: z
-    .string({
-      required_error: "Duration is required.",
-    })
-    .refine((val) => !isNaN(parseFloat(val)), {
-      message: "Duration must be a number.",
-    }),
-  timeSlot: z.string({
-    required_error: "Time slot selection is required.",
-  }), // Could be a string like "10:30 AM", which you would convert to a DateTime object
-  customerName: z.string({ required_error: "Name is required." }),
-  customerEmail: z
-    .string({ required_error: "Email is required." })
-    .email("Please enter a valid email address."),
-  customerPhone: z.string({ required_error: "Phone is required." }),
-});
-
-export type BookingFormSchemaValues = z.infer<typeof bookingFormSchema>;
 
 export function BookingForm({
   location,
@@ -155,11 +132,6 @@ export function BookingForm({
     open: string;
     close: string;
   } | null>(null);
-  // const [existingBookings, setExistingBookings] = useState<BookingSlot[]>([]);
-  // const [availableTimeSlots, setAvailableTimeSlots] = useState<
-  //   ExtendedTimeSlot[]
-  // >([]);
-  //const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
 
   useEffect(() => {
     // Set timeslots and open/close times when the data is available
@@ -178,6 +150,19 @@ export function BookingForm({
     // Reset selected time slot whenever the duration changes
     setSelectedTimeSlot(null);
   }, [selectedDuration]); // Add selectedDuration to the dependency array
+
+  const [controlledLoading, setControlledLoading] = useState(false);
+
+  useEffect(() => {
+    // Initiate controlled loading state when duration changes
+    setControlledLoading(true);
+
+    // Reset controlled loading state after a delay (e.g., 500ms)
+    const timer = setTimeout(() => setControlledLoading(false), 300);
+
+    // Cleanup timeout on component unmount or before running effect again
+    return () => clearTimeout(timer);
+  }, [selectedDuration]);
 
   // Time slot button logic
   const renderTimeSlotButton = (slot: ExtendedTimeSlot, index: number) => {
@@ -205,6 +190,7 @@ export function BookingForm({
             setSelectedTimeSlot(slot.startTime); // Update local state for UI feedback
           }
         }}
+        type="button" // Not the submit button!
       >
         {DateTime.fromISO(slot.startTime).toFormat("h:mm a")}
         {/* -{" "}{DateTime.fromISO(slot.endTime).toFormat("h:mm a")} */}
@@ -214,7 +200,7 @@ export function BookingForm({
 
   // Updated render logic for time slots
   const renderTimeSlotSelection = () => {
-    if (timeSlotLoading)
+    if (timeSlotLoading || controlledLoading)
       return (
         <div className="flex items-center justify-center space-x-2">
           <Loader2 className="animate-spin" />{" "}
@@ -236,10 +222,56 @@ export function BookingForm({
     );
   };
 
-  const onSubmit: SubmitHandler<CreateBookingSchemaValues> = (values) => {
+  const createBookingMutation = api.booking.create.useMutation();
+
+  const onSubmit: SubmitHandler<BookingFormSchemaValues> = (values) => {
     console.log(values);
 
-    // Form Submission Logic Will Go Here
+    // Prepare data for the backend. This might include formatting dates and times.
+    const bookingData = {
+      locationId: location.id,
+      startTime: DateTime.fromISO(values.timeSlot).toJSDate(), // Assuming this is the ISO string of the start time
+      endTime: DateTime.fromISO(values.timeSlot)
+        .plus({ minutes: parseFloat(values.duration) * 60 })
+        .toJSDate(), // Calculate end time based on duration
+      customerName: values.customerName,
+      customerEmail: values.customerEmail,
+      customerPhone: values.customerPhone,
+      // Add any other fields required by your backend
+    };
+
+    // Execute mutation
+    createBookingMutation.mutate(bookingData, {
+      onSuccess: () => {
+        // Handle success scenario
+        toast({
+          variant: "success",
+          title: "Booking Successful",
+          description: "Your booking has been successfully created.",
+        });
+
+        // Reset form or redirect user as needed
+        reset();
+      },
+      onError: (error) => {
+        // Handle error scenario
+        toast({
+          variant: "destructive",
+          title: "Booking Failed",
+          description:
+            error.message || "An unexpected error occurred. Please try again.",
+        });
+
+        // Optionally, handle form-specific errors such as validation issues
+        if ("cause" in error && error.cause instanceof ZodError) {
+          for (const issue of error.cause.errors) {
+            setError(issue.path[0] as keyof BookingFormSchemaValues, {
+              message: issue.message,
+            });
+          }
+        }
+      },
+    });
   };
 
   return (

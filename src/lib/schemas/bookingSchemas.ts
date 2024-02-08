@@ -25,6 +25,29 @@ export const createBookingSchema = z.object({
 
 export type CreateBookingSchemaValues = z.infer<typeof createBookingSchema>;
 
+export const bookingFormSchema = z.object({
+  date: z.date({
+    required_error: "Booking date is required.",
+  }),
+  duration: z
+    .string({
+      required_error: "Duration is required.",
+    })
+    .refine((val) => !isNaN(parseFloat(val)), {
+      message: "Duration must be a number.",
+    }),
+  timeSlot: z.string({
+    required_error: "Time slot selection is required.",
+  }), // Could be a string like "10:30 AM", which you would convert to a DateTime object
+  customerName: z.string({ required_error: "Name is required." }),
+  customerEmail: z
+    .string({ required_error: "Email is required." })
+    .email("Please enter a valid email address."),
+  customerPhone: z.string({ required_error: "Phone is required." }),
+});
+
+export type BookingFormSchemaValues = z.infer<typeof bookingFormSchema>;
+
 // // Adding a separate refinement to ensure endTime is after startTime
 // export const createBookingSchemaWithRefinement = createBookingSchema.refine(
 //   (data) => data.endTime > data.startTime,
