@@ -2,7 +2,7 @@
 
 import { z, ZodError } from "zod";
 import { DateTime } from "luxon";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Loader2 } from "lucide-react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -126,16 +126,12 @@ export function BookingForm({
     formState: { isSubmitting },
   } = form;
 
-  // const createBookingMutation = api.booking.create.useMutation();
-
-  // const [bookings, setBookings] = useState<[]>([]); // Assuming Booking is your booking type
-
   // Watching the date field for changes
   const selectedDate = watch("date");
   const selectedDuration = watch("duration");
   // console.log("SELECTEDDATE: ", selectedDate);
 
-  // tRPC query to fetch bookings, dependent on selectedDate
+  // tRPC query to fetch time slots (available and unavailable)
   const {
     data: timeSlotData,
     isLoading: timeSlotLoading,
@@ -150,27 +146,6 @@ export function BookingForm({
       enabled: !!selectedDate,
     },
   );
-  // TODO: Add in availability filters for open/close times
-  // const {
-  //   data: availabilityAndBookingsForDate,
-  //   isLoading: availabilityIsLoading,
-  //   error: availabilityError,
-  // } = api.booking.getAvailableTimeSlots.useQuery(
-  //   {
-  //     locationId: location.id,
-  //     // Ensure selectedDate is in an appropriate format for your backend
-  //     date: selectedDate,
-  //     duration: selectedDuration,
-  //     // dayOfWeek: dayOfWeek,
-  //   },
-  //   {
-  //     // Only run the query if a date is selected, or changed
-  //     enabled: !!selectedDate,
-  //   },
-  // );
-
-  // Add a new state for duration in your BookingForm component
-  //const [selectedDuration, setSelectedDuration] = useState(null);
 
   const [timeSlots, setTimeSlots] = useState<ExtendedTimeSlot[]>([]);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
@@ -187,7 +162,9 @@ export function BookingForm({
   //const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
 
   useEffect(() => {
+    // Set timeslots and open/close times when the data is available
     if (timeSlotData && !timeSlotLoading) {
+      console.log("Setting timeSlots + open/close times");
       setTimeSlots(timeSlotData.slots);
 
       setOpenCloseTimes({
@@ -197,40 +174,10 @@ export function BookingForm({
     }
   }, [timeSlotData, timeSlotLoading]);
 
-  // Effect hook to set data once it's loaded
-  // useEffect(() => {
-  //   if (
-  //     availabilityAndBookingsForDate &&
-  //     !availabilityIsLoading &&
-  //     !availabilityError
-  //   ) {
-  //     const { openTimeISO, closeTimeISO, slots } =
-  //       availabilityAndBookingsForDate;
-
-  //     // Map over existingBookings and ensure startTime and endTime are not null
-  //     const adjustedExistingBookings = existingBookings.map((booking) => ({
-  //       id: booking.id,
-  //       startTime: booking.startTime ?? "", // Convert null to empty string
-  //       endTime: booking.endTime ?? "", // Convert null to empty string
-  //     }));
-
-  //     setOpenCloseTimes({
-  //       open: openTimeISO!,
-  //       close: closeTimeISO!,
-  //     });
-  //     setExistingBookings(adjustedExistingBookings);
-  //     setAvailableTimeSlots(availableSlots);
-  //   }
-  // }, [
-  //   availabilityAndBookingsForDate,
-  //   availabilityIsLoading,
-  //   availabilityError,
-  // ]);
-
-  // Function to get the variant for a time slot button
-  // const getTimeSlotButtonVariant = (slotStartTime: string) => {
-  //   return selectedTimeSlot === slotStartTime ? "default" : "outline";
-  // };
+  useEffect(() => {
+    // Reset selected time slot whenever the duration changes
+    setSelectedTimeSlot(null);
+  }, [selectedDuration]); // Add selectedDuration to the dependency array
 
   // Time slot button logic
   const renderTimeSlotButton = (slot: ExtendedTimeSlot, index: number) => {
@@ -265,17 +212,34 @@ export function BookingForm({
     );
   };
 
+  // Updated render logic for time slots
+  const renderTimeSlotSelection = () => {
+    if (timeSlotLoading)
+      return (
+        <div className="flex items-center justify-center space-x-2">
+          <Loader2 className="animate-spin" />{" "}
+          {/* Loading icon with spin animation */}
+          <span>Loading time slots...</span>
+        </div>
+      );
+    if (timeSlots.length === 0)
+      return (
+        <div className="flex flex-col justify-center justify-items-center">
+          No available time slots.
+        </div>
+      ); // Display when no time slots are available
+
+    return (
+      <div className="grid grid-cols-6 gap-2">
+        {timeSlots.map(renderTimeSlotButton)}
+      </div>
+    );
+  };
+
   const onSubmit: SubmitHandler<CreateBookingSchemaValues> = (values) => {
     console.log(values);
 
-    // const startTime = DateTime.fromJSDate(selectedDate).set({
-    //   hour: selectedTimeSlot.hour,
-    //   minute: selectedTimeSlot.minute,
-    // });
-
-    // const endTime = startTime.plus({ minutes: selectedDuration * 60 });
-
-    // createBookingMutation.mutate(values, {}) will go here with onSuccess and onError
+    // Form Submission Logic Will Go Here
   };
 
   return (
@@ -367,75 +331,7 @@ export function BookingForm({
           render={() => (
             <FormItem className="flex flex-col">
               <FormLabel>Start Time</FormLabel>
-              <div className="grid grid-cols-6 gap-2">
-                {timeSlotLoading ? (
-                  <div>Loading time slots...</div>
-                ) : (
-                  timeSlots.map(renderTimeSlotButton)
-                )}
-                {/* {availabilityIsLoading ? (
-                  <div>Loading...</div>
-                ) : (
-                  <>
-                    {openCloseTimes && (
-                      <div>
-                        Open:{" "}
-                        {DateTime.fromISO(openCloseTimes.open)
-                          .setZone(locationSettings.timeZone)
-                          .toLocaleString(DateTime.TIME_SIMPLE)}
-                        {" - "}
-                        Close:{" "}
-                        {DateTime.fromISO(openCloseTimes.close)
-                          .setZone(locationSettings.timeZone)
-                          .toLocaleString(DateTime.TIME_SIMPLE)}
-                      </div>
-                    )}
-
-                    {existingBookings.length > 0 && (
-                      <div>
-                        <h3>Existing Bookings:</h3>
-                        {existingBookings.map((booking, index) => (
-                          <div key={index}>
-                            {DateTime.fromISO(booking.startTime)
-                              .setZone(locationSettings.timeZone)
-                              .toLocaleString(DateTime.DATETIME_SHORT)}
-                            {" - "}
-                            {DateTime.fromISO(booking.endTime)
-                              .setZone(locationSettings.timeZone)
-                              .toLocaleString(DateTime.DATETIME_SHORT)}
-                          </div>
-                        ))}
-                      </div> 
-                    )}
-
-                    <div>
-                      <h3>Available Slots:</h3>
-                      <div className="flex flex-wrap">
-                        {availableTimeSlots.map((slot, index) => (
-                          <Button
-                            key={index}
-                            type="button"
-                            size="sm"
-                            variant={getTimeSlotButtonVariant(slot.startTime)}
-                            onClick={() => setSelectedTimeSlot(slot.startTime)}
-                          >
-                            {DateTime.fromISO(slot.startTime)
-                              .setZone(locationSettings.timeZone)
-                              .toLocaleString(DateTime.TIME_SIMPLE)}
-                            {" - "}
-                            {DateTime.fromISO(slot.endTime)
-                              .setZone(locationSettings.timeZone)
-                              .toLocaleString(DateTime.TIME_SIMPLE)}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}*/}
-              </div>
-              {/* {timeSlots.length === 0 && (
-                <FormDescription>No available time slots.</FormDescription>
-              )} */}
+              <div className="w-full ">{renderTimeSlotSelection()}</div>
               <FormMessage />
             </FormItem>
           )}
