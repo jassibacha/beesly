@@ -42,6 +42,12 @@ interface TimeSlot {
   endTime: string;
 }
 
+interface ExtendedTimeSlot {
+  startTime: string;
+  endTime: string;
+  isAvailable: boolean;
+}
+
 const isDailyAvailability = (obj: unknown): obj is DailyAvailability => {
   if (typeof obj !== "object" || obj === null) return false;
   const entries = Object.entries(obj as Record<string, unknown>);
@@ -53,6 +59,35 @@ const isDailyAvailability = (obj: unknown): obj is DailyAvailability => {
     );
   });
 };
+
+// Function to generate all timeslots
+function generateAllTimeSlots(
+  openTimeISO: string,
+  closeTimeISO: string,
+  slotDurationMinutes: number, // Duration of each booking slot in hours
+  slotIncrementMinutes: number, // Increment between the start times of each slot
+  timezone: string,
+): ExtendedTimeSlot[] {
+  // const duration = parseFloat(slotDurationMinutes);
+  const slots: ExtendedTimeSlot[] = [];
+  let openTime = DateTime.fromISO(openTimeISO, { zone: timezone });
+  const closeTime = DateTime.fromISO(closeTimeISO, { zone: timezone });
+
+  while (openTime < closeTime) {
+    const endTime = openTime.plus({ minutes: slotDurationMinutes });
+    if (endTime <= closeTime) {
+      slots.push({
+        startTime: openTime.toISO()!,
+        endTime: endTime.toISO()!,
+        isAvailable: true, // Default assumption
+      });
+    }
+    openTime = openTime.plus({ minutes: slotIncrementMinutes }); // Move to the next slot start time based on the increment
+    //openTime = endTime;
+  }
+
+  return slots;
+}
 
 // Function to calculate available slots
 function calculateAvailableSlots(
@@ -322,7 +357,7 @@ export const bookingRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { locationId, date, duration } = input;
+      const { locationId, date, duration = "1" } = input; // Default duration
       console.log("*** getAvailableTimeSlots firing ***");
 
       // Fetch location settings to get open and close times
@@ -375,48 +410,57 @@ export const bookingRouter = createTRPCRouter({
       // This is crucial for ensuring that any date-related operations are performed
       // in the context of the location's local timezone, such as determining the day of the week
       // or comparing against business hours defined in local time.
-      const tzDate = DateTime.fromJSDate(date).setZone(
-        locationSettings?.timeZone,
-      );
+      // const tzDate = DateTime.fromJSDate(date).setZone(
+      //   locationSettings?.timeZone,
+      // );
       // Extract schedule for the specific day of the week
       const daySchedule =
         dailyAvailability[dayOfWeek as keyof DailyAvailability];
 
-      // Convert opening time to UTC: Combine the date with opening time, apply location's timezone, then convert to UTC
-      const openTime = DateTime.fromISO(
-        `${tzDate.toISODate()}T${daySchedule.open}`,
-        {
-          zone: locationSettings.timeZone,
-        },
-      ).toUTC();
+      // // Convert opening time to UTC: Combine the date with opening time, apply location's timezone, then convert to UTC
+      // const openTime = DateTime.fromISO(
+      //   `${tzDate.toISODate()}T${daySchedule.open}`,
+      //   {
+      //     zone: locationSettings.timeZone,
+      //   },
+      // ).toUTC();
 
-      // Convert closing time to UTC: Same process as opening time, but for closing
-      const closeTime = DateTime.fromISO(
-        `${tzDate.toISODate()}T${daySchedule.close}`,
-        {
-          zone: locationSettings.timeZone,
-        },
-      ).toUTC();
+      // // Convert closing time to UTC: Same process as opening time, but for closing
+      // const closeTime = DateTime.fromISO(
+      //   `${tzDate.toISODate()}T${daySchedule.close}`,
+      //   {
+      //     zone: locationSettings.timeZone,
+      //   },
+      // ).toUTC();
 
-      // Directly create ISO strings for open and close times
+      // // Directly create ISO strings for open and close times
+      // const openTimeISO = DateTime.fromISO(
+      //   `${tzDate.toISODate()}T${daySchedule.open}`,
+      //   { zone: locationSettings.timeZone },
+      // )
+      //   .toUTC()
+      //   .toISO();
+      // const closeTimeISO = DateTime.fromISO(
+      //   `${tzDate.toISODate()}T${daySchedule.close}`,
+      //   { zone: locationSettings.timeZone },
+      // )
+      //   .toUTC()
+      //   .toISO();
+
       const openTimeISO = DateTime.fromISO(
-        `${tzDate.toISODate()}T${daySchedule.open}`,
+        `${DateTime.fromJSDate(date).toISODate()}T${daySchedule.open}`,
         { zone: locationSettings.timeZone },
-      )
-        .toUTC()
-        .toISO();
+      ).toISO();
       const closeTimeISO = DateTime.fromISO(
-        `${tzDate.toISODate()}T${daySchedule.close}`,
+        `${DateTime.fromJSDate(date).toISODate()}T${daySchedule.close}`,
         { zone: locationSettings.timeZone },
-      )
-        .toUTC()
-        .toISO();
+      ).toISO();
 
       console.log("Day of week: ", dayOfWeek);
       console.log("daySchedule: ", daySchedule);
-      console.log("tzDate: ", tzDate.toISO());
-      console.log("Open Time in UTC: ", openTimeISO);
-      console.log("Close Time in UTC: ", closeTimeISO);
+      // console.log("tzDate: ", tzDate.toISO());
+      console.log("OpenTimeISO: ", openTimeISO);
+      console.log("CloseTimeISO: ", closeTimeISO);
 
       //const { open, close } = dailyAvailability[dayOfWeek];
 
@@ -431,8 +475,8 @@ export const bookingRouter = createTRPCRouter({
         .where(
           and(
             eq(bookings.locationId, locationId),
-            gte(bookings.startTime, DateTime.fromISO(openTimeISO!).toJSDate()),
-            lte(bookings.endTime, DateTime.fromISO(closeTimeISO!).toJSDate()),
+            gte(bookings.startTime, DateTime.fromISO(openTimeISO!).toJSDate()), // DB stores JS Date
+            lte(bookings.endTime, DateTime.fromISO(closeTimeISO!).toJSDate()), // DB stores JS Date
           ),
         )
         .orderBy(asc(bookings.startTime));
@@ -444,34 +488,72 @@ export const bookingRouter = createTRPCRouter({
         endTime: DateTime.fromJSDate(booking.endTime).toISO(), // Convert to ISO String
       }));
 
-      let availableSlots: TimeSlot[] = [];
-      if (duration) {
-        // Calculate available slots based on duration and existing bookings
-        // This logic would involve iterating over potential start times within open-close range
-        // and checking against existing bookings to find slots where the duration fits
-        //availableSlots = calculateAvailableSlots(openTime, closeTime, existingBookings, duration, timezone);
-        availableSlots = calculateAvailableSlots(
-          openTime.toISO()!,
-          closeTime.toISO()!,
-          existingBookings.map((booking) => ({
-            id: booking.id,
-            startTime: booking.startTime!, // Ensure these are ISO strings
-            endTime: booking.endTime!,
-          })),
-          duration,
-          locationSettings.timeZone, // Pass the location's timezone
-        );
-      }
+      const durationMin = parseFloat(duration) * 60; // Convert hours to minutes if necessary
+      const incrementMin = 15; // New slots start every 15 minutes
 
-      console.log("Existing Bookings: ", existingBookings);
-      console.log("Available Slots: ", availableSlots);
+      // Generate all possible slots in 15-minute increments
+      const allSlots = generateAllTimeSlots(
+        openTimeISO!,
+        closeTimeISO!,
+        durationMin,
+        incrementMin,
+        locationSettings.timeZone,
+      );
+
+      // Mark slots as available or not based on existing bookings
+      const slotsWithAvailability = allSlots.map((slot) => {
+        const slotStart = DateTime.fromISO(slot.startTime, {
+          zone: locationSettings.timeZone,
+        });
+        const slotEnd = DateTime.fromISO(slot.endTime, {
+          zone: locationSettings.timeZone,
+        });
+        const isAvailable = !existingBookings.some((booking) => {
+          const bookingStart = DateTime.fromISO(booking.startTime!, {
+            zone: locationSettings.timeZone,
+          });
+          const bookingEnd = DateTime.fromISO(booking.endTime!, {
+            zone: locationSettings.timeZone,
+          });
+          return slotStart < bookingEnd && slotEnd > bookingStart;
+        });
+        return { ...slot, isAvailable };
+      });
 
       return {
         openTimeISO,
         closeTimeISO,
-        existingBookings,
-        availableSlots,
+        slots: slotsWithAvailability,
       };
+
+      // let availableSlots: TimeSlot[] = [];
+      // if (duration) {
+      //   // Calculate available slots based on duration and existing bookings
+      //   // This logic would involve iterating over potential start times within open-close range
+      //   // and checking against existing bookings to find slots where the duration fits
+      //   //availableSlots = calculateAvailableSlots(openTime, closeTime, existingBookings, duration, timezone);
+      //   availableSlots = calculateAvailableSlots(
+      //     openTime.toISO()!,
+      //     closeTime.toISO()!,
+      //     existingBookings.map((booking) => ({
+      //       id: booking.id,
+      //       startTime: booking.startTime!, // Ensure these are ISO strings
+      //       endTime: booking.endTime!,
+      //     })),
+      //     duration,
+      //     locationSettings.timeZone, // Pass the location's timezone
+      //   );
+      // }
+
+      // console.log("Existing Bookings: ", existingBookings);
+      // console.log("Available Slots: ", availableSlots);
+
+      // return {
+      //   openTimeISO,
+      //   closeTimeISO,
+      //   existingBookings,
+      //   availableSlots,
+      // };
     }),
 
   // test: publicProcedure

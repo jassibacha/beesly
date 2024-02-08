@@ -53,15 +53,29 @@ interface BookingFormProps {
   resources: Resource[];
 }
 
-interface TimeSlot {
+interface ExtendedTimeSlot {
   startTime: string; // Should this be ISOString or Date Obj? We can't save as ISO to DB right now for some reason
   endTime: string; // Same as above
+  isAvailable: boolean;
 }
 
 interface BookingSlot {
   id: string;
   startTime: string; // Should this be ISOString or Date Obj? We can't save as ISO to DB right now for some reason
   endTime: string; // Same as above
+}
+
+type ButtonVariant =
+  | "link"
+  | "default"
+  | "outline"
+  | "destructive"
+  | "secondary"
+  | "ghost";
+
+interface ButtonProps {
+  variant?: ButtonVariant; // This ensures variant accepts specific values only
+  // Other props
 }
 
 export const bookingFormSchema = z.object({
@@ -86,17 +100,6 @@ export const bookingFormSchema = z.object({
 });
 
 export type BookingFormSchemaValues = z.infer<typeof bookingFormSchema>;
-
-// interface DailyAvailability {
-//   [key: string]: {
-//     open: string;
-//     close: string;
-//   };
-// }
-
-// interface DailyAvailability {
-//   [day: string]: { open: string; close: string };
-// }
 
 export function BookingForm({
   location,
@@ -125,81 +128,141 @@ export function BookingForm({
 
   // const createBookingMutation = api.booking.create.useMutation();
 
-  const [bookings, setBookings] = useState<[]>([]); // Assuming Booking is your booking type
+  // const [bookings, setBookings] = useState<[]>([]); // Assuming Booking is your booking type
 
   // Watching the date field for changes
   const selectedDate = watch("date");
-  console.log("SELECTEDDATE: ", selectedDate);
-
-  //const dayOfWeek = DateTime.fromJSDate(selectedDate).toFormat("cccc");
-
   const selectedDuration = watch("duration");
+  // console.log("SELECTEDDATE: ", selectedDate);
 
   // tRPC query to fetch bookings, dependent on selectedDate
-  // TODO: Add in availability filters for open/close times
   const {
-    data: availabilityAndBookingsForDate,
-    isLoading: availabilityIsLoading,
-    error: availabilityError,
+    data: timeSlotData,
+    isLoading: timeSlotLoading,
+    error: timeSlotError,
   } = api.booking.getAvailableTimeSlots.useQuery(
     {
       locationId: location.id,
-      // Ensure selectedDate is in an appropriate format for your backend
       date: selectedDate,
       duration: selectedDuration,
-      // dayOfWeek: dayOfWeek,
     },
     {
-      // Only run the query if a date is selected, or changed
       enabled: !!selectedDate,
     },
   );
+  // TODO: Add in availability filters for open/close times
+  // const {
+  //   data: availabilityAndBookingsForDate,
+  //   isLoading: availabilityIsLoading,
+  //   error: availabilityError,
+  // } = api.booking.getAvailableTimeSlots.useQuery(
+  //   {
+  //     locationId: location.id,
+  //     // Ensure selectedDate is in an appropriate format for your backend
+  //     date: selectedDate,
+  //     duration: selectedDuration,
+  //     // dayOfWeek: dayOfWeek,
+  //   },
+  //   {
+  //     // Only run the query if a date is selected, or changed
+  //     enabled: !!selectedDate,
+  //   },
+  // );
 
   // Add a new state for duration in your BookingForm component
   //const [selectedDuration, setSelectedDuration] = useState(null);
+
+  const [timeSlots, setTimeSlots] = useState<ExtendedTimeSlot[]>([]);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
 
   // States for open/close times and bookings
   const [openCloseTimes, setOpenCloseTimes] = useState<{
     open: string;
     close: string;
   } | null>(null);
-  const [existingBookings, setExistingBookings] = useState<BookingSlot[]>([]);
-  const [availableTimeSlots, setAvailableTimeSlots] = useState<TimeSlot[]>([]);
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
+  // const [existingBookings, setExistingBookings] = useState<BookingSlot[]>([]);
+  // const [availableTimeSlots, setAvailableTimeSlots] = useState<
+  //   ExtendedTimeSlot[]
+  // >([]);
+  //const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
 
-  // Effect hook to set data once it's loaded
   useEffect(() => {
-    if (
-      availabilityAndBookingsForDate &&
-      !availabilityIsLoading &&
-      !availabilityError
-    ) {
-      const { openTimeISO, closeTimeISO, existingBookings, availableSlots } =
-        availabilityAndBookingsForDate;
-
-      // Map over existingBookings and ensure startTime and endTime are not null
-      const adjustedExistingBookings = existingBookings.map((booking) => ({
-        id: booking.id,
-        startTime: booking.startTime ?? "", // Convert null to empty string
-        endTime: booking.endTime ?? "", // Convert null to empty string
-      }));
+    if (timeSlotData && !timeSlotLoading) {
+      setTimeSlots(timeSlotData.slots);
 
       setOpenCloseTimes({
-        open: openTimeISO!,
-        close: closeTimeISO!,
+        open: timeSlotData.openTimeISO!,
+        close: timeSlotData.closeTimeISO!,
       });
-      setExistingBookings(adjustedExistingBookings);
-      setAvailableTimeSlots(availableSlots);
     }
-  }, [
-    availabilityAndBookingsForDate,
-    availabilityIsLoading,
-    availabilityError,
-  ]);
+  }, [timeSlotData, timeSlotLoading]);
+
+  // Effect hook to set data once it's loaded
+  // useEffect(() => {
+  //   if (
+  //     availabilityAndBookingsForDate &&
+  //     !availabilityIsLoading &&
+  //     !availabilityError
+  //   ) {
+  //     const { openTimeISO, closeTimeISO, slots } =
+  //       availabilityAndBookingsForDate;
+
+  //     // Map over existingBookings and ensure startTime and endTime are not null
+  //     const adjustedExistingBookings = existingBookings.map((booking) => ({
+  //       id: booking.id,
+  //       startTime: booking.startTime ?? "", // Convert null to empty string
+  //       endTime: booking.endTime ?? "", // Convert null to empty string
+  //     }));
+
+  //     setOpenCloseTimes({
+  //       open: openTimeISO!,
+  //       close: closeTimeISO!,
+  //     });
+  //     setExistingBookings(adjustedExistingBookings);
+  //     setAvailableTimeSlots(availableSlots);
+  //   }
+  // }, [
+  //   availabilityAndBookingsForDate,
+  //   availabilityIsLoading,
+  //   availabilityError,
+  // ]);
 
   // Function to get the variant for a time slot button
-  const getTimeSlotButtonVariant = (slotStartTime: string) => {
-    return selectedTimeSlot === slotStartTime ? "default" : "outline";
+  // const getTimeSlotButtonVariant = (slotStartTime: string) => {
+  //   return selectedTimeSlot === slotStartTime ? "default" : "outline";
+  // };
+
+  // Time slot button logic
+  const renderTimeSlotButton = (slot: ExtendedTimeSlot, index: number) => {
+    // Determine if the slot is the currently selected one
+    const isSelected = selectedTimeSlot === slot.startTime;
+
+    // Determine the variant based on availability and selection
+    let variant: ButtonVariant = "outline"; // Default to available but not selected
+    if (!slot.isAvailable) {
+      variant = "destructive"; // Not available
+    } else if (isSelected) {
+      variant = "default"; // Selected
+    }
+
+    return (
+      <Button
+        key={index}
+        disabled={!slot.isAvailable} // Disable if not available
+        variant={variant} // Use the determined variant
+        size="sm"
+        className=""
+        onClick={() => {
+          if (slot.isAvailable) {
+            form.setValue("timeSlot", slot.startTime); // Set this slot as the selected time slot
+            setSelectedTimeSlot(slot.startTime); // Update local state for UI feedback
+          }
+        }}
+      >
+        {DateTime.fromISO(slot.startTime).toFormat("h:mm a")}
+        {/* -{" "}{DateTime.fromISO(slot.endTime).toFormat("h:mm a")} */}
+      </Button>
+    );
   };
 
   const onSubmit: SubmitHandler<CreateBookingSchemaValues> = (values) => {
@@ -303,9 +366,14 @@ export function BookingForm({
           control={form.control}
           render={() => (
             <FormItem className="flex flex-col">
-              <FormLabel>Time Slot</FormLabel>
-              <div className="flex flex-col flex-wrap">
-                {availabilityIsLoading ? (
+              <FormLabel>Start Time</FormLabel>
+              <div className="grid grid-cols-6 gap-2">
+                {timeSlotLoading ? (
+                  <div>Loading time slots...</div>
+                ) : (
+                  timeSlots.map(renderTimeSlotButton)
+                )}
+                {/* {availabilityIsLoading ? (
                   <div>Loading...</div>
                 ) : (
                   <>
@@ -337,7 +405,7 @@ export function BookingForm({
                               .toLocaleString(DateTime.DATETIME_SHORT)}
                           </div>
                         ))}
-                      </div>
+                      </div> 
                     )}
 
                     <div>
@@ -363,7 +431,7 @@ export function BookingForm({
                       </div>
                     </div>
                   </>
-                )}
+                )}*/}
               </div>
               {/* {timeSlots.length === 0 && (
                 <FormDescription>No available time slots.</FormDescription>
