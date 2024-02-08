@@ -102,10 +102,11 @@ async function seedDatabase() {
       taxSettings: JSON.stringify({ VAT: 20 }),
       initialCostOfBooking: "100.0",
       initialBookingLength: 60,
-      bookingLengthIncrements: 15,
-      maxAdvanceBookingDays: 180,
-      minTimeBetweenBookings: 15,
-      bufferTimeInMinutes: 10,
+      bookingLengthIncrements: 30,
+      maxAdvanceBookingDays: 30,
+      //minTimeBetweenBookings: 15,
+      bufferTime: 10,
+      timeSlotIncrements: 15,
       createdAt: now,
       updatedAt: now,
     });
@@ -123,7 +124,7 @@ async function seedDatabase() {
     });
 
     // Bookings details
-    const bookingTimes = [15, 17, 19]; // hours later
+    const bookingTimes = [12, 14, 16]; // hours later
     for (const hoursLater of bookingTimes) {
       // Calculate start and end times using Luxon, rounded to the nearest
       // 15 minutes and ensuring seconds are at 00

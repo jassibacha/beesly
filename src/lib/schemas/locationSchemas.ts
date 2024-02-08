@@ -91,9 +91,12 @@ export const locationSettingsSchema = z.object({
   minTimeBetweenBookings: z
     .number()
     .min(0, "Minimum time between bookings must be a positive number."),
-  bufferTimeInMinutes: z
+  bufferTime: z
     .number()
     .min(0, "Buffer time in minutes must be a positive number."),
+  timeSlotIncrements: z
+    .number()
+    .min(0, "Time slot in minutes must be a positive number."),
 });
 export type LocationSettingsSchemaValues = z.infer<
   typeof locationSettingsSchema
