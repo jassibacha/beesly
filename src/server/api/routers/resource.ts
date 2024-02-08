@@ -1,6 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
 
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
 //import { locations, locationSettings, users } from "@/server/db/schema";
 
 // import {
@@ -14,7 +18,7 @@ import type { Resource } from "@/server/db/types";
 
 export const resourceRouter = createTRPCRouter({
   // get resource by locationId
-  getResourcesByLocationId: protectedProcedure
+  getResourcesByLocationId: publicProcedure
     .input(z.object({ locationId: z.string() }))
     .query(async ({ ctx, input }) => {
       const resources = await ctx.db.query.resources.findMany({

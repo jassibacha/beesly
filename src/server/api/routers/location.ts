@@ -1,6 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
 
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
 import { locations, locationSettings, users } from "@/server/db/schema";
 
 import {
@@ -13,7 +17,7 @@ import { asc, eq } from "drizzle-orm";
 import type { Booking, Location, LocationSetting } from "@/server/db/types";
 
 export const locationRouter = createTRPCRouter({
-  getLocationBySlug: protectedProcedure
+  getLocationBySlug: publicProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ ctx, input }) => {
       const location = await ctx.db.query.locations.findFirst({
@@ -31,7 +35,7 @@ export const locationRouter = createTRPCRouter({
     }),
 
   // get locationSettings by locationId
-  getLocationSettingsByLocationId: protectedProcedure
+  getLocationSettingsByLocationId: publicProcedure
     .input(z.object({ locationId: z.string() }))
     .query(async ({ ctx, input }) => {
       const locationSettings = await ctx.db.query.locationSettings.findFirst({
