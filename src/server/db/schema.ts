@@ -184,6 +184,7 @@ export const bookings = createTable(
   },
   (table) => ({
     locationIdIdx: index("location_id_idx").on(table.locationId),
+    // TODO: Should look into adding startTime and endTime, and maybe a a composite index of location and them?
   }),
 );
 
@@ -209,6 +210,7 @@ export const resourceBookings = createTable(
   (table) => ({
     bookingIdIdx: index("booking_id_idx").on(table.bookingId),
     resourceIdIdx: index("resource_id_idx").on(table.resourceId),
+    // TODO: Look into composite index of both of the above
   }),
 );
 

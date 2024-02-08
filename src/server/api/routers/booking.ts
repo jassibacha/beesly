@@ -405,47 +405,9 @@ export const bookingRouter = createTRPCRouter({
       const dayOfWeek = DateTime.fromJSDate(date).setZone(
         locationSettings.timeZone,
       ).weekdayLong!;
-
-      // Adjust the provided date to the timezone specified in locationSettings
-      // This is crucial for ensuring that any date-related operations are performed
-      // in the context of the location's local timezone, such as determining the day of the week
-      // or comparing against business hours defined in local time.
-      // const tzDate = DateTime.fromJSDate(date).setZone(
-      //   locationSettings?.timeZone,
-      // );
       // Extract schedule for the specific day of the week
       const daySchedule =
         dailyAvailability[dayOfWeek as keyof DailyAvailability];
-
-      // // Convert opening time to UTC: Combine the date with opening time, apply location's timezone, then convert to UTC
-      // const openTime = DateTime.fromISO(
-      //   `${tzDate.toISODate()}T${daySchedule.open}`,
-      //   {
-      //     zone: locationSettings.timeZone,
-      //   },
-      // ).toUTC();
-
-      // // Convert closing time to UTC: Same process as opening time, but for closing
-      // const closeTime = DateTime.fromISO(
-      //   `${tzDate.toISODate()}T${daySchedule.close}`,
-      //   {
-      //     zone: locationSettings.timeZone,
-      //   },
-      // ).toUTC();
-
-      // // Directly create ISO strings for open and close times
-      // const openTimeISO = DateTime.fromISO(
-      //   `${tzDate.toISODate()}T${daySchedule.open}`,
-      //   { zone: locationSettings.timeZone },
-      // )
-      //   .toUTC()
-      //   .toISO();
-      // const closeTimeISO = DateTime.fromISO(
-      //   `${tzDate.toISODate()}T${daySchedule.close}`,
-      //   { zone: locationSettings.timeZone },
-      // )
-      //   .toUTC()
-      //   .toISO();
 
       const openTimeISO = DateTime.fromISO(
         `${DateTime.fromJSDate(date).toISODate()}T${daySchedule.open}`,
@@ -456,13 +418,10 @@ export const bookingRouter = createTRPCRouter({
         { zone: locationSettings.timeZone },
       ).toISO();
 
-      console.log("Day of week: ", dayOfWeek);
-      console.log("daySchedule: ", daySchedule);
-      // console.log("tzDate: ", tzDate.toISO());
-      console.log("OpenTimeISO: ", openTimeISO);
-      console.log("CloseTimeISO: ", closeTimeISO);
-
-      //const { open, close } = dailyAvailability[dayOfWeek];
+      // console.log("Day of week: ", dayOfWeek);
+      // console.log("daySchedule: ", daySchedule);
+      // console.log("OpenTimeISO: ", openTimeISO);
+      // console.log("CloseTimeISO: ", closeTimeISO);
 
       // Fetch existing bookings for the selected date within the open/close parameters
       const existingBookingsData = await ctx.db
@@ -525,34 +484,5 @@ export const bookingRouter = createTRPCRouter({
         closeTimeISO,
         slots: slotsWithAvailability,
       };
-
-      // let availableSlots: TimeSlot[] = [];
-      // if (duration) {
-      //   // Calculate available slots based on duration and existing bookings
-      //   // This logic would involve iterating over potential start times within open-close range
-      //   // and checking against existing bookings to find slots where the duration fits
-      //   //availableSlots = calculateAvailableSlots(openTime, closeTime, existingBookings, duration, timezone);
-      //   availableSlots = calculateAvailableSlots(
-      //     openTime.toISO()!,
-      //     closeTime.toISO()!,
-      //     existingBookings.map((booking) => ({
-      //       id: booking.id,
-      //       startTime: booking.startTime!, // Ensure these are ISO strings
-      //       endTime: booking.endTime!,
-      //     })),
-      //     duration,
-      //     locationSettings.timeZone, // Pass the location's timezone
-      //   );
-      // }
-
-      // console.log("Existing Bookings: ", existingBookings);
-      // console.log("Available Slots: ", availableSlots);
-
-      // return {
-      //   openTimeISO,
-      //   closeTimeISO,
-      //   existingBookings,
-      //   availableSlots,
-      // };
     }),
 });
