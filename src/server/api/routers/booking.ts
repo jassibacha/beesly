@@ -67,44 +67,47 @@ const isDailyAvailability = (obj: unknown): obj is DailyAvailability => {
 
 /**
  * Generates an array of time slots based on the provided parameters.
- * Each time slot represents a booking slot with a start time, end time, and availability status.
- *
- * @param openTimeISO - The opening time in ISO format.
- * @param closeTimeISO - The closing time in ISO format.
- * @param slotDurationMinutes - Duration of each booking slot in minutes.
- * @param slotIncrementMinutes - Increment between the start times of each slot in minutes.
- * @param timezone - The timezone in which the times are specified.
+ * Each time slot represents a period of time within the specified open and close times.
+ * @param openTimeISO - The ISO string representing the opening time.
+ * @param closeTimeISO - The ISO string representing the closing time.
+ * @param slotDurationMinutes - The duration of each time slot in minutes.
+ * @param slotIncrementMinutes - The increment value for generating consecutive time slots in minutes.
+ * @param bufferTimeMinutes - The buffer time to be subtracted from the end time of each time slot in minutes.
+ * @param timezone - The timezone in which the time slots should be generated.
  * @returns An array of ExtendedTimeSlot objects representing the generated time slots.
  */
 function generateAllTimeSlots(
-  openTimeISO: string,
-  closeTimeISO: string,
-  slotDurationMinutes: number,
-  slotIncrementMinutes: number,
-  bufferTimeMinutes: number, // New parameter for the buffer time
-  timezone: string,
+  openTimeISO: string, // The opening time in ISO format
+  closeTimeISO: string, // The closing time in ISO format
+  slotDurationMinutes: number, // The duration of each slot in minutes
+  slotIncrementMinutes: number, // The time increment between each slot in minutes
+  bufferTimeMinutes: number, // The buffer time in minutes
+  timezone: string, // The timezone of the location
 ): ExtendedTimeSlot[] {
+  // Initialize an empty array to store the slots
   const slots: ExtendedTimeSlot[] = [];
+  // Convert the opening time from ISO format to DateTime object
   let openTime = DateTime.fromISO(openTimeISO, { zone: timezone });
+  // Convert the closing time from ISO format to DateTime object
   const closeTime = DateTime.fromISO(closeTimeISO, { zone: timezone });
-
+  // Loop until the opening time is less than the closing time
   while (openTime < closeTime) {
-    // Subtract the buffer time from the end time of each slot
+    // Calculate the end time of each slot by adding the slot duration and buffer time to the opening time
     const endTime = openTime.plus({
       minutes: slotDurationMinutes + bufferTimeMinutes,
     });
-
+    // If the end time is less than or equal to the closing time, add the slot to the array
     if (endTime <= closeTime) {
       slots.push({
-        startTime: openTime.toISO()!,
-        endTime: endTime.toISO()!,
-        isAvailable: true,
+        startTime: openTime.toISO()!, // The start time of the slot in ISO format
+        endTime: endTime.toISO()!, // The end time of the slot in ISO format
+        isAvailable: true, // The availability status of the slot
       });
     }
-
+    // Increment the opening time by the slot increment
     openTime = openTime.plus({ minutes: slotIncrementMinutes });
   }
-
+  // Return the array of slots
   return slots;
 }
 // function generateAllTimeSlots(
@@ -454,10 +457,12 @@ export const bookingRouter = createTRPCRouter({
       }));
 
       const durationMin = parseFloat(duration) * 60; // Convert hours to minutes if necessary
-      const incrementMin = 15; // New slots start every 15 minutes
-      const bufferMin = 5;
+      // const incrementMin = 15; // Time increment between slots (ie. every 15min)
+      // const bufferMin = 5; // Buffer time after each booking
+      const incrementMin = locationSettings.timeSlotIncrements; // Time increment between slots (ie. every 15min)
+      const bufferMin = locationSettings.bufferTime; // Buffer time after each booking
 
-      // Generate all possible slots in 15-minute increments
+      // Generate all possible slots
       const allSlots = generateAllTimeSlots(
         openTimeISO!,
         closeTimeISO!,
@@ -467,27 +472,32 @@ export const bookingRouter = createTRPCRouter({
         locationSettings.timeZone,
       );
 
+      // Map over all slots to determine their availability
       const slotsWithAvailability = allSlots.map((slot) => {
+        // Convert the start time of the slot from ISO format to DateTime object
         const slotStart = DateTime.fromISO(slot.startTime, {
           zone: locationSettings.timeZone,
         });
+        // Convert the end time of the slot from ISO format to DateTime object
         const slotEnd = DateTime.fromISO(slot.endTime, {
           zone: locationSettings.timeZone,
         });
-
-        // Add the buffer time to the start and end times of each booking
+        // Determine if the slot is available by checking if there are any existing bookings that overlap with the slot
         const isAvailable = !existingBookings.some((booking) => {
+          // Convert the start time of the booking from ISO format to DateTime object
+          // Subtract the buffer time from the start time
           const bookingStart = DateTime.fromISO(booking.startTime!, {
             zone: locationSettings.timeZone,
           }).minus({ minutes: bufferMin });
-
+          // Convert the end time of the booking from ISO format to DateTime object
+          // Add the buffer time to the end time
           const bookingEnd = DateTime.fromISO(booking.endTime!, {
             zone: locationSettings.timeZone,
           }).plus({ minutes: bufferMin });
-
+          // Check if the slot and the booking overlap
           return slotStart < bookingEnd && slotEnd > bookingStart;
         });
-
+        // Return a new object that contains all the properties of the original slot, plus the availability information
         return { ...slot, isAvailable };
       });
 
