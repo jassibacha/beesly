@@ -20,9 +20,6 @@ export const metadata: Metadata = {
 };
 
 export default async function DashboardPage() {
-  // Check & sync the currentUser to db if they don't exist
-  const book = await api.booking.createtemp.mutate();
-
   return (
     <>
       <div className="flex-1 space-y-4 p-8 pt-6">
