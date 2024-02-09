@@ -112,9 +112,15 @@ function generateAllTimeSlots(
   return slots;
 }
 
+enum BookingDetail {
+  Basic, // id, startTime, endTime
+  Full, // Everything!
+}
+
 async function getBookingsByDate(
   locationId: string,
   date: Date,
+  detailLevel: BookingDetail,
   ctx: TRPCContext,
 ) {
   // Fetch location settings to get open and close times
@@ -179,29 +185,56 @@ async function getBookingsByDate(
   // console.log("OpenTimeISO: ", openTimeISO);
   // console.log("CloseTimeISO: ", closeTimeISO);
 
-  // Fetch existing bookings for the selected date within the open/close parameters
-  const existingBookingsData = await ctx.db
-    .select({
-      id: bookings.id,
-      startTime: bookings.startTime,
-      endTime: bookings.endTime,
-    })
-    .from(bookings)
-    .where(
-      and(
-        eq(bookings.locationId, locationId),
-        gte(bookings.startTime, DateTime.fromISO(openTimeISO!).toJSDate()), // DB stores JS Date
-        lte(bookings.endTime, DateTime.fromISO(closeTimeISO!).toJSDate()), // DB stores JS Date
-      ),
-    )
-    .orderBy(asc(bookings.startTime));
+  let existingBookings;
+  if (detailLevel === BookingDetail.Basic) {
+    // Fetch existing bookings for the selected date within the open/close parameters
+    const existingBookingsData = await ctx.db
+      .select({
+        id: bookings.id,
+        startTime: bookings.startTime,
+        endTime: bookings.endTime,
+      })
+      .from(bookings)
+      .where(
+        and(
+          eq(bookings.locationId, locationId),
+          gte(bookings.startTime, DateTime.fromISO(openTimeISO!).toJSDate()), // DB stores JS Date
+          lte(bookings.endTime, DateTime.fromISO(closeTimeISO!).toJSDate()), // DB stores JS Date
+        ),
+      )
+      .orderBy(asc(bookings.startTime));
 
-  // Convert existing bookings to ISO strings
-  const existingBookings = existingBookingsData.map((booking) => ({
-    id: booking.id,
-    startTime: DateTime.fromJSDate(booking.startTime).toISO(), // Convert to ISO String
-    endTime: DateTime.fromJSDate(booking.endTime).toISO(), // Convert to ISO String
-  }));
+    // Convert existing bookings to ISO strings
+    existingBookings = existingBookingsData.map((booking) => ({
+      id: booking.id,
+      startTime: DateTime.fromJSDate(booking.startTime).toISO(), // Convert to ISO String
+      endTime: DateTime.fromJSDate(booking.endTime).toISO(), // Convert to ISO String
+    }));
+  } else if (detailLevel === BookingDetail.Full) {
+    // Fetch existing bookings for the selected date within the open/close parameters
+    const existingBookingsData = await ctx.db
+      .select()
+      .from(bookings)
+      .where(
+        and(
+          eq(bookings.locationId, locationId),
+          gte(bookings.startTime, DateTime.fromISO(openTimeISO!).toJSDate()), // DB stores JS Date
+          lte(bookings.endTime, DateTime.fromISO(closeTimeISO!).toJSDate()), // DB stores JS Date
+        ),
+      )
+      .orderBy(asc(bookings.startTime));
+
+    // Convert existing bookings to ISO strings
+    existingBookings = existingBookingsData.map((booking) => ({
+      locationId: booking.locationId,
+      id: booking.id,
+      startTime: DateTime.fromJSDate(booking.startTime).toISO(), // Convert to ISO String
+      endTime: DateTime.fromJSDate(booking.endTime).toISO(), // Convert to ISO String
+      customerName: booking.customerName,
+      customerEmail: booking.customerEmail,
+      customerPhone: booking.customerPhone,
+    }));
+  }
 
   return {
     locationSettings,
@@ -470,7 +503,7 @@ export const bookingRouter = createTRPCRouter({
       console.log("*** getAvailableTimeSlots firing ***");
 
       const { locationSettings, existingBookings, openTimeISO, closeTimeISO } =
-        await getBookingsByDate(locationId, date, ctx);
+        await getBookingsByDate(locationId, date, BookingDetail.Basic, ctx);
 
       // // Fetch location settings to get open and close times
       // const locationSettings = await ctx.db.query.locationSettings.findFirst({
@@ -574,6 +607,20 @@ export const bookingRouter = createTRPCRouter({
         bufferMin,
         locationSettings.timeZone,
       );
+
+      if (!allSlots) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to generate time slots.",
+        });
+      }
+
+      if (!existingBookings) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch existing bookings.",
+        });
+      }
 
       // Map over all slots to determine their availability
       const slotsWithAvailability = allSlots.map((slot) => {

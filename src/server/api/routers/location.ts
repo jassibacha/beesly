@@ -111,8 +111,9 @@ export const locationRouter = createTRPCRouter({
             initialBookingLength: 60,
             bookingLengthIncrements: 30,
             maxAdvanceBookingDays: 60,
-            minTimeBetweenBookings: 15,
-            bufferTimeInMinutes: 15,
+            //minTimeBetweenBookings: 15,
+            bufferTime: 10,
+            timeSlotIncrements: 15,
           };
 
           const settings = {
