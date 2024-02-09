@@ -1,6 +1,7 @@
 import * as z from "zod";
 
 export const createBookingSchema = z.object({
+  locationId: z.string().min(1, "Location ID is required."),
   startTime: z.date().min(new Date(), "Start time must be in the future."),
   endTime: z.date().min(new Date(), "End time must be in the future."),
   // startTime: dateOrIsoString,
@@ -24,6 +25,23 @@ export const createBookingSchema = z.object({
 });
 
 export type CreateBookingSchemaValues = z.infer<typeof createBookingSchema>;
+
+export const createPublicBookingSchema = z.object({
+  locationId: z.string().min(1, "Location ID is required."),
+  startTime: z.date().min(new Date(), "Start time must be in the future."),
+  endTime: z.date().min(new Date(), "End time must be in the future."),
+  customerName: z.string().min(1, "Customer name is required."),
+  customerEmail: z
+    .string()
+    .email("Invalid customer email format")
+    .min(1, "Customer email is required."),
+  customerPhone: z.string().min(1, "Customer phone is required."),
+  // Add any other fields that are required for a booking
+});
+
+export type CreatePublicBookingSchemaValues = z.infer<
+  typeof createPublicBookingSchema
+>;
 
 export const bookingFormSchema = z.object({
   date: z.date({

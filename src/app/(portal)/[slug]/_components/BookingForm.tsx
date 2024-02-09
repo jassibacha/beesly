@@ -222,7 +222,7 @@ export function BookingForm({
     );
   };
 
-  const createBookingMutation = api.booking.create.useMutation();
+  const createBookingMutation = api.booking.book.useMutation();
 
   const onSubmit: SubmitHandler<BookingFormSchemaValues> = (values) => {
     console.log(values);

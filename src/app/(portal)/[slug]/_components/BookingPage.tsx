@@ -7,6 +7,7 @@ import { Phone } from "lucide-react";
 import { TimezoneContext } from "@/context/TimezoneContext";
 import { useContext } from "react";
 import { BookingForm } from "./BookingForm";
+import { auth, useUser } from "@clerk/nextjs";
 
 interface BookingPageProps {
   location: Location;
@@ -19,6 +20,9 @@ export function BookingPage({
   locationSettings,
   resources,
 }: BookingPageProps) {
+  // const { userId, has } = auth();
+  const { user } = useUser(); // Use the useUser hook
+
   const { timezone, setTimezone } = useContext(TimezoneContext);
 
   if (locationSettings.timeZone) {
@@ -46,8 +50,14 @@ export function BookingPage({
       <main className="flex-1 p-8">
         <div className="mx-auto max-w-xl py-4">
           {/* Additional content will go here */}
-          <pre>
+          <pre className="text-sm">
+            <p>Test Data</p>
             <p>Current Timezone: {timezone}</p>
+            <p>
+              {user
+                ? `Logged In as ${user.firstName} ${user.lastName}`
+                : "No User"}
+            </p>
           </pre>
 
           <p>&nbsp;</p>

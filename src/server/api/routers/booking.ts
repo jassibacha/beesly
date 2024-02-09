@@ -5,7 +5,10 @@ import {
   publicProcedure,
 } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
-import { createBookingSchema } from "@/lib/schemas/bookingSchemas";
+import {
+  createBookingSchema,
+  createPublicBookingSchema,
+} from "@/lib/schemas/bookingSchemas";
 import {
   bookings,
   resourceBookings,
@@ -243,44 +246,90 @@ async function getBookingsByDate(
     existingBookings,
   };
 }
-// function generateAllTimeSlots(
-//   openTimeISO: string, // The opening time in ISO format
-//   closeTimeISO: string, // The closing time in ISO format
-//   slotDurationMinutes: number, // Duration of each booking slot in minutes
-//   slotIncrementMinutes: number, // Increment between the start times of each slot in minutes
-//   bufferTimeMinutes: number, // Buffer time in minutes
-//   timezone: string, // The timezone in which the times are specified
-// ): ExtendedTimeSlot[] {
-//   // Initialize an empty array to hold the generated time slots
-//   const slots: ExtendedTimeSlot[] = [];
-//   // Convert the opening and closing times from ISO format to DateTime objects using the provided timezone
-//   let openTime = DateTime.fromISO(openTimeISO, { zone: timezone });
-//   const closeTime = DateTime.fromISO(closeTimeISO, { zone: timezone });
 
-//   // Loop as long as the opening time is less than the closing time
-//   while (openTime < closeTime) {
-//     // Calculate the end time of the current slot by adding the slot duration to the opening time
-//     const endTime = openTime.plus({ minutes: slotDurationMinutes });
-//     // If the end time is less than or equal to the closing time, create a new time slot
-//     if (endTime <= closeTime) {
-//       slots.push({
-//         startTime: openTime.toISO()!, // Start time of the slot
-//         endTime: endTime.toISO()!, // End time of the slot
-//         isAvailable: true, // Default availability status of the slot
-//       });
-//     }
-//     // Increment the opening time by the slot increment to move to the start time of the next slot
-//     openTime = openTime.plus({ minutes: slotIncrementMinutes });
-//   }
-//   // Return the array of generated time slots
-//   return slots;
-// }
+interface BookingInput {
+  locationId: string;
+  startTime: Date;
+  endTime: Date;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+}
+
+interface BookingCreationResult {
+  success: boolean;
+  bookingId?: string;
+  message?: string;
+}
+
+async function createBooking(
+  locationId: string,
+  input: BookingInput,
+  ctx: TRPCContext,
+): Promise<BookingCreationResult> {
+  const { startTime, endTime, customerName, customerEmail, customerPhone } =
+    input;
+
+  // Fetch the location to ensure it exists and to obtain any necessary location-specific information
+  const location = await ctx.db.query.locations.findFirst({
+    where: (locations, { eq }) => eq(locations.id, locationId),
+  });
+
+  if (!location) {
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Location not found",
+    });
+  }
+
+  // Use the provided query style for the location's resource
+  const locationResource = await ctx.db.query.resources.findFirst({
+    where: (resources, { eq }) => eq(resources.locationId, locationId),
+  });
+
+  if (!locationResource) {
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Location resource not found",
+    });
+  }
+
+  const newBookingId = uuidv4();
+  const newResourceBookingId = uuidv4();
+
+  await ctx.db.insert(bookings).values({
+    id: newBookingId,
+    locationId: locationId,
+    startTime: startTime, // TODO: Possibly swap this from JSDate to String once we figure out the Drizzle bug
+    endTime: endTime, // TODO: Possibly swap this from JSDate to String once we figure out the Drizzle bug
+    customerName: customerName,
+    customerEmail: customerEmail,
+    customerPhone: customerPhone,
+    // totalCost: input.totalCost,
+    // taxAmount: input.taxAmount,
+    // status: "Confirmed", // Assuming status
+  });
+
+  await ctx.db.insert(resourceBookings).values({
+    id: newResourceBookingId,
+    bookingId: newBookingId,
+    resourceId: locationResource.id,
+  });
+
+  return {
+    success: true,
+    message: "Booking created successfully",
+    bookingId: newBookingId,
+  };
+}
 
 export const bookingRouter = createTRPCRouter({
+  // Create, back-end creation of a booking for dashboard
   create: protectedProcedure
     .input(createBookingSchema)
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.auth.userId;
+
       if (!userId) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
@@ -288,134 +337,31 @@ export const bookingRouter = createTRPCRouter({
         });
       }
 
-      // Use the provided query style for user's location
-      const userLocation = await ctx.db.query.locations.findFirst({
-        where: (locations, { eq }) => eq(locations.ownerId, userId),
-      });
+      const result = await createBooking(input.locationId, input, ctx);
 
-      if (!userLocation) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "User location not found",
-        });
+      if (result.success) {
+        return {
+          success: true,
+          message: "Booking successfully created in dashboard",
+          bookingId: result.bookingId,
+        };
       }
-
-      // Use the provided query style for the location's resource
-      const locationResource = await ctx.db.query.resources.findFirst({
-        where: (resources, { eq }) => eq(resources.locationId, userLocation.id),
-      });
-
-      if (!locationResource) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Location resource not found",
-        });
-      }
-
-      const newBookingId = uuidv4();
-      const newResourceBookingId = uuidv4();
-
-      await ctx.db.insert(bookings).values({
-        id: newBookingId,
-        locationId: userLocation.id,
-        startTime: input.startTime, // TODO: Possibly swap this from JSDate to String once we figure out the Drizzle bug
-        endTime: input.endTime, // TODO: Possibly swap this from JSDate to String once we figure out the Drizzle bug
-        customerName: input.customerName,
-        customerEmail: input.customerEmail,
-        customerPhone: input.customerPhone,
-        // totalCost: input.totalCost,
-        // taxAmount: input.taxAmount,
-        // status: "Confirmed", // Assuming status
-      });
-
-      await ctx.db.insert(resourceBookings).values({
-        id: newResourceBookingId,
-        bookingId: newBookingId,
-        resourceId: locationResource.id,
-      });
-
-      return {
-        success: true,
-        message: "Booking created successfully",
-        bookingId: newBookingId,
-      };
     }),
-  createtemp: publicProcedure.mutation(async ({ ctx, input }) => {
-    const userId = process.env.OWNER_ID;
-    if (!userId) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "User must be logged in to create a booking",
-      });
-    }
+  // New public create booking route
+  book: publicProcedure
+    .input(createBookingSchema)
+    .mutation(async ({ ctx, input }) => {
+      // Directly use input.locationId for booking creation
+      const result = await createBooking(input.locationId, input, ctx);
 
-    // Use the provided query style for user's location
-    const userLocation = await ctx.db.query.locations.findFirst({
-      where: (locations, { eq }) => eq(locations.ownerId, userId),
-    });
-
-    if (!userLocation) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "User location not found",
-      });
-    }
-
-    // Use the provided query style for the location's resource
-    const locationResource = await ctx.db.query.resources.findFirst({
-      where: (resources, { eq }) => eq(resources.locationId, userLocation.id),
-    });
-
-    if (!locationResource) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Location resource not found",
-      });
-    }
-
-    const newBookingId = uuidv4();
-    const newResourceBookingId = uuidv4();
-
-    // Calculate start and end times
-    const nowPlus2Hours = DateTime.now().setZone("utc").plus({ hours: 2 });
-    const roundedStartTime = nowPlus2Hours
-      .plus({
-        minutes: (15 - (nowPlus2Hours.minute % 15)) % 15,
-      })
-      .startOf("minute");
-    const startTime = roundedStartTime.toJSDate();
-    const endTime = roundedStartTime
-      .plus({ hours: 2 })
-      .startOf("minute")
-      .toJSDate();
-    // const startTime = new Date(new Date().getTime() + 4 * 60 * 60 * 1000); // 4 hours later
-    // const endTime = new Date(new Date().getTime() + 6 * 60 * 60 * 1000); // 6 hours later
-
-    await ctx.db.insert(bookings).values({
-      id: newBookingId,
-      locationId: userLocation.id,
-      startTime: startTime,
-      endTime: endTime,
-      customerName: "Hardcoded Name",
-      customerEmail: "hardcoded@example.com",
-      customerPhone: "123-456-7890",
-      // totalCost: input.totalCost,
-      // taxAmount: input.taxAmount,
-      // status: "Confirmed", // Assuming status
-    });
-
-    await ctx.db.insert(resourceBookings).values({
-      id: newResourceBookingId,
-      bookingId: newBookingId,
-      resourceId: locationResource.id,
-    });
-
-    return {
-      success: true,
-      message: "Booking created successfully",
-      bookingId: newBookingId,
-    };
-  }),
+      if (result.success) {
+        return {
+          success: true,
+          message: "Public booking successfully created",
+          bookingId: result.bookingId,
+        };
+      }
+    }),
   listBookings: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.auth.userId;
     if (!userId) {
@@ -505,96 +451,7 @@ export const bookingRouter = createTRPCRouter({
       const { locationSettings, existingBookings, openTimeISO, closeTimeISO } =
         await getBookingsByDate(locationId, date, BookingDetail.Basic, ctx);
 
-      // // Fetch location settings to get open and close times
-      // const locationSettings = await ctx.db.query.locationSettings.findFirst({
-      //   where: (locationSettings, { eq }) =>
-      //     eq(locationSettings.locationId, locationId),
-      // });
-
-      // if (!locationSettings?.dailyAvailability) {
-      //   throw new TRPCError({
-      //     code: "NOT_FOUND",
-      //     message: "Location settings not found",
-      //   });
-      // }
-
-      // if (typeof locationSettings.dailyAvailability !== "string") {
-      //   throw new TRPCError({
-      //     code: "BAD_REQUEST",
-      //     message: "Daily availability settings are not properly configured.",
-      //   });
-      // }
-
-      // // Initialize a variable to hold parsed daily availability if applicable
-      // let dailyAvailability: DailyAvailability | undefined;
-      // try {
-      //   // Attempt to parse the JSON string into an object
-      //   const parsed: unknown = JSON.parse(locationSettings.dailyAvailability);
-      //   // Validate the parsed object against the expected structure using isDailyAvailability
-      //   if (isDailyAvailability(parsed)) {
-      //     console.log("dailyAvailabilityParsed: ", parsed);
-      //     // If valid, assign parsed data to dailyAvailability
-      //     dailyAvailability = parsed;
-      //   } else {
-      //     throw new Error(
-      //       "Parsed daily availability does not match expected structure.",
-      //     );
-      //   }
-      // } catch (error) {
-      //   throw new TRPCError({
-      //     code: "INTERNAL_SERVER_ERROR",
-      //     message: "Failed to parse daily availability settings.",
-      //   });
-      // }
-
-      // const dayOfWeek = DateTime.fromJSDate(date).setZone(
-      //   locationSettings.timeZone,
-      // ).weekdayLong!;
-      // // Extract schedule for the specific day of the week
-      // const daySchedule =
-      //   dailyAvailability[dayOfWeek as keyof DailyAvailability];
-
-      // const openTimeISO = DateTime.fromISO(
-      //   `${DateTime.fromJSDate(date).toISODate()}T${daySchedule.open}`,
-      //   { zone: locationSettings.timeZone },
-      // ).toISO();
-      // const closeTimeISO = DateTime.fromISO(
-      //   `${DateTime.fromJSDate(date).toISODate()}T${daySchedule.close}`,
-      //   { zone: locationSettings.timeZone },
-      // ).toISO();
-
-      // // console.log("Day of week: ", dayOfWeek);
-      // // console.log("daySchedule: ", daySchedule);
-      // // console.log("OpenTimeISO: ", openTimeISO);
-      // // console.log("CloseTimeISO: ", closeTimeISO);
-
-      // // Fetch existing bookings for the selected date within the open/close parameters
-      // const existingBookingsData = await ctx.db
-      //   .select({
-      //     id: bookings.id,
-      //     startTime: bookings.startTime,
-      //     endTime: bookings.endTime,
-      //   })
-      //   .from(bookings)
-      //   .where(
-      //     and(
-      //       eq(bookings.locationId, locationId),
-      //       gte(bookings.startTime, DateTime.fromISO(openTimeISO!).toJSDate()), // DB stores JS Date
-      //       lte(bookings.endTime, DateTime.fromISO(closeTimeISO!).toJSDate()), // DB stores JS Date
-      //     ),
-      //   )
-      //   .orderBy(asc(bookings.startTime));
-
-      // // Convert existing bookings to ISO strings
-      // const existingBookings = existingBookingsData.map((booking) => ({
-      //   id: booking.id,
-      //   startTime: DateTime.fromJSDate(booking.startTime).toISO(), // Convert to ISO String
-      //   endTime: DateTime.fromJSDate(booking.endTime).toISO(), // Convert to ISO String
-      // }));
-
       const durationMin = parseFloat(duration) * 60; // Convert hours to minutes if necessary
-      // const incrementMin = 15; // Time increment between slots (ie. every 15min)
-      // const bufferMin = 5; // Buffer time after each booking
       const incrementMin = locationSettings.timeSlotIncrements; // Time increment between slots (ie. every 15min)
       const bufferMin = locationSettings.bufferTime; // Buffer time after each booking
 
@@ -650,33 +507,6 @@ export const bookingRouter = createTRPCRouter({
         // Return a new object that contains all the properties of the original slot, plus the availability information
         return { ...slot, isAvailable };
       });
-
-      // // Create a new array of slots with availability information
-      // const slotsWithAvailability = allSlots.map((slot) => {
-      //   // Convert the start time of the slot from ISO format to DateTime object
-      //   const slotStart = DateTime.fromISO(slot.startTime, {
-      //     zone: locationSettings.timeZone,
-      //   });
-      //   // Convert the end time of the slot from ISO format to DateTime object
-      //   const slotEnd = DateTime.fromISO(slot.endTime, {
-      //     zone: locationSettings.timeZone,
-      //   });
-      //   // Determine if the slot is available by checking if there are any existing bookings that overlap with the slot
-      //   const isAvailable = !existingBookings.some((booking) => {
-      //     // Convert the start time of the booking from ISO format to DateTime object
-      //     const bookingStart = DateTime.fromISO(booking.startTime!, {
-      //       zone: locationSettings.timeZone,
-      //     });
-      //     // Convert the end time of the booking from ISO format to DateTime object
-      //     const bookingEnd = DateTime.fromISO(booking.endTime!, {
-      //       zone: locationSettings.timeZone,
-      //     });
-      //     // Check if the slot and the booking overlap
-      //     return slotStart < bookingEnd && slotEnd > bookingStart;
-      //   });
-      //   // Return a new object that contains all the properties of the original slot, plus the availability information
-      //   return { ...slot, isAvailable };
-      // });
 
       return {
         openTimeISO,
