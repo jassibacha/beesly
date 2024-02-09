@@ -436,6 +436,31 @@ export const bookingRouter = createTRPCRouter({
         bookings: userBookings,
       };
     }),
+  listBookingsByDate: protectedProcedure
+    .input(
+      z.object({
+        locationId: z.string(),
+        date: z.date(),
+        //duration: z.string(), // Make duration optional for flexibility
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { locationId, date } = input; // Default duration
+      console.log("*** getAvailableTimeSlots firing ***");
+
+      const { locationSettings, existingBookings, openTimeISO, closeTimeISO } =
+        await getBookingsByDate(locationId, date, BookingDetail.Full, ctx);
+
+      //const durationMin = parseFloat(duration) * 60; // Convert hours to minutes if necessary
+      const incrementMin = locationSettings.timeSlotIncrements; // Time increment between slots (ie. every 15min)
+      const bufferMin = locationSettings.bufferTime; // Buffer time after each booking
+
+      return {
+        openTimeISO,
+        closeTimeISO,
+        bookings: existingBookings,
+      };
+    }),
   getAvailableTimeSlots: publicProcedure
     .input(
       z.object({

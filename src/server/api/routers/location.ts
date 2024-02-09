@@ -17,6 +17,29 @@ import { asc, eq } from "drizzle-orm";
 import type { Booking, Location, LocationSetting } from "@/server/db/types";
 
 export const locationRouter = createTRPCRouter({
+  getLocationByUserId: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.auth.userId;
+    if (!userId) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "User must be logged in to list bookings",
+      });
+    }
+
+    const location = await ctx.db.query.locations.findFirst({
+      where: (locations, { eq }) => eq(locations.ownerId, userId),
+    });
+
+    if (!location) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "User location not found",
+      });
+    }
+
+    return location;
+  }),
+
   getLocationBySlug: publicProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ ctx, input }) => {
@@ -52,18 +75,19 @@ export const locationRouter = createTRPCRouter({
       return locationSettings as LocationSetting;
     }),
 
-  listBookingsByLocationId: protectedProcedure
-    .input(z.object({ locationId: z.string() }))
-    .query(async ({ ctx, input }) => {
-      const bookingsList = await ctx.db.query.bookings.findMany({
-        // where: (q) => eq(q.locationId, input.locationId),
-        // orderBy: [asc(bookings.startTime)],
-        where: (bookings, { eq }) => eq(bookings.locationId, input.locationId),
-        orderBy: (bookings, { asc }) => [asc(bookings.startTime)],
-      });
+  // This goes in boookings
+  // listBookingsByLocationId: protectedProcedure
+  //   .input(z.object({ locationId: z.string() }))
+  //   .query(async ({ ctx, input }) => {
+  //     const bookingsList = await ctx.db.query.bookings.findMany({
+  //       // where: (q) => eq(q.locationId, input.locationId),
+  //       // orderBy: [asc(bookings.startTime)],
+  //       where: (bookings, { eq }) => eq(bookings.locationId, input.locationId),
+  //       orderBy: (bookings, { asc }) => [asc(bookings.startTime)],
+  //     });
 
-      return bookingsList as Booking[];
-    }),
+  //     return bookingsList as Booking[];
+  //   }),
 
   create: protectedProcedure
     .input(createLocationSchema)

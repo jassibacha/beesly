@@ -13,9 +13,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDateRangePicker } from "@/components/dashboard/date-range-picker";
 import { RecentSales } from "@/components/dashboard/recent-sales";
 import { syncUser } from "@/lib/auth/utils";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import DailyBookings from "@/components/dashboard/DailyBookings";
 import { Suspense } from "react";
+import { api } from "@/trpc/server";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -31,6 +32,19 @@ export default async function DashboardPage() {
   if (!user?.onboarded) {
     redirect("/dashboard/setup");
   }
+
+  const location = await api.location.getLocationByUserId.query();
+
+  if (!location) {
+    return notFound();
+  }
+
+  const [locationSettings, resources] = await Promise.all([
+    api.location.getLocationSettingsByLocationId.query({
+      locationId: location.id,
+    }),
+    api.resource.getResourcesByLocationId.query({ locationId: location.id }),
+  ]);
 
   return (
     <>
@@ -55,19 +69,13 @@ export default async function DashboardPage() {
           </TabsList>
           <TabsContent value="dayview" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-1">
-              <Card className="col-span-4">
-                <CardHeader>
-                  <CardTitle>Daily Bookings</CardTitle>
-                  <CardDescription>
-                    View all bookings for all stations for the day.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pl-2">
-                  <Suspense fallback={<div>Loading...</div>}>
-                    <DailyBookings />
-                  </Suspense>
-                </CardContent>
-              </Card>
+              <Suspense fallback={<div>Loading...</div>}>
+                <DailyBookings
+                  location={location}
+                  locationSettings={locationSettings}
+                  resources={resources}
+                />
+              </Suspense>
             </div>
           </TabsContent>
           <TabsContent value="reports" className="space-y-4">
