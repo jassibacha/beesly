@@ -37,6 +37,22 @@ interface DailyBookingProps {
   resources: Resource[];
 }
 
+interface BookingData {
+  locationId: string;
+  id: string;
+  startTime: string | null;
+  endTime: string | null;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+}
+
+interface BookingsResponse {
+  openTimeISO: string;
+  closeTimeISO: string;
+  bookings: BookingData[];
+}
+
 export default function DailyBookings({
   location,
   locationSettings,
@@ -72,7 +88,7 @@ export default function DailyBookings({
     data: bookingsData,
     isLoading: bookingsIsLoading,
     error: bookingsError,
-  } = api.booking.listBookingsByDate.useQuery(
+  } = api.booking.listBookingsByDate.useQuery<BookingsResponse>(
     {
       locationId: location.id,
       date: selectedDate,

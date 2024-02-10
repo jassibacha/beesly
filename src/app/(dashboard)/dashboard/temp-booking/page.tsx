@@ -42,7 +42,7 @@ export default async function DashboardPage() {
                   <CardDescription>
                     <p>Let&apos;s book an appointment.</p>
 
-                    <p>{book.success ? "Success" : "Failed"}</p>
+                    {/* <p>{book.success ? "Success" : "Failed"}</p> */}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pl-2">Text goes here.</CardContent>
