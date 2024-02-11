@@ -12,9 +12,18 @@ import {
   SignOutButton,
   SignUpButton,
 } from "@clerk/nextjs";
+import { useTheme } from "next-themes";
+import { useEffect } from "react";
 
 export default async function Home() {
+  //const { setTheme } = useTheme();
   noStore();
+
+  // Can only be on client components
+  // useEffect(() => {
+  //   setTheme("light");
+  // }, []);
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-black ">
       <MaxWidthWrapper className="flex flex-col items-center justify-center pb-12 pt-28 text-center sm:pt-40">

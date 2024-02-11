@@ -14,12 +14,6 @@ import { currentUser, SignOutButton, SignedIn } from "@clerk/nextjs";
 
 export async function UserNav() {
   const clerkUser = await currentUser();
-  //const { signOut } = useClerk();
-
-  // Handler for sign out
-  // const handleSignOut = async () => {
-  //   await signOut();
-  // };
 
   return (
     <SignedIn>

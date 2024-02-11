@@ -19,7 +19,7 @@ import { v4 as uuidv4 } from "uuid";
 import { and, asc, eq, gte, lte } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { Booking } from "@/server/db/types";
-import { TRPCContext } from "@/types/trpcContext";
+import type { TRPCContext } from "@/types/trpcContext";
 
 type DailyAvailability = {
   [day in
