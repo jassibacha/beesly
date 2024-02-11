@@ -259,10 +259,16 @@ export function BookingForm({
           {
             to: values.customerEmail,
             from: "book@jassibacha.com",
-            subject: `Booking Confirmation - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,
+            //subject: `Booking Confirmation - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,
             text: `Text Dear ${values.customerName}, your booking for ${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} has been confirmed.`,
             templateId: "d-bef6d1c8eb924c238bfb75195cb8705c",
             dynamicData: {
+              fromEmail: "book@jassibacha.com",
+              fromName: "Book Test",
+              replyEmail: "book@beesly.io",
+              replyName: "Beesly",
+              subject: `Booking Confirmation - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,
+              preheader: `${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} confirmed!`,
               heading: "Booking Confirmed!",
               textBody: `Dear ${values.customerName}, your booking for ${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} has been confirmed.`,
               date: DateTime.fromJSDate(values.date).toFormat("DDDD"),

@@ -1,19 +1,29 @@
 import sgMail from "@sendgrid/mail";
+import type { DynamicEmailData } from "@/types/emailTypes";
 
 export const sendEmail = async (
   to: string,
   from: string,
-  subject: string,
   text: string,
   templateId: string,
-  dynamicData: object,
+  dynamicData: DynamicEmailData,
 ) => {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY ?? "");
 
+  //const { fromEmail, fromName, replyEmail, replyName, ...otherDynamicData } =
+  dynamicData;
+
   const msg = {
     to,
-    from,
-    subject,
+    from: {
+      email: from,
+      name: dynamicData.locationName,
+    },
+    replyTo: {
+      email: dynamicData.replyEmail,
+      name: dynamicData.replyName,
+    },
+    //subject,
     content: [
       {
         type: "text/html",
@@ -30,7 +40,7 @@ export const sendEmail = async (
         enable: false,
       },
       sandboxMode: {
-        enable: true, // TODO: Disable sandbox mode in production
+        enable: false, // TODO: Disable sandbox mode in production
       },
     },
   };

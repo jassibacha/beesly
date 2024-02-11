@@ -11,14 +11,15 @@ import {
 } from "@/lib/schemas/locationSchemas";
 import { TRPCError } from "@trpc/server";
 import { ZodError, z } from "zod";
+import type { DynamicEmailData } from "@/types/emailTypes";
 
 const sendEmailSchema = z.object({
   to: z.string().email(),
   from: z.string().email(),
-  subject: z.string(),
+  //subject: z.string(),
   text: z.string(),
   templateId: z.string(),
-  dynamicData: z.record(z.any()), // Use a more specific schema based on your needs
+  dynamicData: z.record(z.any()),
 });
 
 export const emailRouter = createTRPCRouter({
@@ -26,9 +27,15 @@ export const emailRouter = createTRPCRouter({
   sendEmail: publicProcedure
     .input(sendEmailSchema)
     .mutation(async ({ input }) => {
-      const { to, from, subject, text, templateId, dynamicData } = input;
+      const { to, from, text, templateId, dynamicData } = input;
       try {
-        await sendEmail(to, from, subject, text, templateId, dynamicData); // Adjust the from email accordingly
+        await sendEmail(
+          to,
+          from,
+          text,
+          templateId,
+          dynamicData as DynamicEmailData,
+        ); // Adjust the from email accordingly
         return { success: true, message: "Email sent successfully" };
       } catch (error) {
         console.error("Failed to send email:", error);
