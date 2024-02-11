@@ -47,6 +47,9 @@ dependencies:
   '@radix-ui/react-toast':
     specifier: ^1.1.5
     version: 1.1.5(@types/react-dom@18.2.18)(@types/react@18.2.48)(react-dom@18.2.0)(react@18.2.0)
+  '@sendgrid/mail':
+    specifier: ^8.1.0
+    version: 8.1.0
   '@t3-oss/env-nextjs':
     specifier: ^0.7.1
     version: 0.7.3(typescript@5.3.3)(zod@3.22.4)
@@ -1886,6 +1889,33 @@ packages:
     resolution: {integrity: sha512-Jh4t/593gxs0lJZ/z3NnasKlplXT2f+4y/LZYuaKZW5KAaiVFL/fThhs+17EbUd53jUVJ0QudYCBGbN/psvaqg==}
     dev: true
 
+  /@sendgrid/client@8.1.0:
+    resolution: {integrity: sha512-Kp2kKLr307v/HnR3uGuySt0AbCkeG7naDVOzfPOtWvKHVZIEHmKidQjJjzytVZNYWtoRdYgNfBw6GyUznGqa6w==}
+    engines: {node: '>=12.*'}
+    dependencies:
+      '@sendgrid/helpers': 8.0.0
+      axios: 1.6.7
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /@sendgrid/helpers@8.0.0:
+    resolution: {integrity: sha512-Ze7WuW2Xzy5GT5WRx+yEv89fsg/pgy3T1E3FS0QEx0/VvRmigMZ5qyVGhJz4SxomegDkzXv/i0aFPpHKN8qdAA==}
+    engines: {node: '>= 12.0.0'}
+    dependencies:
+      deepmerge: 4.2.2
+    dev: false
+
+  /@sendgrid/mail@8.1.0:
+    resolution: {integrity: sha512-WkE0qwOrJMX9oQ+Xvtl3CdmucD6/iKw6go0VPoPieVlfXc43rbIf91wvtO6m7sKPnzxw3G+8rekBgXibmP4S8Q==}
+    engines: {node: '>=12.*'}
+    dependencies:
+      '@sendgrid/client': 8.1.0
+      '@sendgrid/helpers': 8.0.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /@stablelib/base64@1.0.1:
     resolution: {integrity: sha512-1bnPQqSxSuc3Ii6MhBysoWCg58j97aUjuCSZrGSmDxNqtytIi0k8utUenAwTZN4V5mXXYGsVUI9zeBqy+jBOSQ==}
     dev: false
@@ -2469,6 +2499,16 @@ packages:
     resolution: {integrity: sha512-M0JtH+hlOL5pLQwHOLNYZaXuhqmvS8oExsqB1SBYgA4Dk7u/xx+YdGHXaK5pyUfed5mYXdlYiphWq3G8cRi5JQ==}
     engines: {node: '>=4'}
     dev: true
+
+  /axios@1.6.7:
+    resolution: {integrity: sha512-/hDJGff6/c7u0hDkvkGxR/oy6CbCs8ziCsC7SqmhjfozqiJGc8Z11wrv9z9lYfY4K8l+H9TpjcMDX0xOZmx+RA==}
+    dependencies:
+      follow-redirects: 1.15.5
+      form-data: 4.0.0
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
 
   /axobject-query@3.2.1:
     resolution: {integrity: sha512-jsyHu61e6N4Vbz/v18DHwWYKK0bSWLqn47eeDSKPB7m8tqMHF9YJ+mhIk2lVteyZrY8tnSj/jHOv4YiTCuCJgg==}
@@ -3513,6 +3553,16 @@ packages:
     resolution: {integrity: sha512-36yxDn5H7OFZQla0/jFJmbIKTdZAQHngCedGxiMmpNfEZM0sdEeT+WczLQrjK6D7o2aiyLYDnkw0R3JK0Qv1RQ==}
     dev: true
 
+  /follow-redirects@1.15.5:
+    resolution: {integrity: sha512-vSFWUON1B+yAw1VN4xMfxgn5fTUiaOzAJCKBwIIgT/+7CuGy9+r+5gITvP62j3RmaD5Ph65UaERdOSRGUzZtgw==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    dev: false
+
   /for-each@0.3.3:
     resolution: {integrity: sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw==}
     dependencies:
@@ -3528,6 +3578,15 @@ packages:
 
   /form-data@3.0.1:
     resolution: {integrity: sha512-RHkBKtLWUVwd7SqRIvCZMEvAMoGUp0XU+seQiZejj0COz3RI3hWP4sCv3gZWWLjJTd7rGwcsF5eKZGii0r/hbg==}
+    engines: {node: '>= 6'}
+    dependencies:
+      asynckit: 0.4.0
+      combined-stream: 1.0.8
+      mime-types: 2.1.35
+    dev: false
+
+  /form-data@4.0.0:
+    resolution: {integrity: sha512-ETEklSGi5t0QMZuiXoA/Q6vcnxcLQP5vdugSpuAyi6SVGi2clPPp+xgEhuMaHC+zGgn31Kd235W35f7Hykkaww==}
     engines: {node: '>= 6'}
     dependencies:
       asynckit: 0.4.0
@@ -4651,6 +4710,10 @@ packages:
       object-assign: 4.1.1
       react-is: 16.13.1
     dev: true
+
+  /proxy-from-env@1.1.0:
+    resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
+    dev: false
 
   /punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}

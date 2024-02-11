@@ -223,6 +223,7 @@ export function BookingForm({
   };
 
   const createBookingMutation = api.booking.book.useMutation();
+  const sendEmailMutation = api.email.sendEmail.useMutation();
 
   const onSubmit: SubmitHandler<BookingFormSchemaValues> = (values) => {
     console.log(values);
@@ -252,6 +253,56 @@ export function BookingForm({
 
         // Reset form or redirect user as needed
         reset();
+
+        // After booking is successful, send an email
+        sendEmailMutation.mutate(
+          {
+            to: values.customerEmail,
+            from: "book@jassibacha.com",
+            subject: `Booking Confirmation - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,
+            text: `Text Dear ${values.customerName}, your booking for ${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} has been confirmed.`,
+            templateId: "d-bef6d1c8eb924c238bfb75195cb8705c",
+            dynamicData: {
+              heading: "Booking Confirmed!",
+              textBody: `Dear ${values.customerName}, your booking for ${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} has been confirmed.`,
+              date: DateTime.fromJSDate(values.date).toFormat("DDDD"),
+              startTime: DateTime.fromISO(values.timeSlot)
+                .setZone(locationSettings.timeZone)
+                .toFormat("h:mm a"),
+              endTime: DateTime.fromISO(values.timeSlot)
+                .plus({ minutes: parseFloat(values.duration) * 60 })
+                .setZone(locationSettings.timeZone)
+                .toFormat("h:mm a"),
+              customerName: values.customerName,
+              customerEmail: values.customerEmail,
+              customerPhone: values.customerPhone,
+              locationName: location.name,
+              locationPhone: location.phone,
+              locationEmail: location.email,
+            },
+          },
+          {
+            onSuccess: () => {
+              // Create a db entry that it succeeded?
+              // toast({
+              //   variant: "success",
+              //   title: "Email Sent",
+              //   description:
+              //     "A confirmation email has been sent to the customer.",
+              // });
+            },
+            onError: (error) => {
+              // Create a db entry that it failed?
+              console.error("Failed to send confirmation email:", error);
+              // toast({
+              //   variant: "destructive",
+              //   title: "Email Sending Failed",
+              //   description:
+              //     "Failed to send a confirmation email. Please contact support.",
+              // });
+            },
+          },
+        );
       },
       onError: (error) => {
         // Handle error scenario
