@@ -30,7 +30,7 @@ export const sendEmail = async (
         enable: false,
       },
       sandboxMode: {
-        enable: false,
+        enable: true, // TODO: Disable sandbox mode in production
       },
     },
   };
