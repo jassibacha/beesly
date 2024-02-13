@@ -52,9 +52,9 @@ async function seedDatabase() {
     // User details
     await db.insert(users).values({
       id: ownerId,
-      email: "owner@example.com",
+      email: "klikster@gmail.com",
       username: "ownerUsername",
-      displayName: "Owner Display Name",
+      displayName: "J B",
       userImage: "https://example.com/user_image.jpg",
       onboarded: true,
       stripeCustomerId: null,
@@ -70,17 +70,17 @@ async function seedDatabase() {
     await db.insert(locations).values({
       id: locationId,
       ownerId,
-      name: "Sample Location",
-      slug: "sample-location",
+      name: "Evolve Virtual Reality",
+      slug: "evolve",
       type: "VR Arcade",
-      phone: "123-456-7890",
-      email: "location@example.com",
-      website: "https://examplelocation.com",
-      streetAddress: "123 Example St",
-      city: "Example City",
-      state: "EX",
-      zipCode: "12345",
-      country: "Exampleland",
+      phone: "236-772-9873",
+      email: "email@evolvevr.ca",
+      website: "https://www.evolvevr.ca",
+      streetAddress: "411 W Broadway",
+      city: "Vancouver",
+      state: "BC",
+      zipCode: "V5Y 1R4",
+      country: "Canada",
       createdAt: now,
       updatedAt: now,
     });
@@ -104,9 +104,11 @@ async function seedDatabase() {
       initialBookingLength: 60,
       bookingLengthIncrements: 30,
       maxAdvanceBookingDays: 30,
+      sameDayLeadTimeBuffer: 120,
       //minTimeBetweenBookings: 15,
       bufferTime: 10,
       timeSlotIncrements: 15,
+      displayUnavailableSlots: false,
       createdAt: now,
       updatedAt: now,
     });
@@ -124,7 +126,7 @@ async function seedDatabase() {
     });
 
     // Bookings details
-    const bookingTimes = [12, 14, 16]; // hours later
+    const bookingTimes = [9, 11, 13]; // hours later
     for (const hoursLater of bookingTimes) {
       // Calculate start and end times using Luxon, rounded to the nearest
       // 15 minutes and ensuring seconds are at 00

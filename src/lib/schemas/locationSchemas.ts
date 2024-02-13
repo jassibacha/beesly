@@ -88,6 +88,9 @@ export const locationSettingsSchema = z.object({
     .number()
     .min(0, "Maximum advance booking days must be a positive number.")
     .max(365, "Maximum advance booking days must be 365 or less."),
+  sameDayLeadTimeBuffer: z
+    .number()
+    .min(0, "Same day lead time buffer must be 0 or more."),
   minTimeBetweenBookings: z
     .number()
     .min(0, "Minimum time between bookings must be a positive number."),
@@ -97,6 +100,7 @@ export const locationSettingsSchema = z.object({
   timeSlotIncrements: z
     .number()
     .min(0, "Time slot in minutes must be a positive number."),
+  displayUnavailableSlots: z.boolean().default(false),
 });
 export type LocationSettingsSchemaValues = z.infer<
   typeof locationSettingsSchema

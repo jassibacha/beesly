@@ -135,9 +135,11 @@ export const locationRouter = createTRPCRouter({
             initialBookingLength: 60,
             bookingLengthIncrements: 30,
             maxAdvanceBookingDays: 60,
+            sameDayLeadTimeBuffer: 120,
             //minTimeBetweenBookings: 15,
             bufferTime: 10,
             timeSlotIncrements: 15,
+            displayUnavailableSlots: false,
           };
 
           const settings = {

@@ -110,12 +110,23 @@ export const locationSettings = createTable(
       precision: 10,
       scale: 2,
     }),
-    initialBookingLength: smallint("initial_booking_length").notNull(), // in minutes
-    bookingLengthIncrements: smallint("booking_length_increments").notNull(), // in minutes
-    maxAdvanceBookingDays: smallint("max_advance_booking_days").notNull(), // in days
-    //minTimeBetweenBookings: smallint("min_time_between_bookings"), // in minutes
-    bufferTime: smallint("buffer_time").notNull(), // in minutes
-    timeSlotIncrements: smallint("time_slot_increments").notNull(), // in minutes
+    initialBookingLength: smallint("initial_booking_length")
+      .notNull()
+      .default(60), // in minutes
+    bookingLengthIncrements: smallint("booking_length_increments")
+      .notNull()
+      .default(30), // in minutes
+    maxAdvanceBookingDays: smallint("max_advance_booking_days")
+      .notNull()
+      .default(60), // in days
+    sameDayLeadTimeBuffer: smallint("min_lead_time_for_bookings")
+      .notNull()
+      .default(120), // in minutes
+    bufferTime: smallint("buffer_time").notNull().default(10), // in minutes
+    timeSlotIncrements: smallint("time_slot_increments").notNull().default(15), // in minutes
+    displayUnavailableSlots: boolean("display_unavailable_slots")
+      .notNull()
+      .default(false),
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
