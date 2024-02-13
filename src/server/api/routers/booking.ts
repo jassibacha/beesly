@@ -533,10 +533,17 @@ export const bookingRouter = createTRPCRouter({
         return { ...slot, isAvailable };
       });
 
+      let finalSlots = slotsWithAvailability;
+
+      // Only filter out unavailable slots if displayUnavailableSlots is false
+      if (!locationSettings.displayUnavailableSlots) {
+        finalSlots = slotsWithAvailability.filter((slot) => slot.isAvailable);
+      }
+
       return {
         openTimeISO,
         closeTimeISO,
-        slots: slotsWithAvailability,
+        slots: finalSlots,
       };
     }),
 });

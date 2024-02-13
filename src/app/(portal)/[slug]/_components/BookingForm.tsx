@@ -108,6 +108,10 @@ export function BookingForm({
   const selectedDuration = watch("duration");
   // console.log("SELECTEDDATE: ", selectedDate);
 
+  // Convert the selectedDate (which is a JavaScript Date object) to a Luxon DateTime object
+  const formattedSelectedDate =
+    DateTime.fromJSDate(selectedDate).toFormat("cccc, LLLL dd yyyy");
+
   // tRPC query to fetch time slots (available and unavailable)
   const {
     data: timeSlotData,
@@ -419,7 +423,9 @@ export function BookingForm({
           control={form.control}
           render={() => (
             <FormItem className="flex flex-col">
-              <FormLabel>Start Time</FormLabel>
+              <FormLabel>
+                Available Start Times on {formattedSelectedDate}
+              </FormLabel>
               <div className="w-full ">{renderTimeSlotSelection()}</div>
               <FormMessage />
             </FormItem>
