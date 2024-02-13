@@ -119,7 +119,7 @@ export const locationSettings = createTable(
     maxAdvanceBookingDays: smallint("max_advance_booking_days")
       .notNull()
       .default(60), // in days
-    sameDayLeadTimeBuffer: smallint("min_lead_time_for_bookings")
+    sameDayLeadTimeBuffer: smallint("same_day_lead_time_buffer")
       .notNull()
       .default(120), // in minutes
     bufferTime: smallint("buffer_time").notNull().default(10), // in minutes

@@ -126,7 +126,7 @@ async function seedDatabase() {
     });
 
     // Bookings details
-    const bookingTimes = [9, 11, 13]; // hours later
+    const bookingTimes = [19, 21, 23]; // hours later
     for (const hoursLater of bookingTimes) {
       // Calculate start and end times using Luxon, rounded to the nearest
       // 15 minutes and ensuring seconds are at 00
