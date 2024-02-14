@@ -50,6 +50,7 @@ import {
   type UpdateLocationSchemaValues,
   updateLocationSchema,
 } from "@/lib/schemas/locationSchemas";
+import { r2 } from "@/lib/r2";
 
 interface LocationFormProps {
   location: Location;
@@ -65,6 +66,7 @@ export function LocationForm({
     defaultValues: {
       name: location.name,
       slug: location.slug,
+      logo: location.logo,
       phone: location.phone ?? "",
       email: location.email ?? "",
       website: location.website ?? "",
@@ -201,6 +203,27 @@ export function LocationForm({
               <FormDescription>
                 This slug will be used in your booking url.
               </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="logo"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor="logo">Logo</FormLabel>
+              <FormControl>
+                <input id="logo" type="file" accept="image/*" {...field} />
+              </FormControl>
+              {location.logo && (
+                <img
+                  src={location.logo}
+                  alt="Current Logo"
+                  className="mt-2 h-16 w-16 object-cover"
+                />
+              )}
               <FormMessage />
             </FormItem>
           )}

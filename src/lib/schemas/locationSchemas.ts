@@ -58,6 +58,7 @@ export const updateLocationSchema = z.object({
   zipCode: z.string().optional(),
   country: z.string().optional(),
   timeZone: z.string().optional(),
+  logo: z.string().url().optional().nullable(),
 });
 export type UpdateLocationSchemaValues = z.infer<typeof updateLocationSchema>;
 

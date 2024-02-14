@@ -72,6 +72,7 @@ export const locations = createTable(
     state: varchar("state", { length: 30 }),
     zipCode: varchar("zip_code", { length: 20 }),
     country: varchar("country", { length: 100 }),
+    logo: varchar("logo", { length: 2048 }),
     //settings: json("settings"), // Phase2
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
