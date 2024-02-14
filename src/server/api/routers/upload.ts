@@ -18,6 +18,7 @@ export const uploadRouter = createTRPCRouter({
         input.extension === "png" ? "image/png" : "image/jpeg";
 
       console.log("Bucket name:", process.env.CLOUDFLARE_R2_BUCKET_NAME);
+      console.log("Account ID:", process.env.CLOUDFLARE_R2_ACCOUNT_ID);
       const command = new PutObjectCommand({
         Bucket: process.env.CLOUDFLARE_R2_BUCKET_NAME,
         Key: fileName,
