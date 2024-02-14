@@ -26,10 +26,13 @@ export const metadata: Metadata = {
 export default async function DashboardPage() {
   // Check & sync the currentUser to db if they don't exist
   const user = await syncUser();
+  if (!user) {
+    redirect("/sign-in");
+  }
 
   // If user has not been onboarded, redirect to setup
   // This is handled in middleware but this is one last check
-  if (!user?.onboarded) {
+  if (!user.onboarded) {
     redirect("/dashboard/setup");
   }
 
