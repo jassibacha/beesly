@@ -57,6 +57,10 @@ interface LocationFormProps {
   locationSettings: LocationSetting;
 }
 
+type UpdateLocationFormValues = UpdateLocationSchemaValues & {
+  logo: File | string | null;
+};
+
 export function LocationForm({
   location,
   locationSettings,
@@ -87,17 +91,76 @@ export function LocationForm({
     formState: { isSubmitting },
   } = form;
 
+  const { data: uploadData, isLoading: isUploadLoading } =
+    api.upload.getUploadUrl.useQuery({
+      locationId: location.id,
+      extension: "png",
+    });
+
+  const handleLogoUpload = async (file: File): Promise<string | null> => {
+    console.log("Uploading file:", file);
+    if (!uploadData) return null; // No upload data available
+
+    // Upload the file to the signed URL
+    const response = await fetch(uploadData.url, {
+      method: "PUT",
+      body: file,
+      headers: {
+        "Content-Type": "image/png",
+      },
+    });
+
+    if (response.ok) {
+      console.log("File uploaded:", uploadData.fileName);
+      // Return the URL of the uploaded file
+      const logoUrl = `https://${process.env.CLOUDFLARE_R2_BUCKET_NAME}.r2.cloudflarestorage.com/${uploadData.fileName}`;
+      return logoUrl;
+    } else {
+      // Log the error and return null
+      console.error("Error uploading file:", response.statusText);
+      return null;
+    }
+  };
+
   //const createBookingMutation = api.booking.book.useMutation();
   const updateLocationMutation = api.location.update.useMutation();
 
-  const onSubmit: SubmitHandler<UpdateLocationSchemaValues> = (values) => {
-    console.log(values);
+  const onSubmit: SubmitHandler<UpdateLocationSchemaValues> = async (
+    values,
+  ) => {
+    console.log("values: ", values);
 
-    // Prepare data for the backend. This might include formatting dates and times.
+    // let logoUrl: string | null = location.logo ?? null; // Use the existing logo URL as the default
+    // if (typeof values.logo === "object") {
+    //   //if (values.logo instanceof File) {
+    //   logoUrl = await handleLogoUpload(values.logo);
+    // }
+
+    // Use the existing logo URL as the default
+    let logoUrl: string | null = location.logo ?? null;
+    // check if values.logo is truthy and is an object, and then we check if it
+    // has a name property, which is a property of a File object.
+    if (
+      values.logo &&
+      typeof values.logo === "object" &&
+      "name" in values.logo
+    ) {
+      console.log("values.logo is a File, uploading...");
+      // safely cast values.logo to File and pass it to handleLogoUpload
+      logoUrl = await handleLogoUpload(values.logo as File);
+    }
+
     const updatedData = {
       id: location.id,
+      logo: logoUrl,
       ...values,
     };
+
+    // Prepare data for the backend. This might include formatting dates and times.
+    // const updatedData = {
+    //   id: location.id,
+    //   ...values,
+    // };
 
     updateLocationMutation.mutate(updatedData, {
       onSuccess: () => {
@@ -215,7 +278,16 @@ export function LocationForm({
             <FormItem>
               <FormLabel htmlFor="logo">Logo</FormLabel>
               <FormControl>
-                <input id="logo" type="file" accept="image/*" {...field} />
+                <input
+                  id="logo"
+                  type="file"
+                  accept="image/png, image/jpeg"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      field.onChange(e.target.files[0]);
+                    }
+                  }}
+                />
               </FormControl>
               {location.logo && (
                 <img
