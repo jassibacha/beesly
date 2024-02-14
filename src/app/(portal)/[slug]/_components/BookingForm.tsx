@@ -110,7 +110,7 @@ export function BookingForm({
 
   // Convert the selectedDate (which is a JavaScript Date object) to a Luxon DateTime object
   const formattedSelectedDate =
-    DateTime.fromJSDate(selectedDate).toFormat("cccc, LLLL dd yyyy");
+    DateTime.fromJSDate(selectedDate).toFormat("ccc, LLLL dd yyyy");
 
   // tRPC query to fetch time slots (available and unavailable)
   const {
