@@ -47,8 +47,8 @@ import type {
   Resource,
 } from "@/server/db/types";
 import {
-  type UpdateLocationSchemaValues,
-  updateLocationSchema,
+  type UpdateLocationFormSchemaValues,
+  updateLocationFormSchema,
 } from "@/lib/schemas/locationSchemas";
 import { r2 } from "@/lib/r2";
 
@@ -58,7 +58,7 @@ interface LocationFormProps {
 }
 
 // Define the form values type to include the logo as File | string | null
-type FormValues = UpdateLocationSchemaValues & {
+type FormValues = UpdateLocationFormSchemaValues & {
   logo: File | string | null;
 };
 
@@ -66,8 +66,8 @@ export function LocationForm({
   location,
   locationSettings,
 }: LocationFormProps) {
-  const form = useForm<FormValues>({
-    resolver: zodResolver(updateLocationSchema),
+  const form = useForm<UpdateLocationFormSchemaValues>({
+    resolver: zodResolver(updateLocationFormSchema),
     defaultValues: {
       name: location.name,
       slug: location.slug,
@@ -140,7 +140,8 @@ export function LocationForm({
       console.log("Upload response:", response);
 
       if (response.ok) {
-        const logoUrl = `https://${process.env.R2_BUCKET_NAME}.r2.cloudflarestorage.com/${uploadData.fileName}`;
+        //const logoUrl = `https://${process.env.NEXT_PUBLIC_CLOUDFLARE_R2_BUCKET_NAME}.r2.cloudflarestorage.com/${uploadData.fileName}`;
+        const logoUrl = `${process.env.NEXT_PUBLIC_CLOUDFLARE_R2_URL}${uploadData.fileName}`;
         console.log("File uploaded successfully. Logo URL:", logoUrl);
         return logoUrl;
       } else {
@@ -156,7 +157,7 @@ export function LocationForm({
   //const createBookingMutation = api.booking.book.useMutation();
   const updateLocationMutation = api.location.update.useMutation();
 
-  const onSubmit: SubmitHandler<UpdateLocationSchemaValues> = async (
+  const onSubmit: SubmitHandler<UpdateLocationFormSchemaValues> = async (
     values,
   ) => {
     console.log("Form submitted with values:", values);
@@ -173,7 +174,7 @@ export function LocationForm({
     ) {
       console.log("Logo file detected, uploading...");
       // safely cast values.logo to File and pass it to handleLogoUpload
-      logoUrl = await handleLogoUpload(values.logo as File);
+      logoUrl = await handleLogoUpload(values.logo); // as File was remomved here
 
       console.log("Uploaded logo URL:", logoUrl);
     } else {
@@ -181,9 +182,9 @@ export function LocationForm({
     }
 
     const updatedData = {
+      ...values,
       id: location.id,
       logo: logoUrl,
-      ...values,
     };
 
     // Prepare data for the backend. This might include formatting dates and times.
@@ -216,7 +217,7 @@ export function LocationForm({
         // Optionally, handle form-specific errors such as validation issues
         if ("cause" in error && error.cause instanceof ZodError) {
           for (const issue of error.cause.errors) {
-            setError(issue.path[0] as keyof UpdateLocationSchemaValues, {
+            setError(issue.path[0] as keyof UpdateLocationFormSchemaValues, {
               message: issue.message,
             });
           }

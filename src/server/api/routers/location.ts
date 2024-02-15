@@ -215,12 +215,15 @@ export const locationRouter = createTRPCRouter({
             });
           }
 
+          console.log("Logo input", input.logo);
+
           // Update the location
           await tx
             .update(locations)
             .set({
               name: input.name,
               slug: input.slug,
+              logo: input.logo,
               phone: input.phone,
               email: input.email,
               website: input.website,

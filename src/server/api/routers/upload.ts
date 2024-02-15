@@ -17,15 +17,20 @@ export const uploadRouter = createTRPCRouter({
       const contentType =
         input.extension === "png" ? "image/png" : "image/jpeg";
 
-      console.log("Bucket name:", process.env.CLOUDFLARE_R2_BUCKET_NAME);
+      console.log(
+        "Bucket name:",
+        process.env.NEXT_PUBLIC_CLOUDFLARE_R2_BUCKET_NAME,
+      );
       console.log("Account ID:", process.env.CLOUDFLARE_R2_ACCOUNT_ID);
       const command = new PutObjectCommand({
-        Bucket: process.env.CLOUDFLARE_R2_BUCKET_NAME,
+        Bucket: process.env.NEXT_PUBLIC_CLOUDFLARE_R2_BUCKET_NAME,
         Key: fileName,
         ContentType: contentType,
       });
 
       const signedUrl = await getSignedUrl(r2, command, { expiresIn: 300 });
+
+      console.log("Signed URL:", signedUrl);
 
       return { url: signedUrl, fileName };
     }),

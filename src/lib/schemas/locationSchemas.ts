@@ -46,6 +46,25 @@ export const createLocationSchema = z.object({
 });
 export type CreateLocationSchemaValues = z.infer<typeof createLocationSchema>;
 
+export const updateLocationFormSchema = z.object({
+  name: z.string().min(1).optional(),
+  slug: z.string().min(2).max(14).optional(),
+  phone: z.string().optional(),
+  email: z.string().email().optional(),
+  website: z.string().url().optional(),
+  streetAddress: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  zipCode: z.string().optional(),
+  country: z.string().optional(),
+  timeZone: z.string().optional(),
+  logo: z.instanceof(File).or(z.string().url()).optional().nullable(),
+  //logo: z.string().url().optional().nullable(),
+});
+export type UpdateLocationFormSchemaValues = z.infer<
+  typeof updateLocationFormSchema
+>;
+
 export const updateLocationSchema = z.object({
   name: z.string().min(1).optional(),
   slug: z.string().min(2).max(14).optional(),
@@ -58,7 +77,8 @@ export const updateLocationSchema = z.object({
   zipCode: z.string().optional(),
   country: z.string().optional(),
   timeZone: z.string().optional(),
-  logo: z.string().url().optional().nullable(),
+  logo: z.string().optional().nullable(),
+  //logo: z.string().url().optional().nullable(),
 });
 export type UpdateLocationSchemaValues = z.infer<typeof updateLocationSchema>;
 
