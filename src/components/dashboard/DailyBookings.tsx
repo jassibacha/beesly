@@ -132,11 +132,10 @@ export default function DailyBookings({
   //     .toFormat("h:mm a"); // Format the time as "9:00 PM", "10:00 PM", etc.
   // };
 
-  // Function to calculate grid row start based on time
-  const calculateGridRow = (isoTime: string) => {
-    const time = DateTime.fromISO(isoTime, { zone: locationSettings.timeZone });
-    return time.hour + time.minute / 60 + 1; // +1 because CSS grid rows start at 1
-  };
+  // const calculateGridRowStart = (isoTime: string) => {
+  //   const time = DateTime.fromISO(isoTime, { zone: locationSettings.timeZone });
+  //   return time.hour + 1; // +1 because CSS grid rows start at 1
+  // };
 
   const calculateGridRowStart = (isoTime: string) => {
     const time = DateTime.fromISO(isoTime, { zone: locationSettings.timeZone });
@@ -172,66 +171,13 @@ export default function DailyBookings({
     //   </div>
     // );
 
-    // return (
-    //   <div className="flex w-full">
-    //     <div className="flex w-16 flex-col text-sm">
-    //       {hours.map((minute) => (
-    //         <div
-    //           key={minute}
-    //           className={`h-20 border-b border-gray-200 pr-2 text-right`} // Adjust the height to span one hour
-    //         >
-    //           {DateTime.fromObject({ hour: minute / 60 }).toFormat("ha")}
-    //         </div>
-    //       ))}
-    //     </div>
-    //     <div className="relative flex-1">
-    //       <div
-    //         className="absolute inset-0 grid w-full"
-    //         style={{ gridTemplateRows: `repeat(${24}, ${slotHeight * 4}px)` }} // Adjust the grid to have rows for each hour
-    //       >
-    //         {hours.map((minute, index) => (
-    //           <div
-    //             key={index}
-    //             className="border-b border-gray-200" // Add a vertical border for each hour
-    //             style={{
-    //               gridRowStart: index + 1,
-    //               gridRowEnd: index + 2,
-    //             }}
-    //           ></div>
-    //         ))}
-    //         {bookingsData?.bookings?.map((booking, index) => {
-    //           const start = DateTime.fromISO(booking.startTime!);
-    //           const end = DateTime.fromISO(booking.endTime!);
-    //           const durationInMinutes = end.diff(start, "minutes").minutes;
-    //           const height = (durationInMinutes / 60) * slotHeight * 4; // Adjust the height calculation for hourly slots
-
-    //           return (
-    //             <div
-    //               key={index}
-    //               className="absolute bg-blue-500 p-1 text-white"
-    //               style={{
-    //                 gridColumn: "1 / -1",
-    //                 gridRowStart: (start.hour * 60 + start.minute) / 60 + 1, // Adjust the gridRowStart calculation for hourly slots
-    //                 height: `${height}px`,
-    //               }}
-    //             >
-    //               {booking.customerName}: {start.toFormat("h:mm a")} -{" "}
-    //               {end.toFormat("h:mm a")}
-    //             </div>
-    //           );
-    //         })}
-    //       </div>
-    //     </div>
-    //   </div>
-    // );
-
     return (
       <div className="flex w-full">
         <div className="flex w-16 flex-col text-sm">
           {hours.map((minute) => (
             <div
               key={minute}
-              className="border-b border-gray-200 pr-2 text-right"
+              className="border-b border-r border-gray-200 pr-5 text-right"
               style={{ height: `${HOUR_HEIGHT}px` }} // Set the height for each hour slot
             >
               {DateTime.fromObject({ hour: minute / 60 }).toFormat("ha")}
@@ -241,12 +187,12 @@ export default function DailyBookings({
         <div className="relative flex-1">
           <div
             className="absolute inset-0 grid w-full"
-            style={{ gridTemplateRows: `repeat(${24}, ${HOUR_HEIGHT}px)` }} // Set the grid rows to match the hour height
+            style={{ gridTemplateRows: `repeat(96, ${BASE_SLOT_HEIGHT}px)` }} // Set the grid rows for 15-minute increments
           >
-            {hours.map((minute, index) => (
+            {Array.from({ length: 96 }).map((_, index) => (
               <div
                 key={index}
-                className="border-b border-gray-200" // Add a horizontal border for each hour
+                className={`border-b border-gray-200 ${index % 4 === 3 ? "border-opacity-100" : "border-opacity-0"}`}
                 style={{
                   gridRowStart: index + 1,
                   gridRowEnd: index + 2,
@@ -262,15 +208,17 @@ export default function DailyBookings({
               return (
                 <div
                   key={index}
-                  className="absolute bg-blue-500 p-1 text-white"
+                  className="absolute flex w-48 flex-col bg-blue-500 p-1 text-white"
                   style={{
                     gridColumn: "1 / -1",
-                    gridRowStart: (start.hour * 60 + start.minute) / 60 + 1,
+                    gridRowStart: calculateGridRowStart(booking.startTime!),
                     height: `${height}px`, // Set the height of the booking
                   }}
                 >
-                  {booking.customerName}: {start.toFormat("h:mm a")} -{" "}
-                  {end.toFormat("h:mm a")}
+                  <div className="font-semibold">{booking.customerName}</div>
+                  <div className="">
+                    {start.toFormat("h:mm a")} - {end.toFormat("h:mm a")}
+                  </div>
                 </div>
               );
             })}
@@ -285,23 +233,33 @@ export default function DailyBookings({
     //       {hours.map((minute) => (
     //         <div
     //           key={minute}
-    //           className={`h-${slotHeight} border-b border-gray-200 pr-2 text-right`}
+    //           className="border-b border-gray-200 pr-2 text-right"
+    //           style={{ height: `${HOUR_HEIGHT}px` }} // Set the height for each hour slot
     //         >
-    //           {minute % 60 === 0 &&
-    //             DateTime.fromObject({ hour: minute / 60 }).toFormat("ha")}
+    //           {DateTime.fromObject({ hour: minute / 60 }).toFormat("ha")}
     //         </div>
     //       ))}
     //     </div>
     //     <div className="relative flex-1">
     //       <div
     //         className="absolute inset-0 grid w-full"
-    //         style={{ gridTemplateRows: `repeat(${24 * 4}, ${slotHeight}px)` }}
+    //         style={{ gridTemplateRows: `repeat(${96}, ${HOUR_HEIGHT}px)` }} // Set the grid rows to match the hour height 24 x 4 (15min increment) = 96
     //       >
+    //         {hours.map((minute, index) => (
+    //           <div
+    //             key={index}
+    //             className={`border-b border-gray-200 ${index % 4 === 0 ? "border-opacity-100" : "border-opacity-0"}`}
+    //             style={{
+    //               gridRowStart: index + 1,
+    //               gridRowEnd: index + 2,
+    //             }}
+    //           ></div>
+    //         ))}
     //         {bookingsData?.bookings?.map((booking, index) => {
     //           const start = DateTime.fromISO(booking.startTime!);
     //           const end = DateTime.fromISO(booking.endTime!);
     //           const durationInMinutes = end.diff(start, "minutes").minutes;
-    //           const height = (durationInMinutes / 15) * slotHeight;
+    //           const height = calculateHeight(durationInMinutes); // Calculate the height based on the booking duration
 
     //           return (
     //             <div
@@ -309,8 +267,8 @@ export default function DailyBookings({
     //               className="absolute bg-blue-500 p-1 text-white"
     //               style={{
     //                 gridColumn: "1 / -1",
-    //                 gridRowStart: (start.hour * 60 + start.minute) / 15 + 1,
-    //                 height: `${height}px`,
+    //                 gridRowStart: calculateGridRowStart(booking.startTime!),
+    //                 height: `${height}px`, // Set the height of the booking
     //               }}
     //             >
     //               {booking.customerName}: {start.toFormat("h:mm a")} -{" "}
