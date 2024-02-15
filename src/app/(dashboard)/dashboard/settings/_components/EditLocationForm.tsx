@@ -94,13 +94,27 @@ export function LocationForm({
   } = form;
 
   const { data: uploadData, isLoading: isUploadLoading } =
-    api.r2.getUploadUrl.useQuery({
+    api.r2.getLogoUploadUrl.useQuery({
       locationId: location.id,
       extension: "png",
     });
 
+  const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1 MB
+
   const handleLogoUpload = async (file: File) => {
     console.log("handleLogoUpload called with file:", file);
+
+    // Check if the file size exceeds the maximum limit
+    if (file.size > MAX_FILE_SIZE) {
+      toast({
+        variant: "destructive",
+        title: "Upload Failed",
+        description: "File size exceeds the maximum limit of 1 MB.",
+      });
+      return null;
+    }
+    ``;
+
     if (!uploadData) {
       console.log("No upload data available");
       return null;
@@ -186,7 +200,7 @@ export function LocationForm({
     ) {
       console.log("Logo file detected, uploading...");
       // safely cast values.logo to File and pass it to handleLogoUpload
-      logoUrl = await handleLogoUpload(values.logo); // as File was remomved here
+      logoUrl = await handleLogoUpload(values.logo);
 
       console.log("Uploaded logo URL:", logoUrl);
       setCurrentLogo(logoUrl);
@@ -287,7 +301,7 @@ export function LocationForm({
               <img
                 src={location.logo}
                 alt="Current Logo"
-                className="h-16 w-16 object-cover"
+                className="max-h-[300px] max-w-[300px] object-contain"
               />
               <Button
                 variant="destructive"
@@ -307,7 +321,7 @@ export function LocationForm({
               <FormItem>
                 <FormLabel htmlFor="logo">Logo</FormLabel>
                 <FormControl>
-                  <input
+                  <Input
                     id="logo"
                     type="file"
                     accept="image/png, image/jpeg"
@@ -318,6 +332,10 @@ export function LocationForm({
                     }}
                   />
                 </FormControl>
+                <FormDescription>
+                  File type PNG. Maximum file size 1MB. Recommended dimensions:
+                  400px or larger.
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}

@@ -12,10 +12,11 @@ import { locations } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 
 export const r2Router = createTRPCRouter({
-  getUploadUrl: protectedProcedure
+  getLogoUploadUrl: protectedProcedure
     .input(
       z.object({
         locationId: z.string(),
+        //slug: z.string(),
         extension: z.enum(["png", "jpg"]),
       }),
     )
