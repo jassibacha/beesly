@@ -16,12 +16,22 @@ export const r2Router = createTRPCRouter({
     .input(
       z.object({
         locationId: z.string(),
-        //slug: z.string(),
         extension: z.enum(["png", "jpg"]),
       }),
     )
-    .query(async ({ input }) => {
-      const fileName = `logos/${input.locationId}/logo-${Date.now()}.${input.extension}`;
+    .query(async ({ input, ctx }) => {
+      const location = await ctx.db.query.locations.findFirst({
+        where: (locations, { eq }) => eq(locations.id, input.locationId),
+      });
+      if (!location) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Location not found",
+        });
+      }
+      const slug = location.slug;
+      const fileName = `${slug}/logo-${Date.now()}.${input.extension}`;
+      //const fileName = `logos/${input.locationId}/logo-${Date.now()}.${input.extension}`;
       const contentType =
         input.extension === "png" ? "image/png" : "image/jpeg";
 
