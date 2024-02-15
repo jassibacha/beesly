@@ -2,7 +2,7 @@
 
 import { z, ZodError } from "zod";
 import { DateTime } from "luxon";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { CalendarIcon, Loader2, Trash2 } from "lucide-react";
 import { type SubmitHandler, useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -51,6 +51,7 @@ import {
   updateLocationFormSchema,
 } from "@/lib/schemas/locationSchemas";
 import { r2 } from "@/lib/r2";
+import { set } from "date-fns";
 
 interface LocationFormProps {
   location: Location;
@@ -66,6 +67,7 @@ export function LocationForm({
   location,
   locationSettings,
 }: LocationFormProps) {
+  const [currentLogo, setCurrentLogo] = useState<string | null>(location.logo);
   const form = useForm<UpdateLocationFormSchemaValues>({
     resolver: zodResolver(updateLocationFormSchema),
     defaultValues: {
@@ -92,35 +94,11 @@ export function LocationForm({
   } = form;
 
   const { data: uploadData, isLoading: isUploadLoading } =
-    api.upload.getUploadUrl.useQuery({
+    api.r2.getUploadUrl.useQuery({
       locationId: location.id,
       extension: "png",
     });
 
-  // const handleLogoUpload = async (file: File): Promise<string | null> => {
-  //   console.log("Uploading file:", file);
-  //   if (!uploadData) return null; // No upload data available
-
-  //   // Upload the file to the signed URL
-  //   const response = await fetch(uploadData.url, {
-  //     method: "PUT",
-  //     body: file,
-  //     headers: {
-  //       "Content-Type": "image/png",
-  //     },
-  //   });
-
-  //   if (response.ok) {
-  //     console.log("File uploaded:", uploadData.fileName);
-  //     // Return the URL of the uploaded file
-  //     const logoUrl = `https://${process.env.CLOUDFLARE_R2_BUCKET_NAME}.r2.cloudflarestorage.com/${uploadData.fileName}`;
-  //     return logoUrl;
-  //   } else {
-  //     // Log the error and return null
-  //     console.error("Error uploading file:", response.statusText);
-  //     return null;
-  //   }
-  // };
   const handleLogoUpload = async (file: File) => {
     console.log("handleLogoUpload called with file:", file);
     if (!uploadData) {
@@ -154,6 +132,40 @@ export function LocationForm({
     }
   };
 
+  const deleteLogoMutation = api.r2.deleteLogo.useMutation();
+
+  const handleDeleteLogo = async () => {
+    if (location.logo) {
+      deleteLogoMutation.mutate(
+        { imageUrl: location.logo, locationId: location.id },
+        {
+          onSuccess: () => {
+            toast({
+              variant: "success",
+              title: "Logo Deleted",
+              description: "Your logo has been successfully deleted.",
+              duration: 2000,
+            });
+            // Update the location object to remove the logo
+            const updatedLocation = { ...location, logo: null };
+            reset({ ...form.getValues(), logo: null }); // Update the form values
+            location = updatedLocation; // Update the location object
+            setCurrentLogo(null);
+          },
+          onError: (error) => {
+            toast({
+              variant: "destructive",
+              title: "Logo Delete Failed",
+              description:
+                error.message ||
+                "An unexpected error occurred. Please try again.",
+            });
+          },
+        },
+      );
+    }
+  };
+
   //const createBookingMutation = api.booking.book.useMutation();
   const updateLocationMutation = api.location.update.useMutation();
 
@@ -177,6 +189,7 @@ export function LocationForm({
       logoUrl = await handleLogoUpload(values.logo); // as File was remomved here
 
       console.log("Uploaded logo URL:", logoUrl);
+      setCurrentLogo(logoUrl);
     } else {
       console.log("No logo file detected or invalid logo value.");
     }
@@ -186,12 +199,6 @@ export function LocationForm({
       id: location.id,
       logo: logoUrl,
     };
-
-    // Prepare data for the backend. This might include formatting dates and times.
-    // const updatedData = {
-    //   id: location.id,
-    //   ...values,
-    // };
 
     console.log("Submitting data to updateLocationMutation:", updatedData);
     updateLocationMutation.mutate(updatedData, {
@@ -224,39 +231,6 @@ export function LocationForm({
         }
       },
     });
-
-    // Execute mutation
-    // createBookingMutation.mutate(bookingData, {
-    //   onSuccess: () => {
-    //     // Handle success scenario
-    //     toast({
-    //       variant: "success",
-    //       title: "Booking Successful",
-    //       description: "Your booking has been successfully created.",
-    //     });
-
-    //     // Reset form or redirect user as needed
-    //     reset();
-    //   },
-    //   onError: (error) => {
-    //     // Handle error scenario
-    //     toast({
-    //       variant: "destructive",
-    //       title: "Booking Failed",
-    //       description:
-    //         error.message || "An unexpected error occurred. Please try again.",
-    //     });
-
-    //     // Optionally, handle form-specific errors such as validation issues
-    //     if ("cause" in error && error.cause instanceof ZodError) {
-    //       for (const issue of error.cause.errors) {
-    //         setError(issue.path[0] as keyof UpdateLocationSchemaValues, {
-    //           message: issue.message,
-    //         });
-    //       }
-    //     }
-    //   },
-    // });
   };
 
   return (
@@ -305,64 +279,50 @@ export function LocationForm({
           )}
         />
 
-        <Controller
-          control={control}
-          name="logo"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="logo">Logo</FormLabel>
-              <FormControl>
-                <input
-                  id="logo"
-                  type="file"
-                  accept="image/png, image/jpeg"
-                  onChange={(e) => {
-                    // Set the form value to the selected file
-                    field.onChange(e.target.files ? e.target.files[0] : null);
-                  }}
-                />
-              </FormControl>
-              {typeof field.value === "string" && (
-                <img
-                  src={field.value}
-                  alt="Current Logo"
-                  className="mt-2 h-16 w-16 object-cover"
-                />
-              )}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* <FormField
-          control={control}
-          name="logo"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="logo">Logo</FormLabel>
-              <FormControl>
-                <input
-                  id="logo"
-                  type="file"
-                  accept="image/png, image/jpeg"
-                  onChange={(e) => {
-                    if (e.target.files?.[0]) {
-                      field.onChange(e.target.files[0]);
-                    }
-                  }}
-                />
-              </FormControl>
-              {location.logo && (
-                <img
-                  src={location.logo}
-                  alt="Current Logo"
-                  className="mt-2 h-16 w-16 object-cover"
-                />
-              )}
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
+        {/* Logo field */}
+        {location.logo && currentLogo ? (
+          <FormItem>
+            <FormLabel className="">Logo</FormLabel>
+            <div className="flex items-center space-x-4">
+              <img
+                src={location.logo}
+                alt="Current Logo"
+                className="h-16 w-16 object-cover"
+              />
+              <Button
+                variant="destructive"
+                onClick={handleDeleteLogo}
+                className="flex items-center space-x-2"
+              >
+                <Trash2 size={16} />
+                <span>Delete</span>
+              </Button>
+            </div>
+          </FormItem>
+        ) : (
+          <FormField
+            control={control}
+            name="logo"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="logo">Logo</FormLabel>
+                <FormControl>
+                  <input
+                    id="logo"
+                    type="file"
+                    accept="image/png, image/jpeg"
+                    onChange={(e) => {
+                      if (e.target.files?.[0]) {
+                        field.onChange(e.target.files[0]);
+                      }
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         {/* Phone field */}
         <FormField
