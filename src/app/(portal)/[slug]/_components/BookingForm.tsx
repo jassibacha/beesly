@@ -289,6 +289,7 @@ export function BookingForm({
               locationName: location.name,
               locationPhone: location.phone,
               locationEmail: location.email,
+              locationLogo: location.logo,
             },
           },
           {
