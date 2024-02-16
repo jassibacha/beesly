@@ -9,6 +9,7 @@ import {
   resources,
   users,
 } from "./schema";
+import { faker } from "@faker-js/faker";
 
 // Seeding tsx instructions
 // https://discord.com/channels/966627436387266600/1200193597870448780/1200222130093162496
@@ -48,7 +49,9 @@ async function wipeTables() {
 
 async function seedDatabase() {
   try {
-    const now = DateTime.now().toUTC().toJSDate();
+    //const now = DateTime.now().toUTC().toJSDate();
+    const now = DateTime.now().setZone("America/Los_Angeles").toJSDate();
+
     // User details
     await db.insert(users).values({
       id: ownerId,
@@ -126,96 +129,156 @@ async function seedDatabase() {
     });
 
     // Bookings details
-    const bookingTimes = [19, 21, 23]; // hours later
-    for (const hoursLater of bookingTimes) {
-      // Calculate start and end times using Luxon, rounded to the nearest
-      // 15 minutes and ensuring seconds are at 00
-      // CANNOT BE EDITED IN DRIZZLE STUDIO
-      const nowPlusHours = DateTime.now()
-        .setZone("utc")
-        .plus({ hours: hoursLater });
-      const roundedStartTime = nowPlusHours
-        .plus({ minutes: (15 - (nowPlusHours.minute % 15)) % 15 })
-        .startOf("minute");
-      const startTime = roundedStartTime.toJSDate();
-      const endTime = roundedStartTime
-        .plus({ hours: 1 })
-        .startOf("minute")
-        .toJSDate();
+    const daysToSeed = 3; // Number of days to seed bookings for
+    const minBookingsPerDay = 5;
+    const maxBookingsPerDay = 7;
 
-      // Generate a DateTime.now and a new Date for now
-      const dateTimeNow = DateTime.now().toUTC();
-      const dateNow = new Date();
-
-      console.log("dateTimeNow", dateTimeNow);
-      console.log("dateNow", dateNow);
-
-      // Start time: hours later from now
-      // const startTime = new Date(
-      //   new Date().getTime() + hoursLater * 60 * 60 * 1000,
-      // );
-
-      // // End time: 1 hour after start time
-      // const endTime = new Date(startTime.getTime() + 1 * 60 * 60 * 1000);
-
-      // CORRECT STRING FORMAT FEB 6 2024 WITH MODE: STRING ON DATETIME
-
-      // const startTime = DateTime.now()
-      //   .setZone("utc")
-      //   .plus({ hours: hoursLater });
-      // const endTime = startTime.plus({ hours: 1 });
-      // // Format startTime and endTime to "YYYY-MM-DD HH:MM:SS" format
-      // const formattedStartTime = startTime.toFormat("yyyy-MM-dd HH:mm:ss");
-      // const formattedEndTime = endTime.toFormat("yyyy-MM-dd HH:mm:ss");
-
-      // const startTime = roundedStartTime.toISO();
-      // const endTime = roundedStartTime
-      //   .plus({ hours: 1 })
-      //   .startOf("minute")
-      //   .toISO();
-
-      // THIS WORKS FINE, NO ERRORS WITH BOOKINGS INSERT
-      // STILL CANNOT EDIT IT IN DRIZZLE STUDIO
-      // const startTime = DateTime.now()
-      //   .plus({ hours: hoursLater })
-      //   .toUTC()
-      //   .toJSDate();
-      // const endTime = DateTime.now()
-      //   .plus({ hours: hoursLater + 1 })
-      //   .toUTC()
-      //   .toJSDate();
-
-      // const startTime = new Date(
-      //   new Date().getTime() + hoursLater * 60 * 60 * 1000,
-      // );
-      // const endTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000); // 2 hours duration
-      const bookingId = uuidv4();
-
-      await db.insert(bookings).values({
-        id: bookingId,
-        locationId: locationId,
-        customerName: "Customer Name",
-        customerEmail: "customer@example.com",
-        customerPhone: "123-456-7890",
-        // startTime: formattedStartTime, // STRING FORMATTED
-        // endTime: formattedEndTime, // STRING FORMATTED
-        startTime: startTime, // TODO: Possibly swap this from JSDate to String once we figure out the Drizzle bug
-        endTime: endTime, // TODO: Possibly swap this from JSDate to String once we figure out the Drizzle bug
-        // totalCost: "200.00",
-        // taxAmount: "40.00",
-        // status: "Confirmed",
-        createdAt: now,
-        updatedAt: now,
+    for (let day = 0; day < daysToSeed; day++) {
+      const bookingsToday = faker.number.int({
+        min: minBookingsPerDay,
+        max: maxBookingsPerDay,
       });
 
-      await db.insert(resourceBookings).values({
-        id: uuidv4(),
-        bookingId: bookingId,
-        resourceId: resourceId,
-        createdAt: now,
-        updatedAt: now,
-      });
+      let lastEndTime: DateTime = DateTime.now().plus({ days: day, hours: 10 });
+
+      for (let i = 0; i < bookingsToday; i++) {
+        // Randomly choose between a 15-minute or 30-minute gap after the last end time
+        const gap = faker.number.int({ min: 1, max: 2 }) * 15;
+        const startTime = roundToNearest15(
+          lastEndTime.plus({ minutes: gap }),
+        ).toJSDate();
+
+        const durationOptions = [1, 1.5, 2];
+        const duration =
+          durationOptions[
+            faker.number.int({ min: 0, max: durationOptions.length - 1 })
+          ];
+
+        const endTime = roundToNearest15(
+          DateTime.fromJSDate(startTime).plus({ hours: duration }),
+        ).toJSDate();
+
+        // Update last end time to the end time of the new booking
+        lastEndTime = DateTime.fromJSDate(endTime);
+
+        const bookingId = uuidv4();
+
+        await db.insert(bookings).values({
+          id: bookingId,
+          locationId: locationId,
+          customerName: faker.person.fullName(),
+          customerEmail: faker.internet.email(),
+          customerPhone: faker.phone.number(),
+          startTime: startTime,
+          endTime: endTime,
+          createdAt: now,
+          updatedAt: now,
+        });
+
+        await db.insert(resourceBookings).values({
+          id: uuidv4(),
+          bookingId: bookingId,
+          resourceId: resourceId,
+          createdAt: now,
+          updatedAt: now,
+        });
+      }
     }
+
+    // for (let day = 0; day < daysToSeed; day++) {
+    //   const bookingsToday = faker.number.int({
+    //     min: minBookingsPerDay,
+    //     max: maxBookingsPerDay,
+    //   });
+    //   for (let i = 0; i < bookingsToday; i++) {
+    //     const bookingTime = faker.number.int({ min: 0, max: 3 }) * 15; // 0, 15, 30, or 45 minutes
+    //     const startTime = roundToNearest15(
+    //       DateTime.now().plus({
+    //         days: day,
+    //         hours: 10 + faker.number.int({ min: 0, max: 10 }), // Start time between 10 AM and 8 PM
+    //         minutes: bookingTime,
+    //       }),
+    //     ).toJSDate();
+
+    //     const durationOptions = [1, 1.5, 2]; // 1, 1.5, or 2 hours
+    //     const duration =
+    //       durationOptions[
+    //         faker.number.int({ min: 0, max: durationOptions.length - 1 })
+    //       ];
+
+    //     const endTime = roundToNearest15(
+    //       DateTime.fromJSDate(startTime).plus({ hours: duration }),
+    //     ).toJSDate();
+
+    //     const bookingId = uuidv4();
+
+    //     await db.insert(bookings).values({
+    //       id: bookingId,
+    //       locationId: locationId,
+    //       customerName: faker.person.fullName(),
+    //       customerEmail: faker.internet.email(),
+    //       customerPhone: faker.phone.number(),
+    //       startTime: startTime,
+    //       endTime: endTime,
+    //       createdAt: now,
+    //       updatedAt: now,
+    //     });
+
+    //     await db.insert(resourceBookings).values({
+    //       id: uuidv4(),
+    //       bookingId: bookingId,
+    //       resourceId: resourceId,
+    //       createdAt: now,
+    //       updatedAt: now,
+    //     });
+    //   }
+    // }
+
+    // // Bookings details
+    // const bookingTimes = [19, 21, 23]; // hours later
+    // for (const hoursLater of bookingTimes) {
+    //   // Calculate start and end times using Luxon, rounded to the nearest
+    //   // 15 minutes and ensuring seconds are at 00
+    //   // CANNOT BE EDITED IN DRIZZLE STUDIO
+    //   const nowPlusHours = DateTime.now()
+    //     .setZone("utc")
+    //     .plus({ hours: hoursLater });
+    //   const roundedStartTime = nowPlusHours
+    //     .plus({ minutes: (15 - (nowPlusHours.minute % 15)) % 15 })
+    //     .startOf("minute");
+    //   const startTime = roundedStartTime.toJSDate();
+    //   const endTime = roundedStartTime
+    //     .plus({ hours: 1 })
+    //     .startOf("minute")
+    //     .toJSDate();
+
+    //   const bookingId = uuidv4();
+
+    //   await db.insert(bookings).values({
+    //     id: bookingId,
+    //     locationId: locationId,
+    //     customerName: "Customer Name",
+    //     customerEmail: "customer@example.com",
+    //     customerPhone: "123-456-7890",
+    //     // startTime: formattedStartTime, // STRING FORMATTED
+    //     // endTime: formattedEndTime, // STRING FORMATTED
+    //     startTime: startTime, // TODO: Possibly swap this from JSDate to String once we figure out the Drizzle bug
+    //     endTime: endTime, // TODO: Possibly swap this from JSDate to String once we figure out the Drizzle bug
+    //     // totalCost: "200.00",
+    //     // taxAmount: "40.00",
+    //     // status: "Confirmed",
+    //     createdAt: now,
+    //     updatedAt: now,
+    //   });
+
+    //   await db.insert(resourceBookings).values({
+    //     id: uuidv4(),
+    //     bookingId: bookingId,
+    //     resourceId: resourceId,
+    //     createdAt: now,
+    //     updatedAt: now,
+    //   });
+    // }
     console.log("Database seeding finished");
   } catch (error) {
     console.error("Error seeding database:", error);
