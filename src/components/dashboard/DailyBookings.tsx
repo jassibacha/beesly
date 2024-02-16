@@ -113,6 +113,17 @@ export default function DailyBookings({
     return time.hour * 4 + Math.floor(time.minute / 15) + 1; // +1 because CSS grid rows start at 1
   };
 
+  const openingTime = bookingsData
+    ? DateTime.fromISO(bookingsData.openTimeISO, {
+        zone: locationSettings.timeZone,
+      })
+    : null;
+  const offsetInPixels = openingTime
+    ? ((openingTime.hour * 60 + openingTime.minute) / 15) * BASE_SLOT_HEIGHT
+    : 0;
+
+  const reducedOffsetInPixels = offsetInPixels - 100;
+
   const renderBookings = () => {
     if (bookingsIsLoading)
       return (
@@ -130,15 +141,20 @@ export default function DailyBookings({
       ); // Display when no time slots are available
 
     return (
-      <div className="flex h-full w-full overflow-hidden border-t border-gray-200 dark:border-gray-600">
+      <div
+        className="relative flex h-full w-full overflow-hidden border-t border-gray-200 dark:border-gray-600"
+        style={{
+          marginTop: `-${reducedOffsetInPixels}px`,
+        }}
+      >
         <div className="flex w-20 flex-col text-sm">
           {hours.map((minute) => (
             <div
               key={minute}
               className="border-b border-r border-gray-200 pr-5 text-right dark:border-gray-600"
-              style={{ height: `${HOUR_HEIGHT}px` }} // Set the height for each hour slot
+              style={{ height: `${HOUR_HEIGHT}px` }}
             >
-              <Badge variant="outline">
+              <Badge variant="secondary" className="-translate-y-3 transform">
                 {DateTime.fromObject({ hour: minute / 60 }).toFormat("ha")}
               </Badge>
             </div>
@@ -147,7 +163,9 @@ export default function DailyBookings({
         <div className="relative flex-1">
           <div
             className="absolute inset-0 grid w-full"
-            style={{ gridTemplateRows: `repeat(96, ${BASE_SLOT_HEIGHT}px)` }} // Set the grid rows for 15-minute increments
+            style={{
+              gridTemplateRows: `repeat(96, ${BASE_SLOT_HEIGHT}px)`,
+            }} // Set the grid rows for 15-minute increments
           >
             {Array.from({ length: 96 }).map((_, index) => (
               <div
@@ -168,7 +186,7 @@ export default function DailyBookings({
               return (
                 <div
                   key={index}
-                  className="absolute flex w-48 flex-col bg-blue-500 p-1 text-white"
+                  className="absolute flex w-48 flex-col bg-primary p-2 text-sm text-white"
                   style={{
                     gridColumn: "1 / -1",
                     gridRowStart: calculateGridRowStart(booking.startTime!),
@@ -254,7 +272,7 @@ export default function DailyBookings({
       </CardHeader>
       <CardContent>
         <div>
-          <div className="flex items-center justify-between space-y-2">
+          <div className="flex items-center justify-between space-y-2 overflow-hidden">
             {renderBookings()}
           </div>
           {/* {data.bookings?.length ? (
