@@ -14,6 +14,7 @@ import { CalendarDateRangePicker } from "@/components/dashboard/date-range-picke
 // import { Overview } from "@/components/dashboard/overview";
 import { RecentSales } from "@/components/dashboard/recent-sales";
 import { api } from "@/trpc/server";
+import dynamic from "next/dynamic";
 import { LocationForm } from "./_components/EditLocationForm";
 
 export const metadata: Metadata = {

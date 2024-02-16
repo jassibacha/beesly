@@ -51,7 +51,18 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <div className="flex-1 space-y-4 p-8 pt-6">
+      {/* <div className="flex-1 space-y-4 p-8 pt-6"> */}
+      <div className="grid h-[calc(100vh-68px)] gap-4 overflow-auto md:grid-cols-1 lg:grid-cols-1">
+        <Suspense fallback={<div>Loading...</div>}>
+          <DailyBookings
+            location={location}
+            locationSettings={locationSettings}
+            resources={resources}
+          />
+        </Suspense>
+      </div>
+      {/* </div> */}
+      {/* <div className="flex-1 space-y-4 p-8 pt-6">
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-3xl font-bold tracking-tight">Bookings</h2>
           <div className="flex items-center space-x-2">
@@ -62,16 +73,13 @@ export default async function DashboardPage() {
         <Tabs defaultValue="dayview" className="space-y-4">
           <TabsList>
             <TabsTrigger value="dayview">Day View</TabsTrigger>
-            {/* <TabsTrigger value="analytics" disabled>
-              Analytics
-            </TabsTrigger> */}
             <TabsTrigger value="reports">Bookings</TabsTrigger>
             <TabsTrigger value="notifications" disabled>
               Notifications
             </TabsTrigger>
           </TabsList>
           <TabsContent value="dayview" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-1">
+            <div className="grid h-screen gap-4 overflow-auto md:grid-cols-1 lg:grid-cols-1">
               <Suspense fallback={<div>Loading...</div>}>
                 <DailyBookings
                   location={location}
@@ -108,7 +116,7 @@ export default async function DashboardPage() {
             </div>
           </TabsContent>
         </Tabs>
-      </div>
+      </div> */}
     </>
   );
 }
