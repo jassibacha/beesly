@@ -16,7 +16,7 @@ import {
   resources,
 } from "@/server/db/schema";
 import { v4 as uuidv4 } from "uuid";
-import { and, asc, eq, gte, lte } from "drizzle-orm";
+import { and, asc, desc, eq, gte, lte } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { Booking } from "@/server/db/types";
 import type { TRPCContext } from "@/types/trpcContext";
@@ -529,42 +529,6 @@ export const bookingRouter = createTRPCRouter({
         });
       }
 
-      // // Map over all slots to determine their availability
-      // const slotsWithAvailability = allSlots.map((slot) => {
-      //   // Convert the start time of the slot from ISO format to DateTime object
-      //   const slotStart = DateTime.fromISO(slot.startTime, {
-      //     zone: locationSettings.timeZone,
-      //   });
-      //   // Convert the end time of the slot from ISO format to DateTime object
-      //   const slotEnd = DateTime.fromISO(slot.endTime, {
-      //     zone: locationSettings.timeZone,
-      //   });
-      //   // Determine if the slot is available by checking if there are any existing bookings that overlap with the slot
-      //   const isAvailable = !existingBookings.some((booking) => {
-      //     // Convert the start time of the booking from ISO format to DateTime object
-      //     // Subtract the buffer time from the start time
-      //     const bookingStart = DateTime.fromISO(booking.startTime!, {
-      //       zone: locationSettings.timeZone,
-      //     }).minus({ minutes: bufferMin });
-      //     // Convert the end time of the booking from ISO format to DateTime object
-      //     // Add the buffer time to the end time
-      //     const bookingEnd = DateTime.fromISO(booking.endTime!, {
-      //       zone: locationSettings.timeZone,
-      //     }).plus({ minutes: bufferMin });
-      //     // Check if the slot and the booking overlap
-      //     return slotStart < bookingEnd && slotEnd > bookingStart;
-      //   });
-      //   // Return a new object that contains all the properties of the original slot, plus the availability information
-      //   return { ...slot, isAvailable };
-      // });
-
-      // let finalSlots = slotsWithAvailability;
-
-      // // Only filter out unavailable slots if displayUnavailableSlots is false
-      // if (!locationSettings.displayUnavailableSlots) {
-      //   finalSlots = slotsWithAvailability.filter((slot) => slot.isAvailable);
-      // }
-
       // Filter slots based on availability and additional constraints for same-day bookings
       let finalSlots = allSlots.filter((slot) => {
         // Convert the start and end times of the slot from ISO string to DateTime in the specified timezone
@@ -607,6 +571,89 @@ export const bookingRouter = createTRPCRouter({
         openTimeISO,
         closeTimeISO,
         slots: finalSlots,
+      };
+    }),
+
+  // Upcoming bookings
+  listUpcomingBookings: protectedProcedure
+    .input(
+      z.object({
+        locationId: z.string(),
+        limit: z.number().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { limit = 10, locationId } = input; // Default limit to 10 if not provided
+      const now = new Date();
+
+      const upcomingBookings2 = await ctx.db
+        .select()
+        .from(bookings)
+        .where(
+          and(
+            eq(bookings.locationId, locationId),
+            gte(bookings.startTime, now), // DB stores JS Date
+            //lte(bookings.endTime, DateTime.fromISO(closeTimeISO!).toJSDate()), // DB stores JS Date
+          ),
+        )
+        .orderBy(asc(bookings.startTime))
+        .limit(limit);
+
+      // const upcomingBookings = await ctx.db.query.bookings.findMany({
+      //   where: (bookings, { gte }) => gte(bookings.startTime, now),
+      //   orderBy: [asc(bookings.startTime)],
+      //   limit,
+      // });
+
+      return {
+        bookings: upcomingBookings2,
+      };
+    }),
+
+  // Recent bookings
+  listRecentBookings: protectedProcedure
+    .input(
+      z.object({
+        locationId: z.string(),
+        limit: z.number().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { limit = 10 } = input; // Default limit to 10 if not provided
+
+      const recentBookings = await ctx.db.query.bookings.findMany({
+        orderBy: [desc(bookings.createdAt)],
+        limit,
+      });
+
+      return {
+        bookings: recentBookings,
+      };
+    }),
+
+  // Search bookings
+  searchBookings: protectedProcedure
+    .input(
+      z.object({
+        query: z.string(),
+        // Add more fields if needed
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { query } = input;
+
+      const matchingBookings = await ctx.db.query.bookings.findMany({
+        where: (bookings, { or, like }) =>
+          or(
+            like(bookings.customerName, `%${query}%`),
+            like(bookings.customerEmail, `%${query}%`),
+            like(bookings.customerPhone, `%${query}%`),
+          ),
+        // Add more conditions if needed
+      });
+
+      return {
+        bookings: matchingBookings,
       };
     }),
 });

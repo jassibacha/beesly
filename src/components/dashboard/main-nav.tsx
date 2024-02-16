@@ -26,6 +26,15 @@ export function MainNav({
         Overview
       </Link>
       <Link
+        href="/dashboard/bookings"
+        className={cn(
+          "text-sm font-medium transition-colors hover:text-primary",
+          isActive("/dashboard/bookings") ? "" : "text-muted-foreground",
+        )}
+      >
+        Bookings
+      </Link>
+      {/* <Link
         href="/dashboard/reports"
         className={cn(
           "text-sm font-medium transition-colors hover:text-primary",
@@ -33,7 +42,7 @@ export function MainNav({
         )}
       >
         Reports
-      </Link>
+      </Link> */}
       <Link
         href="/dashboard/settings"
         className={cn(
