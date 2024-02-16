@@ -129,7 +129,7 @@ async function seedDatabase() {
     });
 
     // Bookings details
-    const daysToSeed = 3; // Number of days to seed bookings for
+    const daysToSeed = 5; // Number of days to seed bookings for
     const minBookingsPerDay = 5;
     const maxBookingsPerDay = 7;
 
@@ -139,7 +139,10 @@ async function seedDatabase() {
         max: maxBookingsPerDay,
       });
 
-      let lastEndTime: DateTime = DateTime.now().plus({ days: day, hours: 10 });
+      const firstBookingHour = faker.number.int({ min: 9, max: 11 });
+      let lastEndTime: DateTime = DateTime.now()
+        .plus({ days: day + 1 })
+        .set({ hour: firstBookingHour, minute: 0 });
 
       for (let i = 0; i < bookingsToday; i++) {
         // Randomly choose between a 15-minute or 30-minute gap after the last end time
