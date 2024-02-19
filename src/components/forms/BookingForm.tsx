@@ -253,118 +253,214 @@ export function BookingForm({
   };
 
   const createBookingMutation = api.booking.book.useMutation();
+  const updateBookingMutation = api.booking.update.useMutation();
   const sendEmailMutation = api.email.sendEmail.useMutation();
-
-  // Use a different mutation based on whether we are creating or editing
-  const bookingMutation = isEditing
-    ? api.booking.listBookings.useQuery()
-    : api.booking.create.useMutation();
 
   const onSubmit: SubmitHandler<BookingFormSchemaValues> = (values) => {
     console.log(values);
 
+    // Ensure bookingId is always present when editing
+    if (isEditing && !booking.id) {
+      console.error("Booking ID is missing for editing.");
+      return;
+    }
+
     // Prepare data for the backend. This might include formatting dates and times.
-    const bookingData = {
+    const commonData = {
       locationId: location.id,
-      startTime: DateTime.fromISO(values.timeSlot).toJSDate(), // Assuming this is the ISO string of the start time
+      startTime: DateTime.fromISO(values.timeSlot).toJSDate(),
       endTime: DateTime.fromISO(values.timeSlot)
         .plus({ minutes: parseFloat(values.duration) * 60 })
-        .toJSDate(), // Calculate end time based on duration
+        .toJSDate(),
       customerName: values.customerName,
       customerEmail: values.customerEmail,
       customerPhone: values.customerPhone,
-      // Add any other fields required by your backend
     };
 
-    // Execute mutation
-    createBookingMutation.mutate(bookingData, {
-      onSuccess: () => {
-        // Handle success scenario
-        toast({
-          variant: "success",
-          title: "Booking Successful",
-          description: "Your booking has been successfully created.",
-        });
+    if (isEditing) {
+      const updateData = { ...commonData, id: booking.id };
+      // Execute mutation
+      updateBookingMutation.mutate(updateData, {
+        onSuccess: () => {
+          // Handle success scenario
+          toast({
+            variant: "success",
+            title: "Booking Updated",
+            description: "Booking updated successfully.",
+          });
 
-        // Reset form or redirect user as needed
-        reset();
+          // Reset form or redirect user as needed
+          reset();
 
-        // After booking is successful, send an email
-        sendEmailMutation.mutate(
-          {
-            to: values.customerEmail,
-            from: "book@jassibacha.com",
-            //subject: `Booking Confirmation - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,
-            text: `Text Dear ${values.customerName}, your booking for ${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} has been confirmed.`,
-            templateId: "d-bef6d1c8eb924c238bfb75195cb8705c",
-            dynamicData: {
-              fromEmail: "book@jassibacha.com",
-              fromName: "Book Test",
-              replyEmail: "book@beesly.io",
-              replyName: "Beesly",
-              subject: `Booking Confirmation - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,
-              preheader: `${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} confirmed!`,
-              heading: "Booking Confirmed!",
-              textBody: `Dear ${values.customerName}, your booking for ${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} has been confirmed.`,
-              date: DateTime.fromJSDate(values.date).toFormat("DDDD"),
-              startTime: DateTime.fromISO(values.timeSlot)
-                .setZone(locationSettings.timeZone)
-                .toFormat("h:mm a"),
-              endTime: DateTime.fromISO(values.timeSlot)
-                .plus({ minutes: parseFloat(values.duration) * 60 })
-                .setZone(locationSettings.timeZone)
-                .toFormat("h:mm a"),
-              customerName: values.customerName,
-              customerEmail: values.customerEmail,
-              customerPhone: values.customerPhone,
-              locationName: location.name,
-              locationPhone: location.phone,
-              locationEmail: location.email,
-              locationLogo: location.logo,
-            },
-          },
-          {
-            onSuccess: () => {
-              // Create a db entry that it succeeded?
-              // toast({
-              //   variant: "success",
-              //   title: "Email Sent",
-              //   description:
-              //     "A confirmation email has been sent to the customer.",
-              // });
-            },
-            onError: (error) => {
-              // Create a db entry that it failed?
-              console.error("Failed to send confirmation email:", error);
-              // toast({
-              //   variant: "destructive",
-              //   title: "Email Sending Failed",
-              //   description:
-              //     "Failed to send a confirmation email. Please contact support.",
-              // });
-            },
-          },
-        );
-      },
-      onError: (error) => {
-        // Handle error scenario
-        toast({
-          variant: "destructive",
-          title: "Booking Failed",
-          description:
-            error.message || "An unexpected error occurred. Please try again.",
-        });
+          // // After booking is successful, send an email
+          // sendEmailMutation.mutate(
+          //   {
+          //     to: values.customerEmail,
+          //     from: "book@jassibacha.com",
+          //     //subject: `Booking Confirmation - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,
+          //     text: `Text Dear ${values.customerName}, your booking for ${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} has been confirmed.`,
+          //     templateId: "d-bef6d1c8eb924c238bfb75195cb8705c",
+          //     dynamicData: {
+          //       fromEmail: "book@jassibacha.com",
+          //       fromName: "Book Test",
+          //       replyEmail: "book@beesly.io",
+          //       replyName: "Beesly",
+          //       subject: `Booking Confirmation - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,
+          //       preheader: `${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} confirmed!`,
+          //       heading: "Booking Confirmed!",
+          //       textBody: `Dear ${values.customerName}, your booking for ${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} has been confirmed.`,
+          //       date: DateTime.fromJSDate(values.date).toFormat("DDDD"),
+          //       startTime: DateTime.fromISO(values.timeSlot)
+          //         .setZone(locationSettings.timeZone)
+          //         .toFormat("h:mm a"),
+          //       endTime: DateTime.fromISO(values.timeSlot)
+          //         .plus({ minutes: parseFloat(values.duration) * 60 })
+          //         .setZone(locationSettings.timeZone)
+          //         .toFormat("h:mm a"),
+          //       customerName: values.customerName,
+          //       customerEmail: values.customerEmail,
+          //       customerPhone: values.customerPhone,
+          //       locationName: location.name,
+          //       locationPhone: location.phone,
+          //       locationEmail: location.email,
+          //       locationLogo: location.logo,
+          //     },
+          //   },
+          //   {
+          //     onSuccess: () => {
+          //       // Create a db entry that it succeeded?
+          //       // toast({
+          //       //   variant: "success",
+          //       //   title: "Email Sent",
+          //       //   description:
+          //       //     "A confirmation email has been sent to the customer.",
+          //       // });
+          //     },
+          //     onError: (error) => {
+          //       // Create a db entry that it failed?
+          //       console.error("Failed to send confirmation email:", error);
+          //       // toast({
+          //       //   variant: "destructive",
+          //       //   title: "Email Sending Failed",
+          //       //   description:
+          //       //     "Failed to send a confirmation email. Please contact support.",
+          //       // });
+          //     },
+          //   },
+          // );
+        },
+        onError: (error) => {
+          // Handle error scenario
+          toast({
+            variant: "destructive",
+            title: "Booking Failed",
+            description:
+              error.message ||
+              "An unexpected error occurred. Please try again.",
+          });
 
-        // Optionally, handle form-specific errors such as validation issues
-        if ("cause" in error && error.cause instanceof ZodError) {
-          for (const issue of error.cause.errors) {
-            setError(issue.path[0] as keyof BookingFormSchemaValues, {
-              message: issue.message,
-            });
+          // Optionally, handle form-specific errors such as validation issues
+          if ("cause" in error && error.cause instanceof ZodError) {
+            for (const issue of error.cause.errors) {
+              setError(issue.path[0] as keyof BookingFormSchemaValues, {
+                message: issue.message,
+              });
+            }
           }
-        }
-      },
-    });
+        },
+      });
+    } else {
+      // Execute mutation
+      createBookingMutation.mutate(commonData, {
+        onSuccess: () => {
+          // Handle success scenario
+          toast({
+            variant: "success",
+            title: "Booking Successful",
+            description: "Your booking has been successfully created.",
+          });
+
+          // Reset form or redirect user as needed
+          reset();
+
+          // After booking is successful, send an email
+          sendEmailMutation.mutate(
+            {
+              to: values.customerEmail,
+              from: "book@jassibacha.com",
+              //subject: `Booking Confirmation - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,
+              text: `Text Dear ${values.customerName}, your booking for ${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} has been confirmed.`,
+              templateId: "d-bef6d1c8eb924c238bfb75195cb8705c",
+              dynamicData: {
+                fromEmail: "book@jassibacha.com",
+                fromName: "Book Test",
+                replyEmail: "book@beesly.io",
+                replyName: "Beesly",
+                subject: `Booking Confirmation - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,
+                preheader: `${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} confirmed!`,
+                heading: "Booking Confirmed!",
+                textBody: `Dear ${values.customerName}, your booking for ${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} has been confirmed.`,
+                date: DateTime.fromJSDate(values.date).toFormat("DDDD"),
+                startTime: DateTime.fromISO(values.timeSlot)
+                  .setZone(locationSettings.timeZone)
+                  .toFormat("h:mm a"),
+                endTime: DateTime.fromISO(values.timeSlot)
+                  .plus({ minutes: parseFloat(values.duration) * 60 })
+                  .setZone(locationSettings.timeZone)
+                  .toFormat("h:mm a"),
+                customerName: values.customerName,
+                customerEmail: values.customerEmail,
+                customerPhone: values.customerPhone,
+                locationName: location.name,
+                locationPhone: location.phone,
+                locationEmail: location.email,
+                locationLogo: location.logo,
+              },
+            },
+            {
+              onSuccess: () => {
+                // Create a db entry that it succeeded?
+                // toast({
+                //   variant: "success",
+                //   title: "Email Sent",
+                //   description:
+                //     "A confirmation email has been sent to the customer.",
+                // });
+              },
+              onError: (error) => {
+                // Create a db entry that it failed?
+                console.error("Failed to send confirmation email:", error);
+                // toast({
+                //   variant: "destructive",
+                //   title: "Email Sending Failed",
+                //   description:
+                //     "Failed to send a confirmation email. Please contact support.",
+                // });
+              },
+            },
+          );
+        },
+        onError: (error) => {
+          // Handle error scenario
+          toast({
+            variant: "destructive",
+            title: "Booking Failed",
+            description:
+              error.message ||
+              "An unexpected error occurred. Please try again.",
+          });
+
+          // Optionally, handle form-specific errors such as validation issues
+          if ("cause" in error && error.cause instanceof ZodError) {
+            for (const issue of error.cause.errors) {
+              setError(issue.path[0] as keyof BookingFormSchemaValues, {
+                message: issue.message,
+              });
+            }
+          }
+        },
+      });
+    }
   };
 
   return (
@@ -384,6 +480,10 @@ export function BookingForm({
               {DateTime.fromJSDate(booking.endTime)
                 .setZone(locationSettings.timeZone)
                 .toFormat("ccc, LLLL dd yyyy, h:mm a")}
+            </div>
+            <div>
+              Duration: {calculateDuration(booking.startTime, booking.endTime)}{" "}
+              hours
             </div>
           </>
         </div>
@@ -460,13 +560,15 @@ export function BookingForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="1">1 Hour</SelectItem>
+                    <SelectItem value="1.0">1 Hour</SelectItem>
                     <SelectItem value="1.5">1.5 Hours</SelectItem>
-                    <SelectItem value="2">2 Hours</SelectItem>
+                    <SelectItem value="2.0">2 Hours</SelectItem>
+                    <SelectItem value="2.5">2.5 Hours</SelectItem>
+                    <SelectItem value="3.0">3 Hours</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormDescription>
-                  You can manage email addresses in your.
+                  The duration of how long you want to play.
                 </FormDescription>
                 <FormMessage />
               </FormItem>

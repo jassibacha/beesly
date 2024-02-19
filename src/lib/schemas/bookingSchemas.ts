@@ -66,6 +66,29 @@ export const bookingFormSchema = z.object({
 
 export type BookingFormSchemaValues = z.infer<typeof bookingFormSchema>;
 
+// Define the schema for updating a booking
+export const updateBookingSchema = z.object({
+  id: z.string().min(1, "Booking ID is required."),
+  locationId: z.string().min(1, "Location ID is required."),
+  startTime: z
+    .date()
+    .min(new Date(), "Start time must be in the future.")
+    .optional(),
+  endTime: z
+    .date()
+    .min(new Date(), "End time must be in the future.")
+    .optional(),
+  customerName: z.string().min(1, "Customer name is required.").optional(),
+  customerEmail: z
+    .string()
+    .email("Invalid customer email format")
+    .min(1, "Customer email is required.")
+    .optional(),
+  customerPhone: z.string().min(1, "Customer phone is required.").optional(),
+});
+
+export type UpdateBookingSchemaValues = z.infer<typeof updateBookingSchema>;
+
 // // Adding a separate refinement to ensure endTime is after startTime
 // export const createBookingSchemaWithRefinement = createBookingSchema.refine(
 //   (data) => data.endTime > data.startTime,

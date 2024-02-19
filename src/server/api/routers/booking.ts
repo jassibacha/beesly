@@ -8,6 +8,7 @@ import { TRPCError } from "@trpc/server";
 import {
   createBookingSchema,
   createPublicBookingSchema,
+  updateBookingSchema,
 } from "@/lib/schemas/bookingSchemas";
 import {
   bookings,
@@ -361,6 +362,35 @@ export const bookingRouter = createTRPCRouter({
           bookingId: result.bookingId,
         };
       }
+    }),
+
+  // Update: Dashboard Route
+  update: protectedProcedure
+    .input(updateBookingSchema)
+    .mutation(async ({ ctx, input }) => {
+      const { id, ...updateData } = input;
+
+      // Fetch the booking to ensure it exists
+      const booking = await ctx.db.query.bookings.findFirst({
+        where: (bookings, { eq }) => eq(bookings.id, id),
+      });
+
+      if (!booking) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Booking not found",
+        });
+      }
+
+      // Update the booking with the provided data
+      await ctx.db.update(bookings).set(updateData).where(eq(bookings.id, id));
+
+      // Return the updated booking
+      return {
+        success: true,
+        message: "Booking updated successfully",
+        id,
+      };
     }),
   listBookings: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.auth.userId;
