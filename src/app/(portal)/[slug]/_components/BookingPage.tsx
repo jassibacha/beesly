@@ -6,7 +6,7 @@ import { api } from "@/trpc/react";
 import { Phone } from "lucide-react";
 import { TimezoneContext } from "@/context/TimezoneContext";
 import { useContext } from "react";
-import { BookingForm } from "./BookingForm";
+import { BookingForm } from "@/components/forms/BookingForm";
 import { auth, useUser } from "@clerk/nextjs";
 
 interface BookingPageProps {

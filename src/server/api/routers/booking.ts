@@ -656,4 +656,28 @@ export const bookingRouter = createTRPCRouter({
         bookings: matchingBookings,
       };
     }),
+
+  // Get booking by ID
+  getBookingById: protectedProcedure
+    .input(
+      z.object({
+        bookingId: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { bookingId } = input;
+
+      const booking = await ctx.db.query.bookings.findFirst({
+        where: (bookings, { eq }) => eq(bookings.id, bookingId),
+      });
+
+      if (!booking) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Booking not found",
+        });
+      }
+
+      return booking;
+    }),
 });

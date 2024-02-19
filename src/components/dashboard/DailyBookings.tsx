@@ -31,6 +31,7 @@ import {
   CardTitle,
 } from "../ui/card";
 import { Badge } from "../ui/badge";
+import Link from "next/link";
 
 interface DailyBookingProps {
   location: Location;
@@ -197,6 +198,15 @@ export default function DailyBookings({
                   <div className="">
                     {start.toFormat("h:mm a")} - {end.toFormat("h:mm a")}
                   </div>
+
+                  <Link
+                    href={`/dashboard/bookings/edit/${booking.id}`}
+                    passHref
+                  >
+                    <Button variant="secondary" size="sm" className="mt-2">
+                      Edit
+                    </Button>
+                  </Link>
                 </div>
               );
             })}

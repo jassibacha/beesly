@@ -51,6 +51,7 @@ interface BookingFormProps {
   location: Location;
   locationSettings: LocationSetting;
   resources: Resource[];
+  booking?: Booking;
 }
 
 interface ExtendedTimeSlot {
@@ -78,21 +79,47 @@ interface ButtonProps {
   // Other props
 }
 
+// Helper function to calculate duration in hours based on start and end times
+function calculateDuration(startTime: Date, endTime: Date): string {
+  const start = DateTime.fromJSDate(startTime);
+  const end = DateTime.fromJSDate(endTime);
+  const duration = end.diff(start, "hours").hours;
+  return duration.toFixed(1); // Return duration as a string with one decimal place
+}
+
 export function BookingForm({
   location,
   locationSettings,
   resources,
+  booking,
 }: BookingFormProps) {
+  const isEditing = !!booking; // Determine if we are editing an existing booking
+
   const form = useForm<BookingFormSchemaValues>({
     resolver: zodResolver(bookingFormSchema),
     defaultValues: {
-      date: DateTime.now().toJSDate(),
-      duration: "1",
-      timeSlot: "",
-      customerName: "",
-      customerEmail: "",
-      customerPhone: "",
+      date: isEditing
+        ? DateTime.fromJSDate(booking.startTime).toJSDate()
+        : DateTime.now().toJSDate(),
+      duration: isEditing
+        ? calculateDuration(booking.startTime, booking.endTime)
+        : "1",
+      timeSlot: isEditing
+        ? DateTime.fromJSDate(booking.startTime).toISO() ?? ""
+        : "",
+      customerName: isEditing ? booking.customerName : "",
+      customerEmail: isEditing ? booking.customerEmail : "",
+      customerPhone: isEditing ? booking.customerPhone : "",
     },
+
+    // defaultValues: {
+    //   date: DateTime.now().toJSDate(),
+    //   duration: "1",
+    //   timeSlot: "",
+    //   customerName: "",
+    //   customerEmail: "",
+    //   customerPhone: "",
+    // },
   });
   const {
     control,
@@ -103,10 +130,9 @@ export function BookingForm({
     formState: { isSubmitting },
   } = form;
 
-  // Watching the date field for changes
+  // Watching the date and duration field for changes
   const selectedDate = watch("date");
   const selectedDuration = watch("duration");
-  // console.log("SELECTEDDATE: ", selectedDate);
 
   // Convert the selectedDate (which is a JavaScript Date object) to a Luxon DateTime object
   const formattedSelectedDate =
@@ -131,7 +157,7 @@ export function BookingForm({
   const [timeSlots, setTimeSlots] = useState<ExtendedTimeSlot[]>([]);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
 
-  // States for open/close times and bookings
+  // States for open/close times
   const [openCloseTimes, setOpenCloseTimes] = useState<{
     open: string;
     close: string;
@@ -161,7 +187,7 @@ export function BookingForm({
     // Initiate controlled loading state when duration changes
     setControlledLoading(true);
 
-    // Reset controlled loading state after a delay (e.g., 500ms)
+    // Reset controlled loading state after a delay
     const timer = setTimeout(() => setControlledLoading(false), 300);
 
     // Cleanup timeout on component unmount or before running effect again
@@ -228,6 +254,11 @@ export function BookingForm({
 
   const createBookingMutation = api.booking.book.useMutation();
   const sendEmailMutation = api.email.sendEmail.useMutation();
+
+  // Use a different mutation based on whether we are creating or editing
+  const bookingMutation = isEditing
+    ? api.booking.listBookings.useQuery()
+    : api.booking.create.useMutation();
 
   const onSubmit: SubmitHandler<BookingFormSchemaValues> = (values) => {
     console.log(values);
@@ -337,160 +368,190 @@ export function BookingForm({
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="date"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel htmlFor="date" aria-required={true}>
-                Booking Date
-              </FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
+    <>
+      {isEditing && (
+        <div className="temp-info-display mb-8 border border-violet-400 bg-purple-900 p-4 text-sm">
+          <>
+            <div>Booking: true</div>
+            <div>
+              Start Time:{" "}
+              {DateTime.fromJSDate(booking.startTime)
+                .setZone(locationSettings.timeZone)
+                .toFormat("ccc, LLLL dd yyyy, h:mm a")}
+            </div>
+            <div>
+              End Time:{" "}
+              {DateTime.fromJSDate(booking.endTime)
+                .setZone(locationSettings.timeZone)
+                .toFormat("ccc, LLLL dd yyyy, h:mm a")}
+            </div>
+          </>
+        </div>
+      )}
+
+      <Form {...form}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+          <FormField
+            control={form.control}
+            name="date"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel htmlFor="date" aria-required={true}>
+                  Booking Date
+                </FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-[240px] pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground",
+                        )}
+                      >
+                        {field.value ? (
+                          DateTime.fromJSDate(field.value).toFormat("DDD")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      disabled={
+                        (date) =>
+                          // Disabling dates based on Luxon comparisons
+                          DateTime.fromJSDate(date) <
+                            DateTime.now().startOf("day") ||
+                          DateTime.fromJSDate(date) >
+                            DateTime.now().plus({ days: 60 }) // TOOD: Change this to dynamic setting for max days
+                      }
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormDescription>
+                  The day you want to book an appointment.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="duration"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="duration" aria-required={true}>
+                  Session Length
+                </FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-[240px] pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground",
-                      )}
-                    >
-                      {field.value ? (
-                        DateTime.fromJSDate(field.value).toFormat("DDD")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your session length" />
+                    </SelectTrigger>
                   </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    disabled={
-                      (date) =>
-                        // Disabling dates based on Luxon comparisons
-                        DateTime.fromJSDate(date) <
-                          DateTime.now().startOf("day") ||
-                        DateTime.fromJSDate(date) >
-                          DateTime.now().plus({ days: 60 }) // TOOD: Change this to dynamic setting for max days
-                    }
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-              <FormDescription>
-                The day you want to book an appointment.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="duration"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="duration" aria-required={true}>
-                Session Length
-              </FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <SelectContent>
+                    <SelectItem value="1">1 Hour</SelectItem>
+                    <SelectItem value="1.5">1.5 Hours</SelectItem>
+                    <SelectItem value="2">2 Hours</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  You can manage email addresses in your.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Time Slot Selection */}
+          <FormField
+            name="timeSlot"
+            control={form.control}
+            render={() => (
+              <FormItem className="flex flex-col">
+                <FormLabel>
+                  Available Start Times on {formattedSelectedDate}
+                </FormLabel>
+                <div className="w-full ">{renderTimeSlotSelection()}</div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="customerName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="customerName" aria-required={true}>
+                  Name
+                </FormLabel>
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your session length" />
-                  </SelectTrigger>
+                  <Input required id="customerName" placeholder="" {...field} />
                 </FormControl>
-                <SelectContent>
-                  <SelectItem value="1">1 Hour</SelectItem>
-                  <SelectItem value="1.5">1.5 Hours</SelectItem>
-                  <SelectItem value="2">2 Hours</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormDescription>
-                You can manage email addresses in your.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormDescription></FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        {/* Time Slot Selection */}
-        <FormField
-          name="timeSlot"
-          control={form.control}
-          render={() => (
-            <FormItem className="flex flex-col">
-              <FormLabel>
-                Available Start Times on {formattedSelectedDate}
-              </FormLabel>
-              <div className="w-full ">{renderTimeSlotSelection()}</div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={control}
+            name="customerPhone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="customerPhone" aria-required={true}>
+                  Phone
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    required
+                    id="customerPhone"
+                    placeholder=""
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription></FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={control}
-          name="customerName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="customerName" aria-required={true}>
-                Name
-              </FormLabel>
-              <FormControl>
-                <Input required id="customerName" placeholder="" {...field} />
-              </FormControl>
-              <FormDescription></FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
-          name="customerPhone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="customerPhone" aria-required={true}>
-                Phone
-              </FormLabel>
-              <FormControl>
-                <Input required id="customerPhone" placeholder="" {...field} />
-              </FormControl>
-              <FormDescription></FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
-          name="customerEmail"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="customerEmail" aria-required={true}>
-                Email
-              </FormLabel>
-              <FormControl>
-                <Input
-                  required
-                  id="customerEmail"
-                  placeholder=""
-                  type="email"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription></FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit">Submit</Button>
-      </form>
-    </Form>
+          <FormField
+            control={control}
+            name="customerEmail"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="customerEmail" aria-required={true}>
+                  Email
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    required
+                    id="customerEmail"
+                    placeholder=""
+                    type="email"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription></FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit">Submit</Button>
+        </form>
+      </Form>
+    </>
   );
 }
