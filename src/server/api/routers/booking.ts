@@ -579,25 +579,39 @@ export const bookingRouter = createTRPCRouter({
         );
       }
 
+      // Map over all available slots and determine if they are available
       let finalSlots = allSlots.map((slot) => {
         // Convert the start and end times of the slot from ISO string to DateTime in the specified timezone
         const slotStart = DateTime.fromISO(slot.startTime, { zone: tz });
         const slotEnd = DateTime.fromISO(slot.endTime, { zone: tz });
 
         // Determine if the slot overlaps with any existing bookings, considering buffer time
+        // This is done by iterating over all existing bookings and checking if the current slot overlaps with any of them
         const isAvailable = !existingBookings!.some((booking) => {
+          // Convert the start time of the booking from ISO string to DateTime in the specified timezone
           const bookingStart = DateTime.fromISO(booking.startTime!, {
             zone: tz,
-          }).minus({ minutes: bufferMin });
+          });
+
+          // Convert the end time of the booking from ISO string to DateTime in the specified timezone
+          // Add the buffer time to the end of the booking
+          // This effectively extends the duration of the booking by the buffer time at the end
           const bookingEnd = DateTime.fromISO(booking.endTime!, {
             zone: tz,
           }).plus({ minutes: bufferMin });
+
+          // Check if the current slot overlaps with the booking
+          // This is done by checking if the start of the slot is before the end of the booking and the end of the slot is after the start of the booking
+          // If both conditions are true, the slot overlaps with the booking
           return slotStart < bookingEnd && slotEnd > bookingStart;
         });
 
         // If booking for today, ensure the slot start time is in the future
+        // This is done by checking if the selected date is not today or if the start of the slot is after the current time
         const isFuture = !selectedDate.hasSame(now, "day") || slotStart > now;
 
+        // Return a new object that includes all properties of the original slot and a new property `isAvailable` that indicates whether the slot is available for booking
+        // A slot is considered available if it does not overlap with any existing bookings and its start time is in the future
         return { ...slot, isAvailable: isAvailable && isFuture };
       });
 
