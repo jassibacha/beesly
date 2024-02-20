@@ -37,7 +37,7 @@ import {
 
 import { useToast, toast } from "@/components/ui/use-toast";
 import { api } from "@/trpc/react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import type {
@@ -94,6 +94,8 @@ export function BookingForm({
   booking,
 }: BookingFormProps) {
   const isEditing = !!booking; // Determine if we are editing an existing booking
+
+  const router = useRouter();
 
   const form = useForm<BookingFormSchemaValues>({
     resolver: zodResolver(bookingFormSchema),
@@ -384,9 +386,21 @@ export function BookingForm({
 
     if (isEditing) {
       const updateData = { ...commonData, id: booking.id };
+
+      // Determine if an email should be sent, check if date, startTime or duration has changed
+      const dateChanged =
+        DateTime.fromJSDate(booking.startTime).toISODate() !==
+        DateTime.fromISO(values.timeSlot).toISODate();
+      const durationChanged =
+        calculateDuration(booking.startTime, booking.endTime) !==
+        values.duration;
+      const startTimeChanged =
+        DateTime.fromJSDate(booking.startTime).toISOTime() !==
+        DateTime.fromISO(values.timeSlot).toISOTime();
+
       // Execute mutation
       updateBookingMutation.mutate(updateData, {
-        onSuccess: () => {
+        onSuccess: (data) => {
           // Handle success scenario
           toast({
             variant: "success",
@@ -394,65 +408,68 @@ export function BookingForm({
             description: "Booking updated successfully.",
           });
 
-          // Reset form or redirect user as needed
-          reset();
+          // After booking is successful, send an email if necessary
+          if (dateChanged || durationChanged || startTimeChanged) {
+            sendEmailMutation.mutate(
+              {
+                to: values.customerEmail,
+                from: "book@jassibacha.com",
+                //subject: `Booking Confirmation - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,
+                text: `Dear ${values.customerName}, your booking for ${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} has been confirmed.`,
+                templateId: "d-bef6d1c8eb924c238bfb75195cb8705c",
+                dynamicData: {
+                  fromEmail: "book@jassibacha.com",
+                  fromName: "Book Test",
+                  replyEmail: "book@beesly.io",
+                  replyName: "Beesly",
+                  subject: `Booking Updated - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,
+                  preheader: `${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} confirmed!`,
+                  heading: "Booking Updated",
+                  textBody: `Dear ${values.customerName}, your booking for ${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} has been confirmed.`,
+                  date: DateTime.fromJSDate(values.date).toFormat("DDDD"),
+                  startTime: DateTime.fromISO(values.timeSlot)
+                    .setZone(locationSettings.timeZone)
+                    .toFormat("h:mm a"),
+                  endTime: DateTime.fromISO(values.timeSlot)
+                    .plus({ minutes: parseFloat(values.duration) * 60 })
+                    .setZone(locationSettings.timeZone)
+                    .toFormat("h:mm a"),
+                  customerName: values.customerName,
+                  customerEmail: values.customerEmail,
+                  customerPhone: values.customerPhone,
+                  locationName: location.name,
+                  locationPhone: location.phone,
+                  locationEmail: location.email,
+                  locationLogo: location.logo,
+                },
+              },
+              {
+                onSuccess: () => {
+                  // Create a db entry that it succeeded?
+                  // toast({
+                  //   variant: "success",
+                  //   title: "Email Sent",
+                  //   description:
+                  //     "A confirmation email has been sent to the customer.",
+                  // });
+                },
+                onError: (error) => {
+                  // Create a db entry that it failed?
+                  console.error("Failed to send confirmation email:", error);
+                  // toast({
+                  //   variant: "destructive",
+                  //   title: "Email Sending Failed",
+                  //   description:
+                  //     "Failed to send a confirmation email. Please contact support.",
+                  // });
+                },
+              },
+            );
+          }
 
-          // // After booking is successful, send an email
-          // sendEmailMutation.mutate(
-          //   {
-          //     to: values.customerEmail,
-          //     from: "book@jassibacha.com",
-          //     //subject: `Booking Confirmation - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,
-          //     text: `Text Dear ${values.customerName}, your booking for ${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} has been confirmed.`,
-          //     templateId: "d-bef6d1c8eb924c238bfb75195cb8705c",
-          //     dynamicData: {
-          //       fromEmail: "book@jassibacha.com",
-          //       fromName: "Book Test",
-          //       replyEmail: "book@beesly.io",
-          //       replyName: "Beesly",
-          //       subject: `Booking Confirmation - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,
-          //       preheader: `${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} confirmed!`,
-          //       heading: "Booking Confirmed!",
-          //       textBody: `Dear ${values.customerName}, your booking for ${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} has been confirmed.`,
-          //       date: DateTime.fromJSDate(values.date).toFormat("DDDD"),
-          //       startTime: DateTime.fromISO(values.timeSlot)
-          //         .setZone(locationSettings.timeZone)
-          //         .toFormat("h:mm a"),
-          //       endTime: DateTime.fromISO(values.timeSlot)
-          //         .plus({ minutes: parseFloat(values.duration) * 60 })
-          //         .setZone(locationSettings.timeZone)
-          //         .toFormat("h:mm a"),
-          //       customerName: values.customerName,
-          //       customerEmail: values.customerEmail,
-          //       customerPhone: values.customerPhone,
-          //       locationName: location.name,
-          //       locationPhone: location.phone,
-          //       locationEmail: location.email,
-          //       locationLogo: location.logo,
-          //     },
-          //   },
-          //   {
-          //     onSuccess: () => {
-          //       // Create a db entry that it succeeded?
-          //       // toast({
-          //       //   variant: "success",
-          //       //   title: "Email Sent",
-          //       //   description:
-          //       //     "A confirmation email has been sent to the customer.",
-          //       // });
-          //     },
-          //     onError: (error) => {
-          //       // Create a db entry that it failed?
-          //       console.error("Failed to send confirmation email:", error);
-          //       // toast({
-          //       //   variant: "destructive",
-          //       //   title: "Email Sending Failed",
-          //       //   description:
-          //       //     "Failed to send a confirmation email. Please contact support.",
-          //       // });
-          //     },
-          //   },
-          // );
+          // Reset form or redirect user as needed
+          //reset();
+          router.push("/dashboard");
         },
         onError: (error) => {
           // Handle error scenario
@@ -494,7 +511,7 @@ export function BookingForm({
               to: values.customerEmail,
               from: "book@jassibacha.com",
               //subject: `Booking Confirmation - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,
-              text: `Text Dear ${values.customerName}, your booking for ${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} has been confirmed.`,
+              text: `Dear ${values.customerName}, your booking for ${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} has been confirmed.`,
               templateId: "d-bef6d1c8eb924c238bfb75195cb8705c",
               dynamicData: {
                 fromEmail: "book@jassibacha.com",
