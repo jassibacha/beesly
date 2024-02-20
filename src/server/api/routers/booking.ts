@@ -497,15 +497,26 @@ export const bookingRouter = createTRPCRouter({
         locationId: z.string(),
         date: z.date(),
         duration: z.string(),
-        includeAllSlots: z.boolean().optional(),
+        //includeAllSlots: z.boolean().optional(),
+        bookingId: z.string().optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { locationId, date, duration, includeAllSlots } = input; // Default duration
+      const { locationId, date, duration, bookingId } = input; // Default duration
       console.log("*** getAvailableTimeSlots firing ***");
 
-      const { locationSettings, existingBookings, openTimeISO, closeTimeISO } =
-        await getBookingsByDate(locationId, date, BookingDetail.Basic, ctx);
+      // const { locationSettings, existingBookings, openTimeISO, closeTimeISO } =
+      //   await getBookingsByDate(locationId, date, BookingDetail.Basic, ctx);
+
+      const bookingsByDate = await getBookingsByDate(
+        locationId,
+        date,
+        BookingDetail.Basic,
+        ctx,
+      );
+
+      const { locationSettings, openTimeISO, closeTimeISO } = bookingsByDate;
+      let { existingBookings } = bookingsByDate;
 
       const tz = locationSettings.timeZone; // Shortened timezone
       const durationMin = parseFloat(duration) * 60; // Convert hours to minutes if necessary
@@ -560,13 +571,21 @@ export const bookingRouter = createTRPCRouter({
         });
       }
 
+      // If a bookingId is provided, filter out the existing booking with the same ID
+      // So that we can see those timeslots available when editing that booking
+      if (bookingId) {
+        existingBookings = existingBookings.filter(
+          (booking) => booking.id !== bookingId,
+        );
+      }
+
       let finalSlots = allSlots.map((slot) => {
         // Convert the start and end times of the slot from ISO string to DateTime in the specified timezone
         const slotStart = DateTime.fromISO(slot.startTime, { zone: tz });
         const slotEnd = DateTime.fromISO(slot.endTime, { zone: tz });
 
         // Determine if the slot overlaps with any existing bookings, considering buffer time
-        const isAvailable = !existingBookings.some((booking) => {
+        const isAvailable = !existingBookings!.some((booking) => {
           const bookingStart = DateTime.fromISO(booking.startTime!, {
             zone: tz,
           }).minus({ minutes: bufferMin });
@@ -582,11 +601,9 @@ export const bookingRouter = createTRPCRouter({
         return { ...slot, isAvailable: isAvailable && isFuture };
       });
 
-      // If the location setting specifies not to display unavailable slots, or if includeAllSlots is false,
-      if (!locationSettings.displayUnavailableSlots && !includeAllSlots) {
-        console.log(
-          `filtering slots: displayUnavailableSlots=${locationSettings.displayUnavailableSlots}, includeAllSlots=${includeAllSlots}`,
-        );
+      // If the location setting specifies not to display unavailable slots, or if a bookingId is provided,
+      if (!locationSettings.displayUnavailableSlots && !bookingId) {
+        //if (!locationSettings.displayUnavailableSlots && !includeAllSlots) {
         finalSlots = finalSlots.filter((slot) => slot.isAvailable);
       }
 
@@ -638,8 +655,6 @@ export const bookingRouter = createTRPCRouter({
       // if (!locationSettings.displayUnavailableSlots) {
       //   finalSlots = finalSlots.filter((slot) => slot.isAvailable);
       // }
-
-      console.log("includeAllSlots: ", includeAllSlots);
 
       // If the location setting specifies not to display unavailable slots, or if includeAllSlots is false,
       // filter the finalSlots array to only include slots where isAvailable is true

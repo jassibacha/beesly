@@ -148,7 +148,8 @@ export function BookingForm({
       locationId: location.id,
       date: selectedDate,
       duration: selectedDuration,
-      includeAllSlots: isEditing, // Set to true when editing
+      //includeAllSlots: isEditing, // Set to true when editing
+      bookingId: isEditing ? booking.id : undefined, // Pass the booking to filter it out
     },
     {
       enabled: !!selectedDate,
@@ -175,14 +176,27 @@ export function BookingForm({
         close: timeSlotData.closeTimeISO!,
       });
       console.log(timeSlotData.slots);
-    }
-  }, [timeSlotData, timeSlotLoading]);
 
-  useEffect(() => {
-    if (isEditing && booking) {
-      setSelectedTimeSlot(booking.startTime.toISOString());
+      // Set selectedTimeSlot based on the booking's start time when editing
+      if (isEditing && booking) {
+        const bookingStartTime = DateTime.fromISO(
+          booking.startTime.toISOString(),
+        )
+          .setZone(locationSettings.timeZone)
+          .toISO();
+        setSelectedTimeSlot(bookingStartTime);
+        //console.log(`selectedTimeSlot edited: ${selectedTimeSlot}`);
+      }
     }
-  }, [isEditing, booking]);
+  }, [timeSlotData, timeSlotLoading, isEditing, booking]);
+
+  // useEffect(() => {
+  //   if (isEditing && booking) {
+  //     setSelectedTimeSlot(booking.startTime.toISOString());
+  //     console.log(`selectedTimeSlot edited: ${selectedTimeSlot}`);
+  //   }
+  // }, [isEditing, booking]);
+
   useEffect(() => {
     // Reset selected time slot whenever the duration changes
     setSelectedTimeSlot(null);
