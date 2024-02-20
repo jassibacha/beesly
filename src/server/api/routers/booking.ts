@@ -502,11 +502,7 @@ export const bookingRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { locationId, date, duration, bookingId } = input; // Default duration
-      console.log("*** getAvailableTimeSlots firing ***");
-
-      // const { locationSettings, existingBookings, openTimeISO, closeTimeISO } =
-      //   await getBookingsByDate(locationId, date, BookingDetail.Basic, ctx);
+      const { locationId, date, duration, bookingId } = input;
 
       const bookingsByDate = await getBookingsByDate(
         locationId,
@@ -620,64 +616,6 @@ export const bookingRouter = createTRPCRouter({
         //if (!locationSettings.displayUnavailableSlots && !includeAllSlots) {
         finalSlots = finalSlots.filter((slot) => slot.isAvailable);
       }
-
-      // let finalSlots = allSlots;
-      // console.log("finalSlots: ", finalSlots);
-
-      // If the location setting specifies not to display unavailable slots, or if includeAllSlots is false,
-      // if (!locationSettings.displayUnavailableSlots || !includeAllSlots) {
-      //   console.log(
-      //     `displayUnavailableSlots: ${locationSettings.displayUnavailableSlots} - includeAllSlots: ${includeAllSlots}`,
-      //   );
-      //   console.log("filtering slots");
-      //   // Filter slots based on availability and additional constraints for same-day bookings
-      //   finalSlots = allSlots.filter((slot) => {
-      //     // Convert the start and end times of the slot from ISO string to DateTime in the specified timezone
-      //     const slotStart = DateTime.fromISO(slot.startTime, {
-      //       zone: tz,
-      //     });
-      //     const slotEnd = DateTime.fromISO(slot.endTime, {
-      //       zone: tz,
-      //     });
-
-      //     // Determine if the slot overlaps with any existing bookings, considering buffer time
-      //     const isAvailable = !existingBookings.some((booking) => {
-      //       // Subtract the buffer time from the booking's start time and add it to the end time
-      //       // to ensure there's no overlap with the current slot considering the buffer
-      //       const bookingStart = DateTime.fromISO(booking.startTime!, {
-      //         zone: tz,
-      //       }).minus({ minutes: bufferMin });
-      //       const bookingEnd = DateTime.fromISO(booking.endTime!, {
-      //         zone: tz,
-      //       }).plus({ minutes: bufferMin });
-
-      //       // A slot is unavailable if it overlaps with any existing booking
-      //       return slotStart < bookingEnd && slotEnd > bookingStart;
-      //     });
-
-      //     // If booking for today, ensure the slot start time is in the future
-      //     // This takes into account the same-day lead time buffer implicitly by only showing future slots
-      //     return (
-      //       isAvailable &&
-      //       (!selectedDate.hasSame(now, "day") || slotStart > now)
-      //     );
-      //   });
-      // }
-
-      // // If the location setting specifies not to display unavailable slots,
-      // // filter the finalSlots array to only include slots where isAvailable is true
-      // if (!locationSettings.displayUnavailableSlots) {
-      //   finalSlots = finalSlots.filter((slot) => slot.isAvailable);
-      // }
-
-      // If the location setting specifies not to display unavailable slots, or if includeAllSlots is false,
-      // filter the finalSlots array to only include slots where isAvailable is true
-      // if (!locationSettings.displayUnavailableSlots) {
-      //   console.log("filtering slots");
-      //   finalSlots = finalSlots.filter((slot) => slot.isAvailable);
-      // }
-
-      //console.log(finalSlots);
 
       return {
         openTimeISO,
