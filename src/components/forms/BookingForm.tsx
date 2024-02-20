@@ -468,7 +468,7 @@ export function BookingForm({
           }
 
           // Reset form or redirect user as needed
-          //reset();
+          // reset(commonData);
           router.push("/dashboard");
         },
         onError: (error) => {
