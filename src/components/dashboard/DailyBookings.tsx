@@ -199,14 +199,16 @@ export default function DailyBookings({
                     {start.toFormat("h:mm a")} - {end.toFormat("h:mm a")}
                   </div>
 
-                  <Link
-                    href={`/dashboard/bookings/edit/${booking.id}`}
-                    passHref
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="mt-2"
+                    asChild
                   >
-                    <Button variant="secondary" size="sm" className="mt-2">
+                    <Link href={`/dashboard/bookings/edit/${booking.id}`}>
                       Edit
-                    </Button>
-                  </Link>
+                    </Link>
+                  </Button>
                 </div>
               );
             })}
