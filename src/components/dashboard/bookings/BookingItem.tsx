@@ -1,5 +1,8 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Pencil } from "lucide-react";
 import { DateTime } from "luxon";
+import Link from "next/link";
 
 interface BookingItemProps {
   booking: {
@@ -47,6 +50,11 @@ export function BookingItem({ booking, timezone }: BookingItemProps) {
             .toFormat("h:mm a")}
         </p>
       </div>
+      <Button variant="outline" size="sm" asChild className="ml-2">
+        <Link href={`/dashboard/bookings/edit/${booking.id}`}>
+          <Pencil className="h-4 w-4" />
+        </Link>
+      </Button>
     </div>
   );
 }
