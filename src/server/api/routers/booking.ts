@@ -21,6 +21,7 @@ import { and, asc, desc, eq, gte, lte } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { Booking } from "@/server/db/types";
 import type { TRPCContext } from "@/types/trpcContext";
+import { colors } from "@/lib/utils";
 
 type DailyAvailability = {
   [day in

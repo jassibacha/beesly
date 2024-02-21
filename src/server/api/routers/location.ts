@@ -16,9 +16,13 @@ import { TRPCError } from "@trpc/server";
 import { ZodError, z } from "zod";
 import { asc, eq } from "drizzle-orm";
 import type { Booking, Location, LocationSetting } from "@/server/db/types";
+import { colors } from "@/lib/utils";
 
 export const locationRouter = createTRPCRouter({
   getLocationByUserId: protectedProcedure.query(async ({ ctx }) => {
+    console.log(
+      colors.green + "***** getLocationByUserId firing *****" + colors.reset,
+    );
     const userId = ctx.auth.userId;
     if (!userId) {
       throw new TRPCError({
@@ -78,6 +82,11 @@ export const locationRouter = createTRPCRouter({
   getLocationSettingsByLocationId: publicProcedure
     .input(z.object({ locationId: z.string() }))
     .query(async ({ ctx, input }) => {
+      console.log(
+        colors.magenta +
+          "***** getLocationSettingsByLocationId firing *****" +
+          colors.reset,
+      );
       const locationSettings = await ctx.db.query.locationSettings.findFirst({
         where: (q) => eq(q.locationId, input.locationId),
       });
