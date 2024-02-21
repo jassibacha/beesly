@@ -40,6 +40,22 @@ export const locationRouter = createTRPCRouter({
 
     return location;
   }),
+  getLocationById: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const location = await ctx.db.query.locations.findFirst({
+        where: (q) => eq(q.id, input.id),
+      });
+
+      if (!location) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Location not found",
+        });
+      }
+
+      return location as Location;
+    }),
 
   getLocationBySlug: publicProcedure
     .input(z.object({ slug: z.string() }))
