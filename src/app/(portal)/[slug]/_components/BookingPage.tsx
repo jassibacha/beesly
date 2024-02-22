@@ -48,7 +48,7 @@ export function BookingPage({
         </div>
       </header>
       <main className="flex-1 p-8">
-        <div className="mx-auto max-w-xl py-4">
+        <div className="mx-auto max-w-4xl py-4">
           {/* Additional content will go here */}
           <pre className="text-sm">
             <p>Test Data</p>

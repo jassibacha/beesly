@@ -50,7 +50,7 @@ import type {
 interface BookingFormProps {
   location: Location;
   locationSettings: LocationSetting;
-  resources: Resource[];
+  resources?: Resource[];
   booking?: Booking;
 }
 
@@ -253,7 +253,7 @@ export function BookingForm({
       ); // Display when no time slots are available
 
     return (
-      <div className="grid grid-cols-5 gap-2 sm:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
+      <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
         {timeSlots.map(renderTimeSlotButton)}
       </div>
     );
@@ -513,89 +513,91 @@ export function BookingForm({
 
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-          <FormField
-            control={form.control}
-            name="date"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel htmlFor="date" aria-required={true}>
-                  Booking Date
-                </FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
+          <div className="sm:grid sm:grid-cols-2 sm:gap-4">
+            <FormField
+              control={form.control}
+              name="date"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel htmlFor="date" aria-required={true}>
+                    Booking Date
+                  </FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-[240px] pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          {field.value ? (
+                            DateTime.fromJSDate(field.value).toFormat("DDD")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={
+                          (date) =>
+                            // Disabling dates based on Luxon comparisons
+                            DateTime.fromJSDate(date) <
+                              DateTime.now().startOf("day") ||
+                            DateTime.fromJSDate(date) >
+                              DateTime.now().plus({ days: 60 }) // TOOD: Change this to dynamic setting for max days
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  {/* <FormDescription>
+                    The day you want to book an appointment.
+                  </FormDescription> */}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="duration"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel htmlFor="duration" aria-required={true}>
+                    Session Length
+                  </FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-[240px] pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground",
-                        )}
-                      >
-                        {field.value ? (
-                          DateTime.fromJSDate(field.value).toFormat("DDD")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your session length" />
+                      </SelectTrigger>
                     </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={
-                        (date) =>
-                          // Disabling dates based on Luxon comparisons
-                          DateTime.fromJSDate(date) <
-                            DateTime.now().startOf("day") ||
-                          DateTime.fromJSDate(date) >
-                            DateTime.now().plus({ days: 60 }) // TOOD: Change this to dynamic setting for max days
-                      }
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-                <FormDescription>
-                  The day you want to book an appointment.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="duration"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel htmlFor="duration" aria-required={true}>
-                  Session Length
-                </FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select your session length" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="1.0">1 Hour</SelectItem>
-                    <SelectItem value="1.5">1.5 Hours</SelectItem>
-                    <SelectItem value="2.0">2 Hours</SelectItem>
-                    <SelectItem value="2.5">2.5 Hours</SelectItem>
-                    <SelectItem value="3.0">3 Hours</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormDescription>
-                  The duration of how long you want to play.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                    <SelectContent>
+                      <SelectItem value="1.0">1 Hour</SelectItem>
+                      <SelectItem value="1.5">1.5 Hours</SelectItem>
+                      <SelectItem value="2.0">2 Hours</SelectItem>
+                      <SelectItem value="2.5">2.5 Hours</SelectItem>
+                      <SelectItem value="3.0">3 Hours</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {/* <FormDescription>
+                    The duration of how long you want to play.
+                  </FormDescription> */}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
           {/* Time Slot Selection */}
           <FormField
@@ -612,67 +614,74 @@ export function BookingForm({
             )}
           />
 
-          <FormField
-            control={control}
-            name="customerName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel htmlFor="customerName" aria-required={true}>
-                  Name
-                </FormLabel>
-                <FormControl>
-                  <Input required id="customerName" placeholder="" {...field} />
-                </FormControl>
-                <FormDescription></FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="sm:grid sm:grid-cols-3 sm:gap-4">
+            <FormField
+              control={control}
+              name="customerName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="customerName" aria-required={true}>
+                    Name
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      required
+                      id="customerName"
+                      placeholder=""
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription></FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={control}
-            name="customerPhone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel htmlFor="customerPhone" aria-required={true}>
-                  Phone
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    required
-                    id="customerPhone"
-                    placeholder=""
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription></FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={control}
+              name="customerPhone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="customerPhone" aria-required={true}>
+                    Phone
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      required
+                      id="customerPhone"
+                      placeholder=""
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription></FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={control}
-            name="customerEmail"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel htmlFor="customerEmail" aria-required={true}>
-                  Email
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    required
-                    id="customerEmail"
-                    placeholder=""
-                    type="email"
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription></FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={control}
+              name="customerEmail"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="customerEmail" aria-required={true}>
+                    Email
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      required
+                      id="customerEmail"
+                      placeholder=""
+                      type="email"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription></FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           <Button type="submit">Submit</Button>
         </form>
       </Form>

@@ -6,7 +6,7 @@ import { Search } from "./search";
 import TeamSwitcher from "./team-switcher";
 import { UserNav } from "./user-nav";
 import Link from "next/link";
-import { NewBookingDialog } from "./NewBookingDialog";
+import { NewBookingDialog } from "./bookings/NewBookingDialog";
 
 function Header() {
   return (

@@ -22,7 +22,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon, Loader2 } from "lucide-react";
-import type { Location, LocationSetting, Resource } from "@/server/db/types";
 import {
   Card,
   CardContent,
@@ -32,6 +31,13 @@ import {
 } from "../ui/card";
 import { Badge } from "../ui/badge";
 import Link from "next/link";
+import { EditBookingDialog } from "./bookings/EditBookingDialog";
+import type {
+  Booking,
+  Location,
+  LocationSetting,
+  Resource,
+} from "@/server/db/types";
 
 interface DailyBookingProps {
   location: Location;
@@ -47,6 +53,11 @@ interface BookingData {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
+  status: string | null;
+  totalCost: string | null;
+  taxAmount: string | null;
+  createdAt: Date;
+  updatedAt: Date | null;
 }
 
 interface BookingsResponse {
@@ -184,6 +195,13 @@ export default function DailyBookings({
               const durationInMinutes = end.diff(start, "minutes").minutes;
               const height = calculateHeight(durationInMinutes); // Calculate the height based on the booking duration
 
+              // make a new object of the booking data but convert the times to jsdate
+              const bookingData = {
+                ...booking,
+                startTime: start.toJSDate(),
+                endTime: end.toJSDate(),
+              };
+
               return (
                 <div
                   key={index}
@@ -202,13 +220,23 @@ export default function DailyBookings({
                   <Button
                     variant="secondary"
                     size="sm"
-                    className="mt-2"
+                    className="mt-2 md:hidden"
                     asChild
                   >
                     <Link href={`/dashboard/bookings/edit/${booking.id}`}>
                       Edit
                     </Link>
                   </Button>
+
+                  <div className="hidden md:block">
+                    <EditBookingDialog
+                      location={location}
+                      locationSettings={locationSettings}
+                      resources={resources}
+                      //id={booking.id}
+                      booking={bookingData}
+                    />
+                  </div>
                 </div>
               );
             })}

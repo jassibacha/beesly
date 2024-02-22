@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { api } from "@/trpc/server";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { BookingForm } from "../forms/BookingForm";
+import { BookingForm } from "@/components/forms/BookingForm";
 
 export async function NewBookingDialog() {
   const location = await api.location.getLocationByUserId.query();

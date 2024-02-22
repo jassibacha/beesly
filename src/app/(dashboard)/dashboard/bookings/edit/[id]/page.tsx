@@ -110,13 +110,23 @@ export default async function Page({ params }: Props) {
     <>
       <div className="flex-1 space-y-4 p-8 pt-6">
         <div className="flex items-center justify-between space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">Edit Booking</h2>
+          <h2 className="text-3xl font-bold tracking-tight">
+            Edit Booking {booking.id}
+          </h2>
           {/* <div className="flex items-center space-x-2">
             <CalendarDateRangePicker />
             <Button>Download</Button>
           </div> */}
         </div>
-        <Card className="space-y-4">
+        <Suspense fallback={<div>Loading...</div>}>
+          <BookingForm
+            location={location}
+            locationSettings={locationSettings}
+            resources={resources}
+            booking={booking}
+          />
+        </Suspense>
+        {/* <Card className="space-y-4">
           <CardHeader>
             <CardTitle>Booking {booking.id}</CardTitle>
             <CardDescription>There are 10 bookings today.</CardDescription>
@@ -130,12 +140,9 @@ export default async function Page({ params }: Props) {
                 booking={booking}
               />
             </Suspense>
-            {/* <BookingsList
-                    bookings={upcomingBookings.bookings}
-                    timezone={locationSettings.timeZone}
-                  /> */}
+            
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </>
   );
