@@ -14,8 +14,8 @@ import { ZodError, z } from "zod";
 import type { DynamicEmailData } from "@/types/emailTypes";
 
 const sendEmailSchema = z.object({
-  to: z.string().email(),
-  from: z.string().email(),
+  // to: z.string().email(),
+  // from: z.string().email(),
   //subject: z.string(),
   text: z.string(),
   templateId: z.string(),
@@ -27,11 +27,11 @@ export const emailRouter = createTRPCRouter({
   sendEmail: publicProcedure
     .input(sendEmailSchema)
     .mutation(async ({ input }) => {
-      const { to, from, text, templateId, dynamicData } = input;
+      const { text, templateId, dynamicData } = input;
       try {
         await sendEmail(
-          to,
-          from,
+          // to,
+          // from,
           text,
           templateId,
           dynamicData as DynamicEmailData,

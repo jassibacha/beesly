@@ -2,26 +2,29 @@ import sgMail from "@sendgrid/mail";
 import type { DynamicEmailData } from "@/types/emailTypes";
 
 export const sendEmail = async (
-  to: string,
-  from: string,
+  // to: string,
+  // from: string,
   text: string,
   templateId: string,
   dynamicData: DynamicEmailData,
 ) => {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY ?? "");
 
-  //const { fromEmail, fromName, replyEmail, replyName, ...otherDynamicData } =
-  dynamicData;
+  const { toEmail, toName, fromEmail, fromName, replyEmail, replyName } =
+    dynamicData;
 
   const msg = {
-    to,
+    to: {
+      email: toEmail,
+      name: toName,
+    },
     from: {
-      email: from,
-      name: dynamicData.locationName,
+      email: fromEmail,
+      name: fromName,
     },
     replyTo: {
-      email: dynamicData.replyEmail,
-      name: dynamicData.replyName,
+      email: replyEmail,
+      name: replyName,
     },
     //subject,
     content: [
@@ -47,7 +50,7 @@ export const sendEmail = async (
 
   try {
     await sgMail.send(msg);
-    console.log(`Email sent to ${to}`);
+    console.log(`Email sent to ${toEmail}`);
   } catch (error) {
     console.error(error);
   }

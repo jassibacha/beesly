@@ -318,14 +318,16 @@ export function BookingForm({
           if (dateChanged || durationChanged || startTimeChanged) {
             sendEmailMutation.mutate(
               {
-                to: values.customerEmail,
-                from: "book@jassibacha.com",
+                // to: values.customerEmail,
+                // from: "book@jassibacha.com",
                 //subject: `Booking Confirmation - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,
                 text: `Dear ${values.customerName}, your booking for ${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} has been confirmed.`,
                 templateId: "d-bef6d1c8eb924c238bfb75195cb8705c",
                 dynamicData: {
+                  toEmail: values.customerEmail,
+                  toName: values.customerName,
                   fromEmail: "book@jassibacha.com",
-                  fromName: "Book Test",
+                  fromName: location.name,
                   replyEmail: "book@beesly.io",
                   replyName: "Beesly",
                   subject: `Booking Updated - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,
@@ -414,14 +416,16 @@ export function BookingForm({
           // After booking is successful, send an email
           sendEmailMutation.mutate(
             {
-              to: values.customerEmail,
-              from: "book@jassibacha.com",
+              // to: values.customerEmail,
+              // from: "book@jassibacha.com",
               //subject: `Booking Confirmation - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,
               text: `Dear ${values.customerName}, your booking for ${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} has been confirmed.`,
               templateId: "d-bef6d1c8eb924c238bfb75195cb8705c",
               dynamicData: {
+                toEmail: values.customerEmail,
+                toName: values.customerName,
                 fromEmail: "book@jassibacha.com",
-                fromName: "Book Test",
+                fromName: location.name,
                 replyEmail: "book@beesly.io",
                 replyName: "Beesly",
                 subject: `Booking Confirmation - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,

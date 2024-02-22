@@ -1,4 +1,6 @@
 export type DynamicEmailData = {
+  toEmail: string;
+  toName: string;
   fromEmail: string;
   fromName: string;
   replyEmail: string;
