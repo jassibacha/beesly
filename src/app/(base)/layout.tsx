@@ -3,7 +3,7 @@
 import "@/styles/globals.css";
 
 import { Toaster } from "@/components/ui/toaster";
-import NavBar from "@/components/NavBar";
+import Header from "@/components/landing/LandingHeader";
 
 export const metadata = {
   title: "Beesly.io",
@@ -14,7 +14,7 @@ export const metadata = {
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <NavBar />
+      <Header />
       {children}
       <Toaster />
     </>

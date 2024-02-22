@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import MaxWidthWrapper from "./MaxWidthWrapper";
-import { Button, buttonVariants } from "./ui/button";
+import MaxWidthWrapper from "../MaxWidthWrapper";
+import { Button, buttonVariants } from "../ui/button";
 // import MobileNav from "./MobileNav";
 import {
   SignedIn,
@@ -11,9 +11,8 @@ import {
   SignOutButton,
   SignUpButton,
 } from "@clerk/nextjs";
-import { ModeToggle } from "./dashboard/mode-toggle";
 
-async function NavBar() {
+async function Header() {
   return (
     <nav className="background-blur-lg sticky inset-x-0 top-0 z-30 h-14 w-full border-b bg-white/75 transition-all dark:bg-black/75">
       {/* <MaxWidthWrapper> */}
@@ -25,7 +24,8 @@ async function NavBar() {
 
           {/* <MobileNav isAuth={!!user} /> */}
 
-          <div className="hidden items-center space-x-4 sm:flex">
+          {/* <div className="hidden items-center space-x-4 sm:flex"> */}
+          <div className="flex items-center space-x-4">
             <SignedOut>
               {/* <Link
               href="/pricing"
@@ -41,11 +41,6 @@ async function NavBar() {
                 <Link href="/sign-in">Sign In</Link>
               </Button>
               <Button variant="default" size="sm" asChild>
-                {/* <SignUpButton>
-                  Get Started
-                  <ArrowRight className="ml-1.5 h-5 w-5" /> 
-                </SignUpButton> */}
-
                 <Link href="/sign-up">
                   Get Started <ArrowRight className="ml-1.5 h-5 w-5" />
                 </Link>
@@ -71,4 +66,4 @@ async function NavBar() {
   );
 }
 
-export default NavBar;
+export default Header;
