@@ -64,13 +64,56 @@ type FormValues = UpdateLocationFormSchemaValues & {
   logo: File | string | null;
 };
 
-export function LocationForm({
-  location,
-  locationSettings,
-}: LocationFormProps) {
-  // let { location } = useDashboardData();
-  // const { locationSettings, resources, isLoading, refetchAll } =
-  //   useDashboardData();
+// export function LocationForm({
+//   location,
+//   locationSettings,
+// }: LocationFormProps) {
+export function LocationForm() {
+  let { location } = useDashboardData();
+  const { locationSettings, resources, isLoading, isSuccess, refetchAll } =
+    useDashboardData();
+
+  const { data: uploadData, isLoading: isUploadLoading } =
+    api.r2.getLogoUploadUrl.useQuery(
+      {
+        locationId: location.id,
+        extension: "png",
+      },
+      {
+        enabled: !!location.id,
+      },
+    );
+
+  const deleteLogoMutation = api.r2.deleteLogo.useMutation();
+
+  const updateLocationMutation = api.location.update.useMutation();
+
+  const defaultValues = {
+    name: location.name ?? "",
+    slug: location.slug ?? "",
+    logo: location.logo ?? "", // File, string or null
+    phone: location.phone ?? "",
+    email: location.email ?? "",
+    website: location.website ?? "",
+    streetAddress: location.streetAddress ?? "",
+    city: location.city ?? "",
+    state: location.state ?? "",
+    zipCode: location.zipCode ?? "",
+    country: location.country ?? "",
+    timeZone: locationSettings.timeZone ?? "",
+  };
+
+  const form = useForm<UpdateLocationFormSchemaValues>({
+    resolver: zodResolver(updateLocationFormSchema),
+    defaultValues: defaultValues,
+  });
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setError,
+    formState: { isSubmitting },
+  } = form;
 
   // Set default values for the form outside of react-hook-forms
   // So we can force reset() when location or locationSettings change
@@ -93,43 +136,25 @@ export function LocationForm({
   //   [location, locationSettings],
   // );
 
-  const defaultValues = {
-    name: location.name,
-    slug: location.slug,
-    logo: location.logo, // File, string or null
-    phone: location.phone ?? "",
-    email: location.email ?? "",
-    website: location.website ?? "",
-    streetAddress: location.streetAddress ?? "",
-    city: location.city ?? "",
-    state: location.state ?? "",
-    zipCode: location.zipCode ?? "",
-    country: location.country ?? "",
-    timeZone: locationSettings.timeZone,
-  };
-
-  const [currentLogo, setCurrentLogo] = useState<string | null>(location.logo);
-  const form = useForm<UpdateLocationFormSchemaValues>({
-    resolver: zodResolver(updateLocationFormSchema),
-    defaultValues: defaultValues,
-  });
-  const {
-    control,
-    handleSubmit,
-    reset,
-    setError,
-    formState: { isSubmitting },
-  } = form;
-
   // useEffect(() => {
   //   reset(defaultValues);
   // }, [reset, defaultValues]);
 
-  const { data: uploadData, isLoading: isUploadLoading } =
-    api.r2.getLogoUploadUrl.useQuery({
-      locationId: location.id,
-      extension: "png",
-    });
+  const [currentLogo, setCurrentLogo] = useState<string | null>(location.logo);
+
+  if (
+    isLoading ||
+    isUploadLoading ||
+    !location ||
+    !locationSettings ||
+    !resources
+  ) {
+    return <div>Loading...</div>;
+  }
+
+  if (location.logo && currentLogo === null) {
+    setCurrentLogo(location.logo);
+  }
 
   const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1 MB
 
@@ -178,8 +203,6 @@ export function LocationForm({
     }
   };
 
-  const deleteLogoMutation = api.r2.deleteLogo.useMutation();
-
   const handleDeleteLogo = async () => {
     if (location.logo) {
       deleteLogoMutation.mutate(
@@ -211,9 +234,6 @@ export function LocationForm({
       );
     }
   };
-
-  //const createBookingMutation = api.booking.book.useMutation();
-  const updateLocationMutation = api.location.update.useMutation();
 
   const onSubmit: SubmitHandler<UpdateLocationFormSchemaValues> = async (
     values,
@@ -278,6 +298,12 @@ export function LocationForm({
       },
     });
   };
+
+  if (isSuccess && location) {
+    //reset(defaultValues);
+  }
+
+  // reset(defaultValues);
 
   return (
     <Form {...form}>

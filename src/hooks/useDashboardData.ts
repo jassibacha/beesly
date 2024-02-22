@@ -45,6 +45,10 @@ export function useDashboardData() {
       locationQuery.isLoading ||
       locationSettingsQuery.isLoading ||
       resourcesQuery.isLoading,
+    isSuccess:
+      locationQuery.isSuccess &&
+      locationSettingsQuery.isSuccess &&
+      resourcesQuery.isSuccess,
     error:
       locationQuery.error ??
       locationSettingsQuery.error ??

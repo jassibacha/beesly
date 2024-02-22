@@ -26,12 +26,12 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const location = await api.location.getLocationByUserId.query();
+  // const location = await api.location.getLocationByUserId.query();
 
-  const locationSettings =
-    await api.location.getLocationSettingsByLocationId.query({
-      locationId: location.id,
-    });
+  // const locationSettings =
+  //   await api.location.getLocationSettingsByLocationId.query({
+  //     locationId: location.id,
+  //   });
 
   // const { location, locationSettings, resources, isLoading, refetchAll } =
   //   useDashboardData();
@@ -64,8 +64,8 @@ export default async function Page() {
                 <CardContent className="">
                   <Suspense fallback={<div>Loading...</div>}>
                     <LocationForm
-                      location={location}
-                      locationSettings={locationSettings}
+                    // location={location}
+                    // locationSettings={locationSettings}
                     />
                   </Suspense>
                 </CardContent>
