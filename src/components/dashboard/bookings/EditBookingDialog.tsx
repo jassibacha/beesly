@@ -38,11 +38,8 @@ export async function EditBookingDialog({
   booking,
 }: BookingDialogProps) {
   //const [openEditDialog, setOpenEditDialog] = useState(false);
-  if (!location || !locationSettings || !resources) {
-    notFound();
-  }
 
-  if (!booking) {
+  if (!location || !locationSettings || !resources || !booking) {
     notFound();
   }
 

@@ -622,8 +622,8 @@ export function BookingForm({
 
           <div className="sm:grid sm:grid-cols-3 sm:gap-4">
             <FormField
-              control={control}
               name="customerName"
+              control={control}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel htmlFor="customerName" aria-required={true}>
@@ -644,8 +644,8 @@ export function BookingForm({
             />
 
             <FormField
-              control={control}
               name="customerPhone"
+              control={control}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel htmlFor="customerPhone" aria-required={true}>
@@ -666,8 +666,8 @@ export function BookingForm({
             />
 
             <FormField
-              control={control}
               name="customerEmail"
+              control={control}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel htmlFor="customerEmail" aria-required={true}>
@@ -692,19 +692,21 @@ export function BookingForm({
           {/* Specific close for the dialog */}
 
           {isDialog && (
-            <DialogClose asChild>
-              <Button type="button" variant="secondary">
-                Close Temp
-              </Button>
-            </DialogClose>
-            // <Button
-            //   type="button"
-            //   variant="secondary"
-            //   onClick={closeDialog}
-            //   className="ml-2"
-            // >
-            //   Close2
-            // </Button>
+            <>
+              <DialogClose asChild>
+                <Button type="button" variant="secondary">
+                  Close Temp
+                </Button>
+              </DialogClose>
+              {/* <Button
+                type="button"
+                variant="secondary"
+                onClick={closeDialog}
+                className="ml-2"
+              >
+                Close2
+              </Button> */}
+            </>
           )}
           {/* <DialogClose asChild>
             <Button type="button" variant="secondary">

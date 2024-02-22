@@ -230,6 +230,7 @@ export default function DailyBookings({
 
                   <div className="hidden md:block">
                     <EditBookingDialog
+                      key={`edit${index}`}
                       location={location}
                       locationSettings={locationSettings}
                       resources={resources}
