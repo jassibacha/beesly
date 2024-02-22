@@ -46,12 +46,15 @@ import type {
   LocationSetting,
   Resource,
 } from "@/server/db/types";
+import { DialogClose } from "../ui/dialog";
 
 interface BookingFormProps {
   location: Location;
   locationSettings: LocationSetting;
   resources?: Resource[];
   booking?: Booking;
+  isInDialog?: boolean;
+  closeDialog?: () => void;
 }
 
 interface ExtendedTimeSlot {
@@ -92,8 +95,11 @@ export function BookingForm({
   locationSettings,
   resources,
   booking,
+  isInDialog,
+  closeDialog,
 }: BookingFormProps) {
   const isEditing = !!booking; // Determine if we are editing an existing booking
+  const isDialog = !!isInDialog; // Determine if we are in a dialog
 
   const router = useRouter();
 
@@ -683,6 +689,28 @@ export function BookingForm({
             />
           </div>
           <Button type="submit">Submit</Button>
+          {/* Specific close for the dialog */}
+
+          {isDialog && (
+            <DialogClose asChild>
+              <Button type="button" variant="secondary">
+                Close Temp
+              </Button>
+            </DialogClose>
+            // <Button
+            //   type="button"
+            //   variant="secondary"
+            //   onClick={closeDialog}
+            //   className="ml-2"
+            // >
+            //   Close2
+            // </Button>
+          )}
+          {/* <DialogClose asChild>
+            <Button type="button" variant="secondary">
+              Close
+            </Button>
+          </DialogClose> */}
         </form>
       </Form>
     </>

@@ -54,6 +54,7 @@ export async function NewBookingDialog() {
             location={location}
             locationSettings={locationSettings}
             resources={resources}
+            isInDialog={true}
           />
         </Suspense>
         {/* <div className="flex items-center space-x-2">
@@ -72,13 +73,13 @@ export async function NewBookingDialog() {
             <Copy className="h-4 w-4" />
           </Button>
         </div> */}
-        <DialogFooter className="sm:justify-start">
+        {/* <DialogFooter className="sm:justify-start">
           <DialogClose asChild>
             <Button type="button" variant="secondary">
               Close
             </Button>
           </DialogClose>
-        </DialogFooter>
+        </DialogFooter> */}
       </DialogContent>
     </Dialog>
   );

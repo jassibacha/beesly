@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/trpc/react";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { BookingForm } from "@/components/forms/BookingForm";
 import type {
   Booking,
@@ -37,6 +37,7 @@ export async function EditBookingDialog({
   resources,
   booking,
 }: BookingDialogProps) {
+  //const [openEditDialog, setOpenEditDialog] = useState(false);
   if (!location || !locationSettings || !resources) {
     notFound();
   }
@@ -46,6 +47,7 @@ export async function EditBookingDialog({
   }
 
   return (
+    // <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="secondary" size="sm">
@@ -64,15 +66,17 @@ export async function EditBookingDialog({
             locationSettings={locationSettings}
             resources={resources}
             booking={booking}
+            isInDialog={true}
+            //closeDialog={() => setOpenEditDialog(false)}
           />
         </Suspense>
-        <DialogFooter className="sm:justify-start">
+        {/* <DialogFooter className="sm:justify-start">
           <DialogClose asChild>
             <Button type="button" variant="secondary">
               Close
             </Button>
           </DialogClose>
-        </DialogFooter>
+        </DialogFooter> */}
       </DialogContent>
     </Dialog>
   );
