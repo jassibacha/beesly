@@ -1,3 +1,4 @@
+// "use client";
 import type { Metadata } from "next";
 import Image from "next/image";
 
@@ -16,6 +17,8 @@ import { RecentSales } from "@/components/dashboard/recent-sales";
 import { api } from "@/trpc/server";
 import dynamic from "next/dynamic";
 import { LocationForm } from "./_components/EditLocationForm";
+import { useDashboardData } from "@/hooks/useDashboardData";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -29,6 +32,9 @@ export default async function Page() {
     await api.location.getLocationSettingsByLocationId.query({
       locationId: location.id,
     });
+
+  // const { location, locationSettings, resources, isLoading, refetchAll } =
+  //   useDashboardData();
 
   return (
     <>
@@ -56,10 +62,12 @@ export default async function Page() {
                   <CardTitle>Location Settings</CardTitle>
                 </CardHeader>
                 <CardContent className="">
-                  <LocationForm
-                    location={location}
-                    locationSettings={locationSettings}
-                  />
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <LocationForm
+                      location={location}
+                      locationSettings={locationSettings}
+                    />
+                  </Suspense>
                 </CardContent>
               </Card>
             </div>

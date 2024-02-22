@@ -1,3 +1,4 @@
+import type { Location, LocationSetting } from "@/server/db/types";
 import { api } from "@/trpc/react";
 
 export function useDashboardData() {
@@ -37,9 +38,9 @@ export function useDashboardData() {
   };
 
   return {
-    location: locationQuery.data,
-    locationSettings: locationSettingsQuery.data,
-    resources: resourcesQuery.data,
+    location: locationQuery.data ?? ({} as Location),
+    locationSettings: locationSettingsQuery.data ?? ({} as LocationSetting),
+    resources: resourcesQuery.data ?? ({} as Location),
     isLoading:
       locationQuery.isLoading ||
       locationSettingsQuery.isLoading ||

@@ -37,8 +37,8 @@ import {
 
 import { useToast, toast } from "@/components/ui/use-toast";
 import { api } from "@/trpc/react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { notFound, useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import type {
   Booking,
@@ -52,6 +52,7 @@ import {
 } from "@/lib/schemas/locationSchemas";
 import { r2 } from "@/lib/r2";
 import { set } from "date-fns";
+import { useDashboardData } from "@/hooks/useDashboardData";
 
 interface LocationFormProps {
   location: Location;
@@ -67,23 +68,50 @@ export function LocationForm({
   location,
   locationSettings,
 }: LocationFormProps) {
+  // let { location } = useDashboardData();
+  // const { locationSettings, resources, isLoading, refetchAll } =
+  //   useDashboardData();
+
+  // Set default values for the form outside of react-hook-forms
+  // So we can force reset() when location or locationSettings change
+
+  // const defaultValues = useMemo(
+  //   () => ({
+  //     name: location.name,
+  //     slug: location.slug,
+  //     logo: location.logo, // File, string or null
+  //     phone: location.phone ?? "",
+  //     email: location.email ?? "",
+  //     website: location.website ?? "",
+  //     streetAddress: location.streetAddress ?? "",
+  //     city: location.city ?? "",
+  //     state: location.state ?? "",
+  //     zipCode: location.zipCode ?? "",
+  //     country: location.country ?? "",
+  //     timeZone: locationSettings.timeZone,
+  //   }),
+  //   [location, locationSettings],
+  // );
+
+  const defaultValues = {
+    name: location.name,
+    slug: location.slug,
+    logo: location.logo, // File, string or null
+    phone: location.phone ?? "",
+    email: location.email ?? "",
+    website: location.website ?? "",
+    streetAddress: location.streetAddress ?? "",
+    city: location.city ?? "",
+    state: location.state ?? "",
+    zipCode: location.zipCode ?? "",
+    country: location.country ?? "",
+    timeZone: locationSettings.timeZone,
+  };
+
   const [currentLogo, setCurrentLogo] = useState<string | null>(location.logo);
   const form = useForm<UpdateLocationFormSchemaValues>({
     resolver: zodResolver(updateLocationFormSchema),
-    defaultValues: {
-      name: location.name,
-      slug: location.slug,
-      logo: location.logo, // File, string or null
-      phone: location.phone ?? "",
-      email: location.email ?? "",
-      website: location.website ?? "",
-      streetAddress: location.streetAddress ?? "",
-      city: location.city ?? "",
-      state: location.state ?? "",
-      zipCode: location.zipCode ?? "",
-      country: location.country ?? "",
-      timeZone: locationSettings.timeZone,
-    },
+    defaultValues: defaultValues,
   });
   const {
     control,
@@ -92,6 +120,10 @@ export function LocationForm({
     setError,
     formState: { isSubmitting },
   } = form;
+
+  // useEffect(() => {
+  //   reset(defaultValues);
+  // }, [reset, defaultValues]);
 
   const { data: uploadData, isLoading: isUploadLoading } =
     api.r2.getLogoUploadUrl.useQuery({
@@ -161,9 +193,9 @@ export function LocationForm({
               duration: 2000,
             });
             // Update the location object to remove the logo
-            const updatedLocation = { ...location, logo: null };
+            location = { ...location, logo: null } as Location;
             reset({ ...form.getValues(), logo: null }); // Update the form values
-            location = updatedLocation; // Update the location object
+            //location = updatedLocation; // Update the location object
             setCurrentLogo(null);
           },
           onError: (error) => {
