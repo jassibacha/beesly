@@ -32,6 +32,7 @@ import {
 } from "../ui/card";
 import { Badge } from "../ui/badge";
 import Link from "next/link";
+import { useDashboardData } from "@/hooks/useDashboardData";
 
 interface DailyBookingProps {
   location: Location;
@@ -55,13 +56,13 @@ interface BookingsResponse {
   bookings: BookingData[];
 }
 
-export default function DailyBookings({
-  location,
-  locationSettings,
-  resources,
-}: DailyBookingProps) {
+// export default function DailyBookings({
+//   location,
+//   locationSettings,
+//   resources,
+// }: DailyBookingProps) {
+export default function DailyBookings() {
   //const { isSignedIn, user, isLoaded } = useUser();
-
   const form = useForm({
     defaultValues: {
       date: DateTime.now().toJSDate(),
@@ -80,10 +81,25 @@ export default function DailyBookings({
   // Watching the date field for changes
   const selectedDate = watch("date");
 
-  // Use `useQuery` to fetch bookings. Note that we're not calling `.query` directly;
-  // useQuery is the hook provided by TRPC for React.
-  // Adjust the query key accordingly if your procedure expects any parameters.
-  // const { data, isLoading, error } = api.booking.listBookings.useQuery();
+  const { location, locationSettings, resources, isLoading } =
+    useDashboardData();
+
+  // const { data: location, isLoading: isLocationLoading } =
+  //   api.location.getLocationByUserId.useQuery();
+
+  // // Use the `enabled` option to conditionally fetch based on whether `location` is defined
+  // const { data: locationSettings, isLoading: isLocationSettingsLoading } =
+  //   api.location.getLocationSettingsByLocationId.useQuery(
+  //     { locationId: location?.id ?? "" },
+  //     { enabled: !!location?.id },
+  //   );
+
+  // // Similar approach for resources
+  // const { data: resources, isLoading: isResourcesLoading } =
+  //   api.resource.getResourcesByLocationId.useQuery(
+  //     { locationId: location?.id ?? "" },
+  //     { enabled: !!location?.id },
+  //   );
 
   // tRPC query to fetch time slots (available and unavailable)
   const {
@@ -92,13 +108,55 @@ export default function DailyBookings({
     error: bookingsError,
   } = api.booking.listBookingsByDate.useQuery<BookingsResponse>(
     {
-      locationId: location.id,
+      locationId: location?.id ?? "",
       date: selectedDate,
     },
     {
-      enabled: !!selectedDate,
+      // Only fetch bookings if the location ID and date are available
+      enabled: !!location?.id && !!selectedDate,
+
+      //enabled: !!selectedDate,
     },
   );
+
+  // Now, your loading state depends on all queries
+  // const isLoading =
+  //   isLocationLoading || isLocationSettingsLoading || isResourcesLoading;
+
+  // const {
+  //   control,
+  //   handleSubmit,
+  //   reset,
+  //   setError,
+  //   watch,
+  //   formState: { isSubmitting },
+  // } = form;
+
+  // // Watching the date field for changes
+  // const selectedDate = watch("date");
+
+  // Use `useQuery` to fetch bookings. Note that we're not calling `.query` directly;
+  // useQuery is the hook provided by TRPC for React.
+  // Adjust the query key accordingly if your procedure expects any parameters.
+  // const { data, isLoading, error } = api.booking.listBookings.useQuery();
+
+  // tRPC query to fetch time slots (available and unavailable)
+  // const {
+  //   data: bookingsData,
+  //   isLoading: bookingsIsLoading,
+  //   error: bookingsError,
+  // } = api.booking.listBookingsByDate.useQuery<BookingsResponse>(
+  //   {
+  //     locationId: location.id,
+  //     date: selectedDate,
+  //   },
+  //   {
+  //     // Only fetch bookings if the location ID and date are available
+  //     enabled: !!location.id && !!selectedDate,
+
+  //     //enabled: !!selectedDate,
+  //   },
+  // );
 
   const hours = Array.from({ length: 24 }, (_, i) => i * 60); // Generate an array of minutes [0, 60, 120, ..., 1380]
 
@@ -217,6 +275,10 @@ export default function DailyBookings({
       </div>
     );
   };
+
+  if (isLoading || !location || !locationSettings || !resources) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Card className="col-span-4">

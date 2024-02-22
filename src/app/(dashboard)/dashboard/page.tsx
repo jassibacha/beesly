@@ -1,17 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDateRangePicker } from "@/components/dashboard/date-range-picker";
-import { RecentSales } from "@/components/dashboard/recent-sales";
 import { syncUser } from "@/lib/auth/utils";
 import { notFound, redirect } from "next/navigation";
 import DailyBookings from "@/components/dashboard/DailyBookings";
@@ -36,18 +25,18 @@ export default async function DashboardPage() {
     redirect("/dashboard/setup");
   }
 
-  const location = await api.location.getLocationByUserId.query();
+  // const location = await api.location.getLocationByUserId.query();
 
-  if (!location) {
-    return notFound();
-  }
+  // if (!location) {
+  //   return notFound();
+  // }
 
-  const [locationSettings, resources] = await Promise.all([
-    api.location.getLocationSettingsByLocationId.query({
-      locationId: location.id,
-    }),
-    api.resource.getResourcesByLocationId.query({ locationId: location.id }),
-  ]);
+  // const [locationSettings, resources] = await Promise.all([
+  //   api.location.getLocationSettingsByLocationId.query({
+  //     locationId: location.id,
+  //   }),
+  //   api.resource.getResourcesByLocationId.query({ locationId: location.id }),
+  // ]);
 
   return (
     <>
@@ -55,9 +44,9 @@ export default async function DashboardPage() {
       <div className="grid h-[calc(100vh-68px)] gap-4 overflow-auto md:grid-cols-1 lg:grid-cols-1">
         <Suspense fallback={<div>Loading...</div>}>
           <DailyBookings
-            location={location}
-            locationSettings={locationSettings}
-            resources={resources}
+          // location={location}
+          // locationSettings={locationSettings}
+          // resources={resources}
           />
         </Suspense>
       </div>
