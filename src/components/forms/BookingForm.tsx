@@ -113,15 +113,6 @@ export function BookingForm({
       customerEmail: isEditing ? booking.customerEmail : "",
       customerPhone: isEditing ? booking.customerPhone : "",
     },
-
-    // defaultValues: {
-    //   date: DateTime.now().toJSDate(),
-    //   duration: "1",
-    //   timeSlot: "",
-    //   customerName: "",
-    //   customerEmail: "",
-    //   customerPhone: "",
-    // },
   });
   const {
     control,
@@ -192,13 +183,6 @@ export function BookingForm({
     }
   }, [timeSlotData, timeSlotLoading, isEditing, booking]);
 
-  // useEffect(() => {
-  //   if (isEditing && booking) {
-  //     setSelectedTimeSlot(booking.startTime.toISOString());
-  //     console.log(`selectedTimeSlot edited: ${selectedTimeSlot}`);
-  //   }
-  // }, [isEditing, booking]);
-
   useEffect(() => {
     // Reset selected time slot whenever the duration changes
     setSelectedTimeSlot(null);
@@ -221,41 +205,6 @@ export function BookingForm({
   const renderTimeSlotButton = (slot: ExtendedTimeSlot, index: number) => {
     // Determine if the slot is the currently selected one
     const isSelected = selectedTimeSlot === slot.startTime;
-    // const isSelected =
-    //   selectedTimeSlot === slot.startTime ||
-    //   (isEditing && booking.startTime.toISOString() === slot.startTime);
-
-    // Works for single slot IE. 11AM
-    // const isSelected =
-    //   selectedTimeSlot === slot.startTime ||
-    //   (isEditing &&
-    //     !selectedTimeSlot &&
-    //     booking &&
-    //     DateTime.fromISO(booking.startTime.toISOString())
-    //       .setZone(locationSettings.timeZone)
-    //       .toISO() === slot.startTime);
-
-    // // Generate all the time slots within the existing booking duration (if applicable)
-    // let bookingSlots: string[] = [];
-    // if (isEditing && booking) {
-    //   const bookingStartTime = DateTime.fromISO(
-    //     booking.startTime.toISOString(),
-    //   ).setZone(locationSettings.timeZone);
-    //   const bookingEndTime = DateTime.fromISO(booking.endTime.toISOString())
-    //     .setZone(locationSettings.timeZone)
-    //     .plus({ minutes: locationSettings.bufferTime }); // Add buffer time to the booking end time
-    //   let currentTime = bookingStartTime;
-    //   while (currentTime < bookingEndTime) {
-    //     bookingSlots.push(currentTime.toISO()!);
-    //     currentTime = currentTime.plus({
-    //       minutes: locationSettings.timeSlotIncrements,
-    //     });
-    //   }
-    // }
-
-    // const isSelected =
-    //   selectedTimeSlot === slot.startTime ||
-    //   (isEditing && bookingSlots[0] === slot.startTime);
 
     // Determine the variant based on availability and selection
     let variant: ButtonVariant = "outline"; // Default to available but not selected
@@ -264,21 +213,6 @@ export function BookingForm({
     } else if (!slot.isAvailable) {
       variant = "destructive";
     }
-    // let variant: ButtonVariant = "outline"; // Default to available but not selected
-    // if (isSelected) {
-    //   variant = "default"; // Selected
-    // } else if (!slot.isAvailable && !bookingSlots.includes(slot.startTime)) {
-    //   variant = "destructive"; // Not available
-    // } else if (bookingSlots.includes(slot.startTime)) {
-    //   variant = "outline"; // Part of the booking but not selected
-    // }
-
-    // // Modify the isAvailable property of each slot before rendering the buttons
-    // timeSlots.forEach((slot) => {
-    //   if (bookingSlots.includes(slot.startTime)) {
-    //     slot.isAvailable = true;
-    //   }
-    // });
 
     return (
       <Button
@@ -298,40 +232,6 @@ export function BookingForm({
         {DateTime.fromISO(slot.startTime).toFormat("h:mm a")}
         {/* -{" "}{DateTime.fromISO(slot.endTime).toFormat("h:mm a")} */}
       </Button>
-      // <Button
-      //   key={index}
-      //   disabled={
-      //     !slot.isAvailable &&
-      //     !isSelected &&
-      //     !(
-      //       isEditing &&
-      //       booking &&
-      //       DateTime.fromISO(booking.startTime.toISOString())
-      //         .setZone(locationSettings.timeZone)
-      //         .toISO() === slot.startTime
-      //     )
-      //   }
-      //   variant={variant}
-      //   size="sm"
-      //   className=""
-      //   onClick={() => {
-      //     if (
-      //       slot.isAvailable ||
-      //       isSelected ||
-      //       (isEditing &&
-      //         booking &&
-      //         DateTime.fromISO(booking.startTime.toISOString())
-      //           .setZone(locationSettings.timeZone)
-      //           .toISO() === slot.startTime)
-      //     ) {
-      //       form.setValue("timeSlot", slot.startTime);
-      //       setSelectedTimeSlot(slot.startTime);
-      //     }
-      //   }}
-      //   type="button"
-      // >
-      //   {DateTime.fromISO(slot.startTime).toFormat("h:mm a")}
-      // </Button>
     );
   };
 
@@ -353,7 +253,7 @@ export function BookingForm({
       ); // Display when no time slots are available
 
     return (
-      <div className="grid grid-cols-6 gap-2">
+      <div className="grid grid-cols-5 gap-2 sm:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
         {timeSlots.map(renderTimeSlotButton)}
       </div>
     );

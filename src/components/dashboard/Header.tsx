@@ -16,13 +16,16 @@ function Header() {
         <MainNav className="mx-6" />
         <div className="ml-auto flex items-center space-x-4">
           {/* <Search /> */}
-          <Button variant="default" size="sm" asChild>
-            <Link href="/dashboard/bookings/new">
+          <Button variant="default" size="sm" asChild className="md:hidden">
+            <Link href="/dashboard/bookings/new" className="flex items-center">
               <PlusCircle className="mr-1 h-4 w-4" />
-              New Booking
+              New
             </Link>
           </Button>
-          <NewBookingDialog />
+
+          <div className="hidden md:block">
+            <NewBookingDialog />
+          </div>
           <UserNav />
           <ModeToggle />
         </div>

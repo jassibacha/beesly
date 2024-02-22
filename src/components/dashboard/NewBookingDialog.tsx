@@ -1,4 +1,4 @@
-import { Copy } from "lucide-react";
+import { Copy, PlusCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -39,9 +39,12 @@ export async function NewBookingDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="default">New Booking</Button>
+        <Button variant="default" size="sm">
+          <PlusCircle className="mr-1 h-4 w-4" />
+          New Booking
+        </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md md:max-w-5xl">
         <DialogHeader>
           <DialogTitle>New Booking</DialogTitle>
           <DialogDescription>Make a new booking now.</DialogDescription>
