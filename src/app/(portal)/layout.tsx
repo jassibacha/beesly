@@ -1,6 +1,7 @@
 import "@/styles/globals.css";
 
 import { Toaster } from "@/components/ui/toaster";
+import { ThemeProvider } from "../providers";
 
 export const metadata = {
   title: "Booking Portal",
@@ -10,10 +11,15 @@ export const metadata = {
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
       {/* <NavBar /> */}
       {children}
       <Toaster />
-    </>
+    </ThemeProvider>
   );
 }

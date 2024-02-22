@@ -30,14 +30,14 @@ export default function RootLayout({
       <body className={`font-sans ${inter.variable} grainy antialiased`}>
         <ClerkProvider>
           <TRPCReactProvider>
-            <ThemeProvider
+            {/* <ThemeProvider
               attribute="class"
               defaultTheme="system"
               enableSystem
               disableTransitionOnChange
-            >
-              <Providers>{children}</Providers>
-            </ThemeProvider>
+            > */}
+            <Providers>{children}</Providers>
+            {/* </ThemeProvider> */}
           </TRPCReactProvider>
         </ClerkProvider>
       </body>

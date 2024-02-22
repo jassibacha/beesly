@@ -64,7 +64,6 @@ async function NavBar() {
               <UserButton />
             </SignedIn>
           </div>
-          <ModeToggle />
         </div>
       </div>
       {/* </MaxWidthWrapper> */}
