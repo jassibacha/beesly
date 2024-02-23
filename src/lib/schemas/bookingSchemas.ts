@@ -1,5 +1,27 @@
 import * as z from "zod";
 
+// Primary booking schema. This should be 1:1 with the Drizzle schema I think?
+// used for: booking email sending
+export const bookingSchema = z.object({
+  id: z.string().min(1, "Booking ID is required."),
+  createdAt: z.date(),
+  updatedAt: z.date().nullable(),
+  status: z.string().nullable(),
+  locationId: z.string().min(1, "Location ID is required."),
+  customerName: z.string().min(1, "Customer name is required."),
+  customerEmail: z
+    .string()
+    .email("Invalid customer email format")
+    .min(1, "Customer email is required."),
+  customerPhone: z.string().min(1, "Customer phone is required."),
+  startTime: z.date().min(new Date(), "Start time must be in the future."),
+  endTime: z.date().min(new Date(), "End time must be in the future."),
+  totalCost: z.string().nullable(),
+  taxAmount: z.string().nullable(),
+});
+export type bookingSchemaValues = z.infer<typeof bookingSchema>;
+
+// Create booking schema, used for: create / book trpc and form
 export const createBookingSchema = z.object({
   locationId: z.string().min(1, "Location ID is required."),
   startTime: z.date().min(new Date(), "Start time must be in the future."),

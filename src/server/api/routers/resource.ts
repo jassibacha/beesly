@@ -7,10 +7,6 @@ import {
 } from "@/server/api/trpc";
 //import { locations, locationSettings, users } from "@/server/db/schema";
 
-// import {
-//   createLocationSchema,
-//   locationSettingsSchema,
-// } from "@/lib/schemas/locationSchemas";
 import { TRPCError } from "@trpc/server";
 import { ZodError, z } from "zod";
 import { asc, eq } from "drizzle-orm";

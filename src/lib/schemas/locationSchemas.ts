@@ -1,4 +1,35 @@
 import * as z from "zod";
+import { DailyAvailability } from "@/server/db/types";
+
+// Location schema, used for send booking emails
+export const locationSchema = z.object({
+  id: z.string().min(1, "Location ID is required."),
+  ownerId: z.string().min(1, "Owner ID is required."),
+  name: z.string().min(1, "Business name is required."),
+  slug: z.string().min(1, "URL slug is required."),
+  type: z.string().nullable(),
+  phone: z.string().min(1, "Phone number is required.").nullable(),
+  email: z
+    .string()
+    .email("Invalid email format")
+    .min(1, "Email is required.")
+    .nullable(),
+  website: z
+    .string()
+    .url("Invalid URL format")
+    .min(1, "Website is required.")
+    .nullable(),
+  streetAddress: z.string().min(1, "Street address is required.").nullable(),
+  city: z.string().min(1, "City is required.").nullable(),
+  state: z.string().min(1, "State or province is required.").nullable(),
+  zipCode: z.string().min(1, "Zip or postal code is required.").nullable(),
+  country: z.string().min(1, "Country is required.").nullable(),
+  logo: z.string().url().nullable(),
+  createdAt: z.date(),
+  updatedAt: z.date().nullable(),
+});
+
+export type LocationSchemaValues = z.infer<typeof locationSchema>;
 
 export const createLocationSchema = z.object({
   name: z
@@ -82,23 +113,65 @@ export const updateLocationSchema = z.object({
 });
 export type UpdateLocationSchemaValues = z.infer<typeof updateLocationSchema>;
 
+export const dailyAvailabilitySchema = z.record(
+  z.enum([
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ]),
+  z.object({
+    open: z.string(),
+    close: z.string(),
+  }),
+);
+
 export const locationSettingsSchema = z.object({
+  id: z.string().min(1, "ID is required."),
+  locationId: z.string().min(1, "Location ID is required."),
   timeZone: z.string().min(1, "Time zone is required."),
-  dailyAvailability: z.record(
-    z.string(),
-    z.object({
-      open: z
-        .string()
-        .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
-      close: z
-        .string()
-        .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
-    }),
-  ),
-  taxSettings: z.record(z.string(), z.any()),
+  // second version
+  // dailyAvailability: z.record(
+  //   z.enum([
+  //     "Monday",
+  //     "Tuesday",
+  //     "Wednesday",
+  //     "Thursday",
+  //     "Friday",
+  //     "Saturday",
+  //     "Sunday",
+  //   ]),
+  //   z.object({
+  //     open: z.string(),
+  //     close: z.string(),
+  //   }),
+  // ),
+
+  dailyAvailability: dailyAvailabilitySchema.optional(),
+
+  //dailyAvailability: z.any().optional(),
+
+  // first version
+  // dailyAvailability: z.record(
+  //   z.string(),
+  //   z.object({
+  //     open: z
+  //       .string()
+  //       .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
+  //     close: z
+  //       .string()
+  //       .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
+  //   }),
+  // ),
+  //taxSettings: z.record(z.string(), z.any()),
+  taxSettings: z.any().optional(),
   initialCostOfBooking: z
-    .number()
-    .min(0, "Initial cost of booking must be a positive number."),
+    .string()
+    .min(0, "Initial cost of booking must be a positive number.")
+    .nullable(),
   initialBookingLength: z
     .number()
     .min(1, "Initial booking length must be a positive number."),
@@ -112,9 +185,6 @@ export const locationSettingsSchema = z.object({
   sameDayLeadTimeBuffer: z
     .number()
     .min(0, "Same day lead time buffer must be 0 or more."),
-  minTimeBetweenBookings: z
-    .number()
-    .min(0, "Minimum time between bookings must be a positive number."),
   bufferTime: z
     .number()
     .min(0, "Buffer time in minutes must be a positive number."),
@@ -122,6 +192,8 @@ export const locationSettingsSchema = z.object({
     .number()
     .min(0, "Time slot in minutes must be a positive number."),
   displayUnavailableSlots: z.boolean().default(false),
+  createdAt: z.date(),
+  updatedAt: z.date().nullable(),
 });
 export type LocationSettingsSchemaValues = z.infer<
   typeof locationSettingsSchema

@@ -270,7 +270,7 @@ export function BookingForm({
 
   const createBookingMutation = api.booking.book.useMutation();
   const updateBookingMutation = api.booking.update.useMutation();
-  const sendEmailMutation = api.email.sendEmail.useMutation();
+  const sendBookingEmailMutation = api.email.sendBookingEmail.useMutation();
 
   const onSubmit: SubmitHandler<BookingFormSchemaValues> = (values) => {
     console.log(values);
@@ -419,24 +419,12 @@ export function BookingForm({
 
           if (data?.booking) {
             console.log("Booking data:", data.booking);
-            // Define an async function to handle email sending
-            const sendEmail = async () => {
-              console.log("Sending email...");
-              await sendBookingEmail(
-                EmailTemplateType.BookingConfirmation,
-                data.booking,
-                location,
-                locationSettings,
-              );
-            };
-            // Call the async function immediately
-            sendEmail()
-              .then(() => {
-                console.log("Email sent successfully.");
-              })
-              .catch((error) => {
-                console.error("Failed to send confirmation email :", error);
-              });
+            sendBookingEmailMutation.mutate({
+              templateType: EmailTemplateType.BookingConfirmation,
+              booking: data.booking,
+              location,
+              locationSettings,
+            });
           }
 
           // Email function goes here

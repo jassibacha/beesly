@@ -9,7 +9,6 @@ import { locations, locationSettings, users } from "@/server/db/schema";
 
 import {
   createLocationSchema,
-  locationSettingsSchema,
   updateLocationSchema,
 } from "@/lib/schemas/locationSchemas";
 import { TRPCError } from "@trpc/server";

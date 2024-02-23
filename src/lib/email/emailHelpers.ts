@@ -10,6 +10,7 @@ export async function sendBookingEmail(
   booking: Booking,
   location: Location,
   locationSettings: LocationSetting,
+  //mutate: (data: any) => Promise<any>,
 ) {
   const sendEmailMutation = api.email.sendEmail.useMutation();
 
@@ -72,6 +73,17 @@ export async function sendBookingEmail(
     locationLogo: location.logo,
   };
 
+  // try {
+  //   await mutate({
+  //     text: textBody,
+  //     templateId: templateId,
+  //     dynamicData: dynamicData,
+  //   });
+  //   console.log(`Email sent to ${booking.customerEmail}`);
+  // } catch (error) {
+  //   console.error(`Failed to send email to ${booking.customerEmail}`, error);
+  // }
+
   sendEmailMutation.mutate(
     {
       text: textBody,
@@ -90,6 +102,7 @@ export async function sendBookingEmail(
       },
     },
   );
+
   // try {
   //   // await api.email.sendEmail.mutate({
   //   //   text: textBody,
