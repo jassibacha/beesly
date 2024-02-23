@@ -9,7 +9,13 @@ import { TRPCError } from "@trpc/server";
 import { ZodError, z } from "zod";
 import { EmailTemplateType, type DynamicEmailData } from "@/types/emailTypes";
 
-import type { Booking, Location, LocationSetting } from "@/server/db/types";
+import type {
+  Booking,
+  Location,
+  LocationSetting,
+  ExtendedLocationSetting,
+  AnotherLocationSetting,
+} from "@/server/db/types";
 import { bookingSchema } from "@/lib/schemas/bookingSchemas";
 import {
   locationSchema,
@@ -87,7 +93,7 @@ function buildBookingEmail(
   templateType: EmailTemplateType,
   booking: Booking,
   location: Location,
-  locationSettings: LocationSetting,
+  locationSettings: AnotherLocationSetting,
 ) {
   // Implement the logic to build the dynamic data based on the template type, booking, location, and location settings
   // Return the dynamic data object

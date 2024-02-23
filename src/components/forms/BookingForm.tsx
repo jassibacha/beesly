@@ -41,6 +41,7 @@ import { redirect, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import type {
+  AnotherLocationSetting,
   Booking,
   Location,
   LocationSetting,
@@ -53,7 +54,7 @@ import { error } from "console";
 
 interface BookingFormProps {
   location: Location;
-  locationSettings: LocationSetting;
+  locationSettings: AnotherLocationSetting;
   resources?: Resource[];
   booking?: Booking;
   isInDialog?: boolean;

@@ -150,28 +150,27 @@ export const locationSettingsSchema = z.object({
   //   }),
   // ),
 
-  dailyAvailability: dailyAvailabilitySchema.optional(),
+  //dailyAvailability: dailyAvailabilitySchema,
 
-  //dailyAvailability: z.any().optional(),
+  // dailyAvailability: z.string().min(1, "Not empty"),
 
   // first version
-  // dailyAvailability: z.record(
-  //   z.string(),
-  //   z.object({
-  //     open: z
-  //       .string()
-  //       .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
-  //     close: z
-  //       .string()
-  //       .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
-  //   }),
-  // ),
-  //taxSettings: z.record(z.string(), z.any()),
-  taxSettings: z.any().optional(),
+  dailyAvailability: z.record(
+    z.string(),
+    z.object({
+      open: z
+        .string()
+        .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
+      close: z
+        .string()
+        .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
+    }),
+  ),
+  taxSettings: z.record(z.string(), z.any()),
+  //taxSettings: z.any(),
   initialCostOfBooking: z
     .string()
-    .min(0, "Initial cost of booking must be a positive number.")
-    .nullable(),
+    .min(1, "Initial cost of booking must be a positive number."),
   initialBookingLength: z
     .number()
     .min(1, "Initial booking length must be a positive number."),
@@ -193,7 +192,7 @@ export const locationSettingsSchema = z.object({
     .min(0, "Time slot in minutes must be a positive number."),
   displayUnavailableSlots: z.boolean().default(false),
   createdAt: z.date(),
-  updatedAt: z.date().nullable(),
+  updatedAt: z.date(),
 });
 export type LocationSettingsSchemaValues = z.infer<
   typeof locationSettingsSchema

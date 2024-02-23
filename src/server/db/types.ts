@@ -20,6 +20,27 @@ export type UpdateLocation = Partial<InferInsertModel<typeof locations>>;
 
 // LocationSettings Types
 export type LocationSetting = InferSelectModel<typeof locationSettings>;
+
+export type AnotherLocationSetting = {
+  id: string;
+  locationId: string;
+  timeZone: string;
+  //dailyAvailability: DailyAvailability | string | null;
+  dailyAvailability: Record<string, { open: string; close: string }>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  taxSettings: Record<string, any>;
+  initialCostOfBooking: string;
+  initialBookingLength: number;
+  bookingLengthIncrements: number;
+  maxAdvanceBookingDays: number;
+  sameDayLeadTimeBuffer: number;
+  bufferTime: number;
+  timeSlotIncrements: number;
+  displayUnavailableSlots: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export type NewLocationSetting = InferInsertModel<typeof locationSettings>;
 export type UpdateLocationSetting = Partial<
   InferInsertModel<typeof locationSettings>

@@ -106,6 +106,13 @@ export default async function Page({ params }: Props) {
     notFound();
   }
 
+  // const res = await api.email.sendBookingEmail.mutate({
+  //     templateType: EmailTemplateType.BookingConfirmation,
+  //     booking,
+  //     location,
+  //     locationSettings,
+  // });
+
   return (
     <>
       <div className="flex-1 space-y-4 p-8 pt-6">
