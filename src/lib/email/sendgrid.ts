@@ -52,7 +52,7 @@ export const sendEmail = async (
     await sgMail.send(msg);
     console.log(`Email sent to ${toEmail}`);
   } catch (error) {
-    console.error(error);
+    console.error(`Email failed to send to ${toEmail} [SG]`, error);
   }
 };
 

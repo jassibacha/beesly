@@ -3,7 +3,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { sendEmail } from "@/lib/sendgrid";
+import { sendEmail } from "@/lib/email/sendgrid";
 
 import {
   createLocationSchema,

@@ -19,7 +19,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { and, asc, desc, eq, gte, lte } from "drizzle-orm";
 import { DateTime } from "luxon";
-import { Booking } from "@/server/db/types";
+import type { Booking } from "@/server/db/types";
 import type { TRPCContext } from "@/types/trpcContext";
 import { colors } from "@/lib/utils";
 
@@ -260,8 +260,9 @@ interface BookingInput {
 
 interface BookingCreationResult {
   success: boolean;
+  booking: Booking;
   bookingId?: string;
-  message?: string;
+  message: string;
 }
 
 async function createBooking(
@@ -312,16 +313,42 @@ async function createBooking(
     // status: "Confirmed", // Assuming status
   });
 
+  // Fetch the newly created booking from the database
+  const newBooking = await ctx.db.query.bookings.findFirst({
+    where: (bookings, { eq }) => eq(bookings.id, newBookingId),
+  });
+
+  // Check if the booking was successfully retrieved
+  if (!newBooking) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Failed to retrieve the newly created booking.",
+    });
+  }
+
   await ctx.db.insert(resourceBookings).values({
     id: newResourceBookingId,
     bookingId: newBookingId,
     resourceId: locationResource.id,
   });
 
+  const newResourceBooking = await ctx.db.query.resourceBookings.findFirst({
+    where: (resourceBookings, { eq }) =>
+      eq(resourceBookings.id, newResourceBookingId),
+  });
+
+  if (!newResourceBooking) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Failed to retrieve the newly created resource booking.",
+    });
+  }
+
   return {
     success: true,
     message: "Booking created successfully",
     bookingId: newBookingId,
+    booking: newBooking,
   };
 }
 
@@ -346,6 +373,7 @@ export const bookingRouter = createTRPCRouter({
           success: true,
           message: "Booking successfully created in dashboard",
           bookingId: result.bookingId,
+          booking: result.booking,
         };
       }
     }),
@@ -361,6 +389,7 @@ export const bookingRouter = createTRPCRouter({
           success: true,
           message: "Public booking successfully created",
           bookingId: result.bookingId,
+          booking: result.booking,
         };
       }
     }),
@@ -386,11 +415,17 @@ export const bookingRouter = createTRPCRouter({
       // Update the booking with the provided data
       await ctx.db.update(bookings).set(updateData).where(eq(bookings.id, id));
 
+      // Fetch the updated booking from the database
+      const updatedBooking = await ctx.db.query.bookings.findFirst({
+        where: (bookings, { eq }) => eq(bookings.id, id),
+      });
+
       // Return the updated booking
       return {
         success: true,
         message: "Booking updated successfully",
         id,
+        booking: updatedBooking,
       };
     }),
   listBookings: protectedProcedure.query(async ({ ctx }) => {

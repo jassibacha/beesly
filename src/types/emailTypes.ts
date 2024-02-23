@@ -20,3 +20,8 @@ export type DynamicEmailData = {
   locationEmail: string;
   // Add other fields as needed
 };
+
+export enum EmailTemplateType {
+  BookingConfirmation,
+  BookingUpdate,
+}
