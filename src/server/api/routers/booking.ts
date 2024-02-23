@@ -134,10 +134,17 @@ async function getBookingsByDate(
       eq(locationSettings.locationId, locationId),
   });
 
-  if (!locationSettings?.dailyAvailability) {
+  if (!locationSettings) {
     throw new TRPCError({
       code: "NOT_FOUND",
       message: "Location settings not found",
+    });
+  }
+
+  if (!locationSettings?.dailyAvailability) {
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Location settings dailyAvailability not found",
     });
   }
 
