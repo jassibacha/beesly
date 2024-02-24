@@ -152,21 +152,27 @@ export const locationSettingsSchema = z.object({
 
   //dailyAvailability: dailyAvailabilitySchema,
 
-  // dailyAvailability: z.string().min(1, "Not empty"),
+  // This is a temporary fix for the trpc firing on booking email
+  // Realistically we should either modularize the string>object conversion
+  // Or we should parse the dailyAvailability string and taxSettings in the trpc
+  // That fetches locationSettings in the first place .. look at AnotherLocationSetting
+  // for more information
+  dailyAvailability: z.string().min(1, "Not empty"),
+  taxSettings: z.string().min(1, "Not empty"),
 
   // first version
-  dailyAvailability: z.record(
-    z.string(),
-    z.object({
-      open: z
-        .string()
-        .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
-      close: z
-        .string()
-        .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
-    }),
-  ),
-  taxSettings: z.record(z.string(), z.any()),
+  // dailyAvailability: z.record(
+  //   z.string(),
+  //   z.object({
+  //     open: z
+  //       .string()
+  //       .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
+  //     close: z
+  //       .string()
+  //       .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
+  //   }),
+  // ),
+  //taxSettings: z.record(z.string(), z.any()),
   //taxSettings: z.any(),
   initialCostOfBooking: z
     .string()

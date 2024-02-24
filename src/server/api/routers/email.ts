@@ -104,6 +104,12 @@ function buildBookingEmail(
   let preheader = "";
   let templateId = "d-bef6d1c8eb924c238bfb75195cb8705c"; // Default template
 
+  // Parse the dailyAvailability and taxSettings fields back into objects
+  // const parsedDailyAvailability = JSON.parse(
+  //   locationSettings.dailyAvailability,
+  // );
+  // const parsedTaxSettings = JSON.parse(locationSettings.taxSettings);
+
   // Get the date and time in the location's timezone
   const tz = locationSettings.timeZone;
   const date = DateTime.fromJSDate(booking.startTime)

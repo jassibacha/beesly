@@ -25,10 +25,16 @@ export type AnotherLocationSetting = {
   id: string;
   locationId: string;
   timeZone: string;
-  //dailyAvailability: DailyAvailability | string | null;
-  dailyAvailability: Record<string, { open: string; close: string }>;
+  // This is a temporary fix for the trpc firing on booking email
+  // Realistically we should either modularize the string>object conversion
+  // Or we should parse the dailyAvailability string and taxSettings in the trpc
+  // That fetches locationSettings in the first place
+  dailyAvailability: string; // in db these are a json string
+  taxSettings: string; // in db these are a json string
+
+  //dailyAvailability: Record<string, { open: string; close: string }>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  taxSettings: Record<string, any>;
+  //taxSettings: Record<string, any>;
   initialCostOfBooking: string;
   initialBookingLength: number;
   bookingLengthIncrements: number;
