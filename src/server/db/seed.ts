@@ -84,6 +84,7 @@ async function seedDatabase() {
       state: "BC",
       zipCode: "V5Y 1R4",
       country: "Canada",
+      logo: "https://pub-a8bff496fa524be3b69903c9c9aeb879.r2.dev/evolve/logo-1708473130465.png",
       createdAt: now,
       updatedAt: now,
     });

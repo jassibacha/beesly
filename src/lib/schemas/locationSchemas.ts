@@ -156,7 +156,7 @@ export const locationSettingsSchema = z.object({
   // Realistically we should either modularize the string>object conversion
   // Or we should parse the dailyAvailability string and taxSettings in the trpc
   // That fetches locationSettings in the first place .. look at AnotherLocationSetting
-  // for more information
+  // for more information (Alternatively we just keep this as string since it's unparsed)
   dailyAvailability: z.string().min(1, "Not empty"),
   taxSettings: z.string().min(1, "Not empty"),
 
