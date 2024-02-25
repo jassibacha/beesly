@@ -57,6 +57,7 @@ interface BookingFormProps {
   locationSettings: AnotherLocationSetting;
   resources?: Resource[];
   booking?: Booking;
+
   isInDialog?: boolean;
   closeDialog?: () => void;
 }
@@ -100,6 +101,7 @@ export function BookingForm({
   resources,
   booking,
   isInDialog,
+
   closeDialog,
 }: BookingFormProps) {
   const isEditing = !!booking; // Determine if we are editing an existing booking
@@ -320,67 +322,18 @@ export function BookingForm({
 
           // After booking is successful, send an email if necessary
           if (dateChanged || durationChanged || startTimeChanged) {
-            // Email function goes here
-            // sendEmailMutation.mutate(
-            //   {
-            //     // to: values.customerEmail,
-            //     // from: "book@jassibacha.com",
-            //     //subject: `Booking Confirmation - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,
-            //     text: `Dear ${values.customerName}, your booking for ${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} has been confirmed.`,
-            //     templateId: "d-bef6d1c8eb924c238bfb75195cb8705c",
-            //     dynamicData: {
-            //       toEmail: values.customerEmail,
-            //       toName: values.customerName,
-            //       fromEmail: "book@jassibacha.com",
-            //       fromName: location.name,
-            //       replyEmail: "book@beesly.io",
-            //       replyName: "Beesly",
-            //       subject: `Booking Updated - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,
-            //       preheader: `${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} confirmed!`,
-            //       heading: "Booking Updated",
-            //       textBody: `Dear ${values.customerName}, your booking for ${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} has been confirmed.`,
-            //       date: DateTime.fromJSDate(values.date).toFormat("DDDD"),
-            //       startTime: DateTime.fromISO(values.timeSlot)
-            //         .setZone(locationSettings.timeZone)
-            //         .toFormat("h:mm a"),
-            //       endTime: DateTime.fromISO(values.timeSlot)
-            //         .plus({ minutes: parseFloat(values.duration) * 60 })
-            //         .setZone(locationSettings.timeZone)
-            //         .toFormat("h:mm a"),
-            //       customerName: values.customerName,
-            //       customerEmail: values.customerEmail,
-            //       customerPhone: values.customerPhone,
-            //       locationName: location.name,
-            //       locationPhone: location.phone,
-            //       locationEmail: location.email,
-            //       locationLogo: location.logo,
-            //     },
-            //   },
-            //   {
-            //     onSuccess: () => {
-            //       // Create a db entry that it succeeded?
-            //       // toast({
-            //       //   variant: "success",
-            //       //   title: "Email Sent",
-            //       //   description:
-            //       //     "A confirmation email has been sent to the customer.",
-            //       // });
-            //     },
-            //     onError: (error) => {
-            //       // Create a db entry that it failed?
-            //       console.error("Failed to send confirmation email:", error);
-            //       // toast({
-            //       //   variant: "destructive",
-            //       //   title: "Email Sending Failed",
-            //       //   description:
-            //       //     "Failed to send a confirmation email. Please contact support.",
-            //       // });
-            //     },
-            //   },
-            // );
+            if (data?.booking) {
+              sendBookingEmailMutation.mutate({
+                templateType: EmailTemplateType.BookingUpdate,
+                booking: data.booking,
+                location,
+                locationSettings,
+              });
+            }
           }
 
           // Reset form or redirect user as needed
+          // TODO: Conditional for dialog or page
           // reset(commonData);
           router.push("/dashboard");
         },
@@ -428,66 +381,9 @@ export function BookingForm({
             });
           }
 
-          // Email function goes here
-
-          // After booking is successful, send an email
-          // sendEmailMutation.mutate(
-          //   {
-          //     // to: values.customerEmail,
-          //     // from: "book@jassibacha.com",
-          //     //subject: `Booking Confirmation - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,
-          //     text: `Dear ${values.customerName}, your booking for ${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} has been confirmed.`,
-          //     templateId: "d-bef6d1c8eb924c238bfb75195cb8705c",
-          //     dynamicData: {
-          //       toEmail: values.customerEmail,
-          //       toName: values.customerName,
-          //       fromEmail: "book@jassibacha.com",
-          //       fromName: location.name,
-          //       replyEmail: "book@beesly.io",
-          //       replyName: "Beesly",
-          //       subject: `Booking Confirmation - ${DateTime.fromJSDate(values.date).toFormat("DDDD")}`,
-          //       preheader: `${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} confirmed!`,
-          //       heading: "Booking Confirmed!",
-          //       textBody: `Dear ${values.customerName}, your booking for ${DateTime.fromJSDate(values.date).toFormat("DDDD")} at ${DateTime.fromISO(values.timeSlot).toFormat("h:mm a")} has been confirmed.`,
-          //       date: DateTime.fromJSDate(values.date).toFormat("DDDD"),
-          //       startTime: DateTime.fromISO(values.timeSlot)
-          //         .setZone(locationSettings.timeZone)
-          //         .toFormat("h:mm a"),
-          //       endTime: DateTime.fromISO(values.timeSlot)
-          //         .plus({ minutes: parseFloat(values.duration) * 60 })
-          //         .setZone(locationSettings.timeZone)
-          //         .toFormat("h:mm a"),
-          //       customerName: values.customerName,
-          //       customerEmail: values.customerEmail,
-          //       customerPhone: values.customerPhone,
-          //       locationName: location.name,
-          //       locationPhone: location.phone,
-          //       locationEmail: location.email,
-          //       locationLogo: location.logo,
-          //     },
-          //   },
-          //   {
-          //     onSuccess: () => {
-          //       // Create a db entry that it succeeded?
-          //       // toast({
-          //       //   variant: "success",
-          //       //   title: "Email Sent",
-          //       //   description:
-          //       //     "A confirmation email has been sent to the customer.",
-          //       // });
-          //     },
-          //     onError: (error) => {
-          //       // Create a db entry that it failed?
-          //       console.error("Failed to send confirmation email:", error);
-          //       // toast({
-          //       //   variant: "destructive",
-          //       //   title: "Email Sending Failed",
-          //       //   description:
-          //       //     "Failed to send a confirmation email. Please contact support.",
-          //       // });
-          //     },
-          //   },
-          // );
+          // TODO: Can we check if we're on the booking portal? If so, redirect to thank you page.
+          // Otherwise, if we're on a page it's the dashboard, so go back to the dashboard.
+          // Lastly, if we're in a dialog, close the dialog.
         },
         onError: (error) => {
           // Handle error scenario
@@ -712,7 +608,7 @@ export function BookingForm({
           <Button type="submit">Submit</Button>
           {/* Specific close for the dialog */}
 
-          {isDialog && (
+          {isDialog ? (
             <>
               <DialogClose asChild>
                 <Button type="button" variant="secondary">
@@ -728,6 +624,14 @@ export function BookingForm({
                 Close2
               </Button> */}
             </>
+          ) : (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => router.back()}
+            >
+              Cancel
+            </Button>
           )}
           {/* <DialogClose asChild>
             <Button type="button" variant="secondary">
