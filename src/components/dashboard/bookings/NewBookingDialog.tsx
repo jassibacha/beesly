@@ -54,7 +54,7 @@ export async function NewBookingDialog() {
             location={location}
             locationSettings={locationSettings}
             resources={resources}
-            isInDialog={true}
+            viewContext="dialog"
           />
         </Suspense>
         {/* <div className="flex items-center space-x-2">

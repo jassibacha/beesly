@@ -1,7 +1,12 @@
 "use client";
 import { ModeToggle } from "@/components/dashboard/mode-toggle";
 import { Button } from "@/components/ui/button";
-import type { Location, LocationSetting, Resource } from "@/server/db/types";
+import type {
+  AnotherLocationSetting,
+  Location,
+  LocationSetting,
+  Resource,
+} from "@/server/db/types";
 import { api } from "@/trpc/react";
 import { Phone } from "lucide-react";
 import { TimezoneContext } from "@/context/TimezoneContext";
@@ -11,7 +16,7 @@ import { auth, useUser } from "@clerk/nextjs";
 
 interface BookingPageProps {
   location: Location;
-  locationSettings: LocationSetting;
+  locationSettings: AnotherLocationSetting;
   resources: Resource[];
 }
 
@@ -66,6 +71,7 @@ export function BookingPage({
             location={location}
             locationSettings={locationSettings}
             resources={resources}
+            viewContext="portal"
           />
         </div>
       </main>

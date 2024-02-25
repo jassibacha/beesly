@@ -120,6 +120,7 @@ export default async function Page() {
                 location={location}
                 locationSettings={locationSettings}
                 resources={resources}
+                viewContext="dashboard"
               />
             </Suspense>
             {/* <BookingsList

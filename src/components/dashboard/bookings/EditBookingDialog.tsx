@@ -18,6 +18,7 @@ import { notFound } from "next/navigation";
 import { Suspense, useState } from "react";
 import { BookingForm } from "@/components/forms/BookingForm";
 import type {
+  AnotherLocationSetting,
   Booking,
   Location,
   LocationSetting,
@@ -26,7 +27,7 @@ import type {
 
 interface BookingDialogProps {
   location: Location;
-  locationSettings: LocationSetting;
+  locationSettings: AnotherLocationSetting;
   resources: Resource[];
   booking: Booking;
 }
@@ -63,7 +64,7 @@ export async function EditBookingDialog({
             locationSettings={locationSettings}
             resources={resources}
             booking={booking}
-            isInDialog={true}
+            viewContext="dialog"
             //closeDialog={() => setOpenEditDialog(false)}
           />
         </Suspense>

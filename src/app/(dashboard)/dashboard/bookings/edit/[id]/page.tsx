@@ -131,6 +131,7 @@ export default async function Page({ params }: Props) {
             locationSettings={locationSettings}
             resources={resources}
             booking={booking}
+            viewContext="dashboard"
           />
         </Suspense>
         {/* <Card className="space-y-4">
