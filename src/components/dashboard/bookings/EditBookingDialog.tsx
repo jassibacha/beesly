@@ -18,7 +18,6 @@ import { notFound } from "next/navigation";
 import { Suspense, useState } from "react";
 import { BookingForm } from "@/components/forms/BookingForm";
 import type {
-  AnotherLocationSetting,
   Booking,
   Location,
   LocationSetting,
@@ -27,7 +26,7 @@ import type {
 
 interface BookingDialogProps {
   location: Location;
-  locationSettings: AnotherLocationSetting;
+  locationSettings: LocationSetting;
   resources: Resource[];
   booking: Booking;
 }

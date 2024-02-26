@@ -14,12 +14,7 @@ import {
 import { TRPCError } from "@trpc/server";
 import { ZodError, z } from "zod";
 import { asc, eq } from "drizzle-orm";
-import type {
-  AnotherLocationSetting,
-  Booking,
-  Location,
-  LocationSetting,
-} from "@/server/db/types";
+import type { Booking, Location, LocationSetting } from "@/server/db/types";
 import { colors } from "@/lib/utils";
 
 export const locationRouter = createTRPCRouter({
@@ -101,14 +96,7 @@ export const locationRouter = createTRPCRouter({
           message: "Location settings not found",
         });
       }
-
-      //return locationSettings as LocationSetting;
-      return locationSettings as AnotherLocationSetting;
-      // return {
-      //   ...locationSettings,
-      //   // dailyAvailability: JSON.parse(locationSettings.dailyAvailability),
-      //   // taxSettings: JSON.parse(locationSettings.taxSettings),
-      // } as AnotherLocationSetting;
+      return locationSettings as LocationSetting;
     }),
 
   // This goes in boookings

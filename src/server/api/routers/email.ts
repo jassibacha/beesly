@@ -14,7 +14,6 @@ import type {
   Location,
   LocationSetting,
   ExtendedLocationSetting,
-  AnotherLocationSetting,
 } from "@/server/db/types";
 import { bookingSchema } from "@/lib/schemas/bookingSchemas";
 import {
@@ -93,7 +92,7 @@ function buildBookingEmail(
   templateType: EmailTemplateType,
   booking: Booking,
   location: Location,
-  locationSettings: AnotherLocationSetting,
+  locationSettings: LocationSetting,
 ) {
   // Implement the logic to build the dynamic data based on the template type, booking, location, and location settings
   // Return the dynamic data object

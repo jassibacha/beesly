@@ -19,9 +19,10 @@ export type NewLocation = InferInsertModel<typeof locations>;
 export type UpdateLocation = Partial<InferInsertModel<typeof locations>>;
 
 // LocationSettings Types
-export type LocationSetting = InferSelectModel<typeof locationSettings>;
+//export type LocationSetting = InferSelectModel<typeof locationSettings>;
+// This automated infer was giving errors with the json fields, they were coming back as 'unknown' and messing with type safety from FE > BE
 
-export type AnotherLocationSetting = {
+export type LocationSetting = {
   id: string;
   locationId: string;
   timeZone: string;
