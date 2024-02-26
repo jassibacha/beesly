@@ -41,7 +41,7 @@ export const locationRouter = createTRPCRouter({
       });
     }
 
-    return location;
+    return location as Location;
   }),
   getLocationById: protectedProcedure
     .input(z.object({ id: z.string() }))
@@ -113,6 +113,7 @@ export const locationRouter = createTRPCRouter({
   //     return bookingsList as Booking[];
   //   }),
 
+  // Create location, which also generates default location settings
   create: protectedProcedure
     .input(createLocationSchema)
     .mutation(async ({ ctx, input }) => {
