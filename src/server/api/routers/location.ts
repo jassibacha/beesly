@@ -140,10 +140,12 @@ export const locationRouter = createTRPCRouter({
             phone: input.phone,
             email: input.email,
             country: input.country,
+            timezone: input.timezone,
           });
 
           // Define default location settings
           const defaultSettings = {
+            timeZone: input.timezone, // TZTODO: Remove me
             dailyAvailability: {
               Monday: { open: "10:00", close: "22:00" },
               Tuesday: { open: "10:00", close: "22:00" },
@@ -167,11 +169,11 @@ export const locationRouter = createTRPCRouter({
             displayUnavailableSlots: false,
           };
 
-          const settings = {
-            // Merge default settings with user-provided settings
-            timeZone: input.timeZone,
-            ...defaultSettings,
-          };
+          // const settings = {
+          //   // Merge default settings with user-provided settings
+          //   timeZone: input.timeZone,
+          //   ...defaultSettings,
+          // };
 
           const newLocationSettingsId = uuidv4();
 
@@ -179,7 +181,7 @@ export const locationRouter = createTRPCRouter({
           await tx.insert(locationSettings).values({
             id: newLocationSettingsId,
             locationId: newLocationId,
-            ...settings,
+            ...defaultSettings,
           });
 
           // Update the onboarded status of the user
@@ -239,7 +241,7 @@ export const locationRouter = createTRPCRouter({
             });
           }
 
-          console.log("Logo input", input.logo);
+          //console.log("Logo input", input.logo);
 
           // Update the location
           await tx
@@ -247,7 +249,6 @@ export const locationRouter = createTRPCRouter({
             .set({
               name: input.name,
               slug: input.slug,
-              logo: input.logo,
               phone: input.phone,
               email: input.email,
               website: input.website,
@@ -256,16 +257,18 @@ export const locationRouter = createTRPCRouter({
               state: input.state,
               zipCode: input.zipCode,
               country: input.country,
+              timezone: input.timezone,
+              logo: input.logo,
             })
             .where(eq(locations.id, input.id));
 
-          // Update the timeZone in locationSettings
-          await tx
-            .update(locationSettings)
-            .set({
-              timeZone: input.timeZone,
-            })
-            .where(eq(locationSettings.locationId, input.id));
+          // Update the timeZone in locationSettings (REWORKING)
+          // await tx
+          //   .update(locationSettings)
+          //   .set({
+          //     timeZone: input.timeZone,
+          //   })
+          //   .where(eq(locationSettings.locationId, input.id));
 
           return { success: true, message: "Location updated successfully" };
         } catch (error) {

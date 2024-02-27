@@ -185,7 +185,7 @@ export function BookingForm({
         const bookingStartTime = DateTime.fromISO(
           booking.startTime.toISOString(),
         )
-          .setZone(locationSettings.timeZone)
+          .setZone(location.timezone)
           .toISO();
         setSelectedTimeSlot(bookingStartTime);
         //console.log(`selectedTimeSlot edited: ${selectedTimeSlot}`);
@@ -417,7 +417,7 @@ export function BookingForm({
               <div>
                 Date:{" "}
                 {DateTime.fromJSDate(booking.startTime)
-                  .setZone(locationSettings.timeZone)
+                  .setZone(location.timezone)
                   .toFormat("ccc, LLL dd yyyy")}
               </div>
             )}
@@ -425,11 +425,11 @@ export function BookingForm({
               <div>
                 Time:{" "}
                 {DateTime.fromJSDate(booking.startTime)
-                  .setZone(locationSettings.timeZone)
+                  .setZone(location.timezone)
                   .toFormat("h:mma")}{" "}
                 -{" "}
                 {DateTime.fromJSDate(booking.endTime)
-                  .setZone(locationSettings.timeZone)
+                  .setZone(location.timezone)
                   .toFormat("h:mma")}{" "}
                 ({calculateDuration(booking.startTime, booking.endTime)} Hours)
               </div>

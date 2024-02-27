@@ -25,10 +25,10 @@ export function BookingPage({
 
   const { timezone, setTimezone } = useContext(TimezoneContext);
 
-  if (locationSettings.timeZone) {
+  if (location.timezone) {
     console.log("Auto generated timezone: ", timezone);
-    setTimezone(locationSettings.timeZone);
-    console.log("Timezone set to: ", locationSettings.timeZone);
+    setTimezone(location.timezone);
+    console.log("Timezone set to: ", location.timezone);
   }
 
   return (

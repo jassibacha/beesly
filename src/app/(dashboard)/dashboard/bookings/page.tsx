@@ -90,7 +90,7 @@ export default async function BookingsPage() {
                 <CardContent>
                   <BookingsList
                     bookings={upcomingBookings.bookings}
-                    timezone={locationSettings.timeZone}
+                    timezone={location.timezone}
                   />
                 </CardContent>
               </Card>
@@ -104,7 +104,7 @@ export default async function BookingsPage() {
                 <CardContent>
                   <BookingsList
                     bookings={recentBookings.bookings}
-                    timezone={locationSettings.timeZone}
+                    timezone={location.timezone}
                   />
                 </CardContent>
               </Card>

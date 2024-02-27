@@ -121,13 +121,13 @@ export default function DailyBookings({
   };
 
   const calculateGridRowStart = (isoTime: string) => {
-    const time = DateTime.fromISO(isoTime, { zone: locationSettings.timeZone });
+    const time = DateTime.fromISO(isoTime, { zone: location.timezone });
     return time.hour * 4 + Math.floor(time.minute / 15) + 1; // +1 because CSS grid rows start at 1
   };
 
   const openingTime = bookingsData
     ? DateTime.fromISO(bookingsData.openTimeISO, {
-        zone: locationSettings.timeZone,
+        zone: location.timezone,
       })
     : null;
   const offsetInPixels = openingTime

@@ -123,10 +123,6 @@ export default async function Page() {
                 viewContext="dashboard"
               />
             </Suspense>
-            {/* <BookingsList
-                    bookings={upcomingBookings.bookings}
-                    timezone={locationSettings.timeZone}
-                  /> */}
           </CardContent>
         </Card>
       </div>

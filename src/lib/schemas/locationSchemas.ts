@@ -25,6 +25,7 @@ export const locationSchema = z.object({
   zipCode: z.string().min(1, "Zip or postal code is required.").nullable(),
   country: z.string().min(1, "Country is required.").nullable(),
   logo: z.string().url().nullable(),
+  timezone: z.string().min(1, "Time zone is required."),
   createdAt: z.date(),
   updatedAt: z.date().nullable(),
 });
@@ -73,7 +74,7 @@ export const createLocationSchema = z.object({
     .string()
     .min(1, "Country selection is required.")
     .max(100, "Country name must be less than 100 characters."),
-  timeZone: z.string().min(1, "Time zone is required."),
+  timezone: z.string().min(1, "Time zone is required."),
 });
 export type CreateLocationSchemaValues = z.infer<typeof createLocationSchema>;
 
@@ -88,7 +89,7 @@ export const updateLocationFormSchema = z.object({
   state: z.string().optional(),
   zipCode: z.string().optional(),
   country: z.string().optional(),
-  timeZone: z.string().optional(),
+  timezone: z.string().optional(),
   logo: z.instanceof(File).or(z.string().url()).optional().nullable(),
   //logo: z.string().url().optional().nullable(),
 });
@@ -107,7 +108,7 @@ export const updateLocationSchema = z.object({
   state: z.string().optional(),
   zipCode: z.string().optional(),
   country: z.string().optional(),
-  timeZone: z.string().optional(),
+  timezone: z.string().optional(),
   logo: z.string().optional().nullable(),
   //logo: z.string().url().optional().nullable(),
 });
@@ -133,7 +134,7 @@ export const dailyAvailabilitySchema = z.record(
 export const locationSettingsSchema = z.object({
   id: z.string().min(1, "ID is required."),
   locationId: z.string().min(1, "Location ID is required."),
-  timeZone: z.string().min(1, "Time zone is required."),
+  //timeZone: z.string().min(1, "Time zone is required."),
   // second version
   // dailyAvailability: z.record(
   //   z.enum([

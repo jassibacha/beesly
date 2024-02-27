@@ -72,6 +72,7 @@ export const locations = createTable(
     state: varchar("state", { length: 30 }),
     zipCode: varchar("zip_code", { length: 20 }),
     country: varchar("country", { length: 100 }),
+    timezone: varchar("timezone", { length: 256 }).notNull(),
     logo: varchar("logo", { length: 2048 }),
     //settings: json("settings"), // Phase2
     createdAt: timestamp("created_at")
@@ -104,7 +105,7 @@ export const locationSettings = createTable(
   {
     id: varchar("id", { length: 256 }).primaryKey(),
     locationId: varchar("location_id", { length: 256 }).notNull(), // Foreign key didn't work here
-    timeZone: varchar("time_zone", { length: 256 }).notNull(),
+    //timeZone: varchar("time_zone", { length: 256 }).notNull(),
     dailyAvailability: json("daily_availability").notNull(),
     taxSettings: json("tax_settings"),
     initialCostOfBooking: decimal("initial_cost_of_booking", {

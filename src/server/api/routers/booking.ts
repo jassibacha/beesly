@@ -128,6 +128,18 @@ async function getBookingsByDate(
   detailLevel: BookingDetail,
   ctx: TRPCContext,
 ) {
+  // Fetch the location to ensure it exists
+  const location = await ctx.db.query.locations.findFirst({
+    where: (locations, { eq }) => eq(locations.id, locationId),
+  });
+
+  if (!location) {
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Location not found",
+    });
+  }
+
   // Fetch location settings to get open and close times
   const locationSettings = await ctx.db.query.locationSettings.findFirst({
     where: (locationSettings, { eq }) =>
@@ -178,18 +190,18 @@ async function getBookingsByDate(
   }
 
   const dayOfWeek = DateTime.fromJSDate(date).setZone(
-    locationSettings.timeZone,
+    location.timezone,
   ).weekdayLong!;
   // Extract schedule for the specific day of the week
   const daySchedule = dailyAvailability[dayOfWeek as keyof DailyAvailability];
 
   const openTimeISO = DateTime.fromISO(
     `${DateTime.fromJSDate(date).toISODate()}T${daySchedule.open}`,
-    { zone: locationSettings.timeZone },
+    { zone: location.timezone },
   ).toISO();
   const closeTimeISO = DateTime.fromISO(
     `${DateTime.fromJSDate(date).toISODate()}T${daySchedule.close}`,
-    { zone: locationSettings.timeZone },
+    { zone: location.timezone },
   ).toISO();
 
   // console.log("Day of week: ", dayOfWeek);
@@ -249,6 +261,7 @@ async function getBookingsByDate(
   }
 
   return {
+    location,
     locationSettings,
     openTimeISO,
     closeTimeISO,
@@ -554,10 +567,11 @@ export const bookingRouter = createTRPCRouter({
         ctx,
       );
 
-      const { locationSettings, openTimeISO, closeTimeISO } = bookingsByDate;
+      const { location, locationSettings, openTimeISO, closeTimeISO } =
+        bookingsByDate;
       let { existingBookings } = bookingsByDate;
 
-      const tz = locationSettings.timeZone; // Shortened timezone
+      const tz = location.timezone; // Shortened timezone
       const durationMin = parseFloat(duration) * 60; // Convert hours to minutes if necessary
       const incrementMin = locationSettings.timeSlotIncrements; // Time increment between slots (ie. every 15min)
       const bufferMin = locationSettings.bufferTime; // Buffer time after each booking

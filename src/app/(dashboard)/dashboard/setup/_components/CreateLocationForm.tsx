@@ -42,7 +42,7 @@ function CreateLocationForm() {
       state: "",
       zipCode: "",
       country: "",
-      timeZone: "",
+      timezone: "",
     },
   });
   const {
@@ -299,12 +299,12 @@ function CreateLocationForm() {
         {/* Time Zone field */}
         <FormField
           control={control}
-          name="timeZone"
+          name="timezone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="timeZone">Time Zone</FormLabel>
+              <FormLabel htmlFor="timezone">Time Zone</FormLabel>
               <FormControl>
-                <Input id="timeZone" placeholder="Time Zone" {...field} />
+                <Input id="timezone" placeholder="Time Zone" {...field} />
               </FormControl>
               <FormDescription>
                 Timezone of Business. Default: America/Los_Angeles

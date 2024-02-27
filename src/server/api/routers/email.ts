@@ -110,7 +110,7 @@ function buildBookingEmail(
   // const parsedTaxSettings = JSON.parse(locationSettings.taxSettings);
 
   // Get the date and time in the location's timezone
-  const tz = locationSettings.timeZone;
+  const tz = location.timezone;
   const date = DateTime.fromJSDate(booking.startTime)
     .setZone(tz)
     .toFormat("DDDD");

@@ -25,7 +25,7 @@ export type UpdateLocation = Partial<InferInsertModel<typeof locations>>;
 export type LocationSetting = {
   id: string;
   locationId: string;
-  timeZone: string;
+  //timeZone: string;
   // This is a temporary fix for the trpc firing on booking email
   // Realistically we should either modularize the string>object conversion
   // Or we should parse the dailyAvailability string and taxSettings in the trpc

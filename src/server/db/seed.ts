@@ -84,6 +84,7 @@ async function seedDatabase() {
       state: "BC",
       zipCode: "V5Y 1R4",
       country: "Canada",
+      timezone: "America/Los_Angeles",
       logo: "https://pub-a8bff496fa524be3b69903c9c9aeb879.r2.dev/evolve/logo-1708473130465.png",
       createdAt: now,
       updatedAt: now,
@@ -93,7 +94,6 @@ async function seedDatabase() {
     await db.insert(locationSettings).values({
       id: uuidv4(),
       locationId,
-      timeZone: "America/Los_Angeles",
       dailyAvailability: JSON.stringify({
         Monday: { open: "09:00", close: "22:00" },
         Tuesday: { open: "09:00", close: "22:00" },

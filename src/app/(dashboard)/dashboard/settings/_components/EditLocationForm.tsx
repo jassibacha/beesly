@@ -80,7 +80,7 @@ export function LocationForm({
     state: location.state ?? "",
     zipCode: location.zipCode ?? "",
     country: location.country ?? "",
-    timeZone: locationSettings.timeZone,
+    timezone: location.timezone ?? "",
   };
 
   const [currentLogo, setCurrentLogo] = useState<string | null>(location.logo);
@@ -506,12 +506,12 @@ export function LocationForm({
         {/* Time Zone field */}
         <FormField
           control={control}
-          name="timeZone"
+          name="timezone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="timeZone">Time Zone</FormLabel>
+              <FormLabel htmlFor="timezone">Time Zone</FormLabel>
               <FormControl>
-                <Input id="timeZone" placeholder="Time Zone" {...field} />
+                <Input id="timezone" placeholder="Time Zone" {...field} />
               </FormControl>
               <FormDescription>
                 Timezone of Business. Default: America/Los_Angeles
