@@ -52,21 +52,21 @@ export type NewLocationSetting = InferInsertModel<typeof locationSettings>;
 export type UpdateLocationSetting = Partial<
   InferInsertModel<typeof locationSettings>
 >;
-export type DailyAvailability = Partial<
-  Record<
-    | "Monday"
-    | "Tuesday"
-    | "Wednesday"
-    | "Thursday"
-    | "Friday"
-    | "Saturday"
-    | "Sunday",
-    { open: string; close: string }
-  >
->;
-export type ExtendedLocationSetting = LocationSetting & {
-  dailyAvailability: DailyAvailability;
-};
+// export type DailyAvailability = Partial<
+//   Record<
+//     | "Monday"
+//     | "Tuesday"
+//     | "Wednesday"
+//     | "Thursday"
+//     | "Friday"
+//     | "Saturday"
+//     | "Sunday",
+//     { open: string; close: string }
+//   >
+// >;
+// export type ExtendedLocationSetting = LocationSetting & {
+//   dailyAvailability: DailyAvailability;
+// };
 
 // Resource Types
 export type Resource = InferSelectModel<typeof resources>;

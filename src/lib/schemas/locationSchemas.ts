@@ -1,5 +1,4 @@
 import * as z from "zod";
-import { DailyAvailability } from "@/server/db/types";
 
 // Location schema, used for send booking emails
 export const locationSchema = z.object({
@@ -130,7 +129,7 @@ export const dailyAvailabilitySchema = z.record(
   }),
 );
 
-// This is used in: locationSettings settings form, the sendBookingEmail trpc mutation
+// This is used in: the sendBookingEmail trpc mutation
 export const locationSettingsSchema = z.object({
   id: z.string().min(1, "ID is required."),
   locationId: z.string().min(1, "Location ID is required."),
@@ -204,4 +203,81 @@ export const locationSettingsSchema = z.object({
 });
 export type LocationSettingsSchemaValues = z.infer<
   typeof locationSettingsSchema
+>;
+
+export const locationSettingsFormSchema = z.object({
+  id: z.string().min(1, "ID is required."),
+  locationId: z.string().min(1, "Location ID is required."),
+  // second version
+  dailyAvailability: z.record(
+    z.enum([
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ]),
+    z.object({
+      open: z
+        .string()
+        .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
+      close: z
+        .string()
+        .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
+    }),
+  ),
+
+  // dailyAvailability: dailyAvailabilitySchema,
+
+  // This is a temporary fix for the trpc firing on booking email
+  // Realistically we should either modularize the string>object conversion
+  // Or we should parse the dailyAvailability string and taxSettings in the trpc
+  // That fetches locationSettings in the first place .. look at
+  // for more information (Alternatively we just keep this as string since it's unparsed)
+  //dailyAvailability: z.string().min(1, "Not empty"),
+  //taxSettings: z.string().min(1, "Not empty"),
+
+  // first version
+  // dailyAvailability: z.record(
+  //   z.string(),
+  //   z.object({
+  //     open: z
+  //       .string()
+  //       .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
+  //     close: z
+  //       .string()
+  //       .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
+  //   }),
+  // ),
+  taxSettings: z.record(z.string(), z.any()),
+  initialCostOfBooking: z
+    .string()
+    .min(1, "Initial cost of booking must be a positive number."),
+  initialBookingLength: z
+    .number()
+    .min(1, "Initial booking length must be a positive number."),
+  bookingLengthIncrements: z
+    .number()
+    .min(1, "Booking length increment must be at least 1."),
+  maxAdvanceBookingDays: z
+    .number()
+    .min(0, "Maximum advance booking days must be a positive number.")
+    .max(365, "Maximum advance booking days must be 365 or less."),
+  sameDayLeadTimeBuffer: z
+    .number()
+    .min(0, "Same day lead time buffer must be 0 or more."),
+  bufferTime: z
+    .number()
+    .min(0, "Buffer time in minutes must be a positive number."),
+  timeSlotIncrements: z
+    .number()
+    .min(0, "Time slot in minutes must be a positive number."),
+  displayUnavailableSlots: z.boolean().default(false),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+export type LocationSettingsFormSchemaValues = z.infer<
+  typeof locationSettingsFormSchema
 >;

@@ -19,6 +19,7 @@ import dynamic from "next/dynamic";
 import { LocationForm } from "./_components/EditLocationForm";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { Suspense } from "react";
+import { EditLocationSettingsForm } from "@/components/forms/EditLocationSettingsForm";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -42,29 +43,40 @@ export default async function Page() {
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-3xl font-bold tracking-tight">Settings</h2>
         </div>
-        <Tabs defaultValue="location" className="space-y-4">
+        <Tabs defaultValue="general" className="space-y-4">
           <TabsList>
-            <TabsTrigger value="location">Location Settings</TabsTrigger>
-            {/* <TabsTrigger value="analytics" disabled>
-              Analytics
-            </TabsTrigger> */}
-            <TabsTrigger value="reports" disabled>
-              Account Settings
-            </TabsTrigger>
+            <TabsTrigger value="general">General Settings</TabsTrigger>
+            <TabsTrigger value="advanced">Advanced Settings</TabsTrigger>
             <TabsTrigger value="notifications" disabled>
               Something Else
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="location" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <Card className="col-span-4">
+          <TabsContent value="general" className="space-y-4">
+            <div className="">
+              <Card className="">
                 <CardHeader>
-                  <CardTitle>Location Settings</CardTitle>
+                  <CardTitle>General Settings</CardTitle>
                 </CardHeader>
                 <CardContent className="">
                   <Suspense fallback={<div>Loading...</div>}>
                     <LocationForm
                       location={location}
+                      locationSettings={locationSettings}
+                    />
+                  </Suspense>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+          <TabsContent value="advanced" className="space-y-4">
+            <div className="">
+              <Card className="">
+                <CardHeader>
+                  <CardTitle>Advanced Settings</CardTitle>
+                </CardHeader>
+                <CardContent className="">
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <EditLocationSettingsForm
                       locationSettings={locationSettings}
                     />
                   </Suspense>

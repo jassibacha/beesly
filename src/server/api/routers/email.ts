@@ -9,12 +9,7 @@ import { TRPCError } from "@trpc/server";
 import { ZodError, z } from "zod";
 import { EmailTemplateType, type DynamicEmailData } from "@/types/emailTypes";
 
-import type {
-  Booking,
-  Location,
-  LocationSetting,
-  ExtendedLocationSetting,
-} from "@/server/db/types";
+import type { Booking, Location, LocationSetting } from "@/server/db/types";
 import { bookingSchema } from "@/lib/schemas/bookingSchemas";
 import {
   locationSchema,
