@@ -47,7 +47,6 @@ import type {
   Resource,
 } from "@/server/db/types";
 import { DialogClose } from "../ui/dialog";
-import { sendBookingEmail } from "@/lib/email/emailHelpers";
 import { EmailTemplateType } from "@/types/emailTypes";
 import { error } from "console";
 

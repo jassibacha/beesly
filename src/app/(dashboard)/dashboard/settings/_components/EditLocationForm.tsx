@@ -68,31 +68,6 @@ export function LocationForm({
   location,
   locationSettings,
 }: LocationFormProps) {
-  // let { location } = useDashboardData();
-  // const { locationSettings, resources, isLoading, refetchAll } =
-  //   useDashboardData();
-
-  // Set default values for the form outside of react-hook-forms
-  // So we can force reset() when location or locationSettings change
-
-  // const defaultValues = useMemo(
-  //   () => ({
-  //     name: location.name,
-  //     slug: location.slug,
-  //     logo: location.logo, // File, string or null
-  //     phone: location.phone ?? "",
-  //     email: location.email ?? "",
-  //     website: location.website ?? "",
-  //     streetAddress: location.streetAddress ?? "",
-  //     city: location.city ?? "",
-  //     state: location.state ?? "",
-  //     zipCode: location.zipCode ?? "",
-  //     country: location.country ?? "",
-  //     timeZone: locationSettings.timeZone,
-  //   }),
-  //   [location, locationSettings],
-  // );
-
   const defaultValues = {
     name: location.name,
     slug: location.slug,

@@ -129,6 +129,7 @@ export const dailyAvailabilitySchema = z.record(
   }),
 );
 
+// This is used in: locationSettings settings form, the sendBookingEmail trpc mutation
 export const locationSettingsSchema = z.object({
   id: z.string().min(1, "ID is required."),
   locationId: z.string().min(1, "Location ID is required."),
@@ -150,12 +151,12 @@ export const locationSettingsSchema = z.object({
   //   }),
   // ),
 
-  //dailyAvailability: dailyAvailabilitySchema,
+  // dailyAvailability: dailyAvailabilitySchema,
 
   // This is a temporary fix for the trpc firing on booking email
   // Realistically we should either modularize the string>object conversion
   // Or we should parse the dailyAvailability string and taxSettings in the trpc
-  // That fetches locationSettings in the first place .. look at AnotherLocationSetting
+  // That fetches locationSettings in the first place .. look at
   // for more information (Alternatively we just keep this as string since it's unparsed)
   dailyAvailability: z.string().min(1, "Not empty"),
   taxSettings: z.string().min(1, "Not empty"),
