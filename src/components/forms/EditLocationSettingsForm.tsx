@@ -3,7 +3,12 @@
 import { z, ZodError } from "zod";
 import { DateTime } from "luxon";
 import { CalendarIcon, Loader2, Trash2 } from "lucide-react";
-import { type SubmitHandler, useForm, Controller } from "react-hook-form";
+import {
+  type SubmitHandler,
+  useForm,
+  Controller,
+  Control,
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { cn } from "@/lib/utils";
@@ -69,6 +74,74 @@ enum DayOfWeek {
 
 type DailyAvailability = Record<DayOfWeek, { open: string; close: string }>;
 type TaxSettings = Record<string, number>;
+
+/**
+ * Converts a time string to 12-hour format.
+ * @param time - The time string in 24-hour format (e.g., "13:30").
+ * @returns The time string in 12-hour format (e.g., "1:30 PM").
+ * @throws Error if the time string is in an invalid format.
+ */
+function convertTo12HourFormat(time: string) {
+  const [hours, minutes] = time.split(":");
+  if (hours === undefined || minutes === undefined) {
+    throw new Error(`Invalid time format: ${time}`);
+  }
+  const hour = parseInt(hours, 10);
+  const suffix = hour >= 12 ? "PM" : "AM";
+  const displayHour = hour % 12 || 12;
+  return `${displayHour}:${minutes} ${suffix}`;
+}
+
+const timeSlots = [
+  "00:30",
+  "01:00",
+  "01:30",
+  "02:00",
+  "02:30",
+  "03:00",
+  "03:30",
+  "04:00",
+  "04:30",
+  "05:00",
+  "05:30",
+  "06:00",
+  "06:30",
+  "07:00",
+  "07:30",
+  "08:00",
+  "08:30",
+  "09:00",
+  "09:30",
+  "10:00",
+  "10:30",
+  "11:00",
+  "11:30",
+  "12:00",
+  "12:30",
+  "13:00",
+  "13:30",
+  "14:00",
+  "14:30",
+  "15:00",
+  "15:30",
+  "16:00",
+  "16:30",
+  "17:00",
+  "17:30",
+  "18:00",
+  "18:30",
+  "19:00",
+  "19:30",
+  "20:00",
+  "20:30",
+  "21:00",
+  "21:30",
+  "22:00",
+  "22:30",
+  "23:00",
+  "23:30",
+  "24:00",
+];
 
 export function EditLocationSettingsForm({
   locationSettings,
@@ -173,153 +246,109 @@ export function EditLocationSettingsForm({
     // });
   };
 
-  /**
-   * Converts a time string to 12-hour format.
-   * @param time - The time string in 24-hour format (e.g., "13:30").
-   * @returns The time string in 12-hour format (e.g., "1:30 PM").
-   * @throws Error if the time string is in an invalid format.
-   */
-  function convertTo12HourFormat(time: string) {
-    const [hours, minutes] = time.split(":");
-    if (hours === undefined || minutes === undefined) {
-      throw new Error(`Invalid time format: ${time}`);
-    }
-    const hour = parseInt(hours, 10);
-    const suffix = hour >= 12 ? "PM" : "AM";
-    const displayHour = hour % 12 || 12;
-    return `${displayHour}:${minutes} ${suffix}`;
-  }
-
-  const timeSlots = [
-    "00:30",
-    "01:00",
-    "01:30",
-    "02:00",
-    "02:30",
-    "03:00",
-    "03:30",
-    "04:00",
-    "04:30",
-    "05:00",
-    "05:30",
-    "06:00",
-    "06:30",
-    "07:00",
-    "07:30",
-    "08:00",
-    "08:30",
-    "09:00",
-    "09:30",
-    "10:00",
-    "10:30",
-    "11:00",
-    "11:30",
-    "12:00",
-    "12:30",
-    "13:00",
-    "13:30",
-    "14:00",
-    "14:30",
-    "15:00",
-    "15:30",
-    "16:00",
-    "16:30",
-    "17:00",
-    "17:30",
-    "18:00",
-    "18:30",
-    "19:00",
-    "19:30",
-    "20:00",
-    "20:30",
-    "21:00",
-    "21:30",
-    "22:00",
-    "22:30",
-    "23:00",
-    "23:30",
-    "24:00",
-  ];
+  // /**
+  //  * Converts a time string to 12-hour format.
+  //  * @param time - The time string in 24-hour format (e.g., "13:30").
+  //  * @returns The time string in 12-hour format (e.g., "1:30 PM").
+  //  * @throws Error if the time string is in an invalid format.
+  //  */
+  // function convertTo12HourFormat(time: string) {
+  //   const [hours, minutes] = time.split(":");
+  //   if (hours === undefined || minutes === undefined) {
+  //     throw new Error(`Invalid time format: ${time}`);
+  //   }
+  //   const hour = parseInt(hours, 10);
+  //   const suffix = hour >= 12 ? "PM" : "AM";
+  //   const displayHour = hour % 12 || 12;
+  //   return `${displayHour}:${minutes} ${suffix}`;
+  // }
 
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         {Object.entries(dailyAvailability).map(([day, { open, close }]) => (
-          <div key={day}>
-            <Controller
-              control={control}
-              name={`dailyAvailability.${day as DayOfWeek}.open`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor={`${day}-open`}>{`${day} Open`}</FormLabel>
-                  <FormControl>
-                    <Select
-                      value={field.value}
-                      name={field.name}
-                      onValueChange={field.onChange}
-                    >
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue
-                          onBlur={field.onBlur}
-                          ref={field.ref}
-                          placeholder="Open Time"
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {timeSlots.map((time) => (
-                          <SelectItem key={`${day}-open-${time}`} value={time}>
-                            {convertTo12HourFormat(time)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  {/* <FormDescription>
-                    Select opening time for {day}.
-                  </FormDescription> */}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <DayTimeSelector
+            key={day}
+            day={day}
+            control={control}
+            timeSlots={timeSlots}
+            convertTo12HourFormat={convertTo12HourFormat}
+          />
+          // <div key={day}>
+          //   <Controller
+          //     control={control}
+          //     name={`dailyAvailability.${day as DayOfWeek}.open`}
+          //     render={({ field }) => (
+          //       <FormItem>
+          //         <FormLabel htmlFor={`${day}-open`}>{`${day} Open`}</FormLabel>
+          //         <FormControl>
+          //           <Select
+          //             value={field.value}
+          //             name={field.name}
+          //             onValueChange={field.onChange}
+          //           >
+          //             <SelectTrigger className="w-[180px]">
+          //               <SelectValue
+          //                 onBlur={field.onBlur}
+          //                 ref={field.ref}
+          //                 placeholder="Open Time"
+          //               />
+          //             </SelectTrigger>
+          //             <SelectContent>
+          //               {timeSlots.map((time) => (
+          //                 <SelectItem key={`${day}-open-${time}`} value={time}>
+          //                   {convertTo12HourFormat(time)}
+          //                 </SelectItem>
+          //               ))}
+          //             </SelectContent>
+          //           </Select>
+          //         </FormControl>
+          //         {/* <FormDescription>
+          //           Select opening time for {day}.
+          //         </FormDescription> */}
+          //         <FormMessage />
+          //       </FormItem>
+          //     )}
+          //   />
 
-            <Controller
-              control={control}
-              name={`dailyAvailability.${day as DayOfWeek}.close`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel
-                    htmlFor={`${day}-close`}
-                  >{`${day} Close`}</FormLabel>
-                  <FormControl>
-                    <Select
-                      value={field.value}
-                      name={field.name}
-                      onValueChange={field.onChange}
-                    >
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue
-                          onBlur={field.onBlur}
-                          ref={field.ref}
-                          placeholder="Close Time"
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {timeSlots.map((time) => (
-                          <SelectItem key={`${day}-close-${time}`} value={time}>
-                            {convertTo12HourFormat(time)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  {/* <FormDescription>
-                    Select closing time for {day}.
-                  </FormDescription> */}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          //   <Controller
+          //     control={control}
+          //     name={`dailyAvailability.${day as DayOfWeek}.close`}
+          //     render={({ field }) => (
+          //       <FormItem>
+          //         <FormLabel
+          //           htmlFor={`${day}-close`}
+          //         >{`${day} Close`}</FormLabel>
+          //         <FormControl>
+          //           <Select
+          //             value={field.value}
+          //             name={field.name}
+          //             onValueChange={field.onChange}
+          //           >
+          //             <SelectTrigger className="w-[180px]">
+          //               <SelectValue
+          //                 onBlur={field.onBlur}
+          //                 ref={field.ref}
+          //                 placeholder="Close Time"
+          //               />
+          //             </SelectTrigger>
+          //             <SelectContent>
+          //               {timeSlots.map((time) => (
+          //                 <SelectItem key={`${day}-close-${time}`} value={time}>
+          //                   {convertTo12HourFormat(time)}
+          //                 </SelectItem>
+          //               ))}
+          //             </SelectContent>
+          //           </Select>
+          //         </FormControl>
+          //         {/* <FormDescription>
+          //           Select closing time for {day}.
+          //         </FormDescription> */}
+          //         <FormMessage />
+          //       </FormItem>
+          //     )}
+          //   />
+          // </div>
         ))}
 
         {/* <Controller
@@ -578,3 +607,101 @@ export function EditLocationSettingsForm({
     </Form>
   );
 }
+
+interface DayTimeSelectorProps {
+  day: string;
+  control: Control<LocationSettingsFormSchemaValues>;
+  timeSlots: string[];
+  convertTo12HourFormat: (time: string) => string;
+}
+
+function DayTimeSelector({
+  day,
+  control,
+  timeSlots,
+  convertTo12HourFormat,
+}: DayTimeSelectorProps) {
+  return (
+    <div key={day} className="flex flex-row justify-items-center">
+      <div className="title flex w-32 justify-items-center">
+        <h3>{day}</h3>
+      </div>
+      <div className="w-[120px]">
+        <Controller
+          control={control}
+          name={`dailyAvailability.${day as DayOfWeek}.open`}
+          render={({ field }) => (
+            <FormItem>
+              {/* <FormLabel htmlFor={`${day}-open`}>{`${day} Open`}</FormLabel> */}
+              <FormControl>
+                <Select
+                  value={field.value}
+                  name={field.name}
+                  onValueChange={field.onChange}
+                >
+                  <SelectTrigger className="w-[120px]">
+                    <SelectValue
+                      onBlur={field.onBlur}
+                      ref={field.ref}
+                      placeholder="Open Time"
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {timeSlots.map((time) => (
+                      <SelectItem key={`${day}-open-${time}`} value={time}>
+                        {convertTo12HourFormat(time)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              {/* <FormDescription>
+                    Select opening time for {day}.
+                  </FormDescription> */}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+      <div className="w-[120]">
+        <Controller
+          control={control}
+          name={`dailyAvailability.${day as DayOfWeek}.close`}
+          render={({ field }) => (
+            <FormItem>
+              {/* <FormLabel htmlFor={`${day}-close`}>{`${day} Close`}</FormLabel> */}
+              <FormControl>
+                <Select
+                  value={field.value}
+                  name={field.name}
+                  onValueChange={field.onChange}
+                >
+                  <SelectTrigger className="w-[120px]">
+                    <SelectValue
+                      onBlur={field.onBlur}
+                      ref={field.ref}
+                      placeholder="Close Time"
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {timeSlots.map((time) => (
+                      <SelectItem key={`${day}-close-${time}`} value={time}>
+                        {convertTo12HourFormat(time)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              {/* <FormDescription>
+                    Select closing time for {day}.
+                  </FormDescription> */}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+    </div>
+  );
+}
+
+export default EditLocationSettingsForm;
