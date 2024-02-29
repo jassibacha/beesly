@@ -8,6 +8,7 @@ import {
   useForm,
   Controller,
   Control,
+  useWatch,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -72,7 +73,10 @@ enum DayOfWeek {
   Sunday = "Sunday",
 }
 
-type DailyAvailability = Record<DayOfWeek, { open: string; close: string }>;
+type DailyAvailability = Record<
+  DayOfWeek,
+  { open: string; close: string; isOpen: boolean }
+>;
 type TaxSettings = Record<string, number>;
 
 /**
@@ -150,13 +154,13 @@ export function EditLocationSettingsForm({
 
   // Parse dailyAvailability and taxSettings into objects
   let dailyAvailability: DailyAvailability = {
-    Monday: { open: "", close: "" },
-    Tuesday: { open: "", close: "" },
-    Wednesday: { open: "", close: "" },
-    Thursday: { open: "", close: "" },
-    Friday: { open: "", close: "" },
-    Saturday: { open: "", close: "" },
-    Sunday: { open: "", close: "" },
+    Monday: { open: "", close: "", isOpen: true },
+    Tuesday: { open: "", close: "", isOpen: true },
+    Wednesday: { open: "", close: "", isOpen: true },
+    Thursday: { open: "", close: "", isOpen: true },
+    Friday: { open: "", close: "", isOpen: true },
+    Saturday: { open: "", close: "", isOpen: true },
+    Sunday: { open: "", close: "", isOpen: true },
   };
   let taxSettings: TaxSettings = {};
 
@@ -266,312 +270,192 @@ export function EditLocationSettingsForm({
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-        {Object.entries(dailyAvailability).map(([day, { open, close }]) => (
-          <DayTimeSelector
-            key={day}
-            day={day}
+        {Object.entries(dailyAvailability).map(
+          ([day, { open, close, isOpen }]) => (
+            <DayTimeSelector
+              key={day}
+              day={day}
+              control={control}
+              timeSlots={timeSlots}
+              convertTo12HourFormat={convertTo12HourFormat}
+            />
+          ),
+        )}
+
+        <div className="sm:grid sm:grid-cols-2 sm:gap-4">
+          {/* Initial Cost of Booking field */}
+          <FormField
             control={control}
-            timeSlots={timeSlots}
-            convertTo12HourFormat={convertTo12HourFormat}
+            name="initialCostOfBooking"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="initialCostOfBooking">
+                  Initial Cost of Booking
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    id="initialCostOfBooking"
+                    placeholder="Initial Cost of Booking"
+                    type="number"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>The initial cost of booking.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          // <div key={day}>
-          //   <Controller
-          //     control={control}
-          //     name={`dailyAvailability.${day as DayOfWeek}.open`}
-          //     render={({ field }) => (
-          //       <FormItem>
-          //         <FormLabel htmlFor={`${day}-open`}>{`${day} Open`}</FormLabel>
-          //         <FormControl>
-          //           <Select
-          //             value={field.value}
-          //             name={field.name}
-          //             onValueChange={field.onChange}
-          //           >
-          //             <SelectTrigger className="w-[180px]">
-          //               <SelectValue
-          //                 onBlur={field.onBlur}
-          //                 ref={field.ref}
-          //                 placeholder="Open Time"
-          //               />
-          //             </SelectTrigger>
-          //             <SelectContent>
-          //               {timeSlots.map((time) => (
-          //                 <SelectItem key={`${day}-open-${time}`} value={time}>
-          //                   {convertTo12HourFormat(time)}
-          //                 </SelectItem>
-          //               ))}
-          //             </SelectContent>
-          //           </Select>
-          //         </FormControl>
-          //         {/* <FormDescription>
-          //           Select opening time for {day}.
-          //         </FormDescription> */}
-          //         <FormMessage />
-          //       </FormItem>
-          //     )}
-          //   />
-
-          //   <Controller
-          //     control={control}
-          //     name={`dailyAvailability.${day as DayOfWeek}.close`}
-          //     render={({ field }) => (
-          //       <FormItem>
-          //         <FormLabel
-          //           htmlFor={`${day}-close`}
-          //         >{`${day} Close`}</FormLabel>
-          //         <FormControl>
-          //           <Select
-          //             value={field.value}
-          //             name={field.name}
-          //             onValueChange={field.onChange}
-          //           >
-          //             <SelectTrigger className="w-[180px]">
-          //               <SelectValue
-          //                 onBlur={field.onBlur}
-          //                 ref={field.ref}
-          //                 placeholder="Close Time"
-          //               />
-          //             </SelectTrigger>
-          //             <SelectContent>
-          //               {timeSlots.map((time) => (
-          //                 <SelectItem key={`${day}-close-${time}`} value={time}>
-          //                   {convertTo12HourFormat(time)}
-          //                 </SelectItem>
-          //               ))}
-          //             </SelectContent>
-          //           </Select>
-          //         </FormControl>
-          //         {/* <FormDescription>
-          //           Select closing time for {day}.
-          //         </FormDescription> */}
-          //         <FormMessage />
-          //       </FormItem>
-          //     )}
-          //   />
-          // </div>
-        ))}
-
-        {/* <Controller
-          name={"dailyAvailability.Monday.open"}
-          control={control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor={`Monday-open`}>{`Monday Open`}</FormLabel>
-              <FormControl>
-                <Select
-                  value={field.value}
-                  name={field.name}
-                  onValueChange={field.onChange}
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue
-                      onBlur={field.onBlur}
-                      ref={field.ref}
-                      placeholder="Open Time"
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {timeSlots.map((time) => (
-                      <SelectItem key={`Monday-open-${time}`} value={time}>
-                        {convertTo12HourFormat(time)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormDescription>Select opening time for Monday.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
-
-        {/* <FormField
-          control={control}
-          name="dailyAvailability"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="namehere">Name</FormLabel>
-              <FormControl>
-                <Select>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Theme" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="light">Light</SelectItem>
-                    <SelectItem value="dark">Dark</SelectItem>
-                    <SelectItem value="system">System</SelectItem>
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormDescription>Your name.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )} /> */}
-
-        {/* Initial Cost of Booking field */}
-        <FormField
-          control={control}
-          name="initialCostOfBooking"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="initialCostOfBooking">
-                Initial Cost of Booking
-              </FormLabel>
-              <FormControl>
-                <Input
-                  id="initialCostOfBooking"
-                  placeholder="Initial Cost of Booking"
-                  type="number"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>The initial cost of booking.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* Initial Booking Length field */}
-        <FormField
-          control={control}
-          name="initialBookingLength"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="initialBookingLength">
-                Initial Booking Length (minutes)
-              </FormLabel>
-              <FormControl>
-                <Input
-                  id="initialBookingLength"
-                  placeholder="Initial Booking Length"
-                  type="number"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                The initial length of a booking in minutes.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* Booking Length Increments field */}
-        <FormField
-          control={control}
-          name="bookingLengthIncrements"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="bookingLengthIncrements">
-                Booking Length Increments (minutes)
-              </FormLabel>
-              <FormControl>
-                <Input
-                  id="bookingLengthIncrements"
-                  placeholder="Booking Length Increments"
-                  type="number"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                The increments for booking length in minutes.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* Max Advance Booking Days field */}
-        <FormField
-          control={control}
-          name="maxAdvanceBookingDays"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="maxAdvanceBookingDays">
-                Max Advance Booking Days
-              </FormLabel>
-              <FormControl>
-                <Input
-                  id="maxAdvanceBookingDays"
-                  placeholder="Max Advance Booking Days"
-                  type="number"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                The maximum number of days in advance a booking can be made.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* Same Day Lead Time Buffer field */}
-        <FormField
-          control={control}
-          name="sameDayLeadTimeBuffer"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="sameDayLeadTimeBuffer">
-                Same Day Lead Time Buffer (minutes)
-              </FormLabel>
-              <FormControl>
-                <Input
-                  id="sameDayLeadTimeBuffer"
-                  placeholder="Same Day Lead Time Buffer"
-                  type="number"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                The buffer time in minutes for same-day bookings.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* Buffer Time field */}
-        <FormField
-          control={control}
-          name="bufferTime"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="bufferTime">Buffer Time (minutes)</FormLabel>
-              <FormControl>
-                <Input
-                  id="bufferTime"
-                  placeholder="Buffer Time"
-                  type="number"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                The buffer time in minutes between bookings.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* Time Slot Increments field */}
-        <FormField
-          control={control}
-          name="timeSlotIncrements"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="timeSlotIncrements">
-                Time Slot Increments (minutes)
-              </FormLabel>
-              <FormControl>
-                <Input
-                  id="timeSlotIncrements"
-                  placeholder="Time Slot Increments"
-                  type="number"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                The increments for time slots in minutes.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          {/* Initial Booking Length field */}
+          <FormField
+            control={control}
+            name="initialBookingLength"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="initialBookingLength">
+                  Initial Booking Length (minutes)
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    id="initialBookingLength"
+                    placeholder="Initial Booking Length"
+                    type="number"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  The initial length of a booking in minutes.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="sm:grid sm:grid-cols-2 sm:gap-4">
+          {/* Booking Length Increments field */}
+          <FormField
+            control={control}
+            name="bookingLengthIncrements"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="bookingLengthIncrements">
+                  Booking Length Increments (minutes)
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    id="bookingLengthIncrements"
+                    placeholder="Booking Length Increments"
+                    type="number"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  The increments for booking length in minutes.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* Same Day Lead Time Buffer field */}
+          <FormField
+            control={control}
+            name="sameDayLeadTimeBuffer"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="sameDayLeadTimeBuffer">
+                  Same Day Lead Time Buffer (minutes)
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    id="sameDayLeadTimeBuffer"
+                    placeholder="Same Day Lead Time Buffer"
+                    type="number"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  The buffer time in minutes for same-day bookings.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="sm:grid sm:grid-cols-2 sm:gap-4">
+          {/* Buffer Time field */}
+          <FormField
+            control={control}
+            name="bufferTime"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="bufferTime">
+                  Buffer Time (minutes)
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    id="bufferTime"
+                    placeholder="Buffer Time"
+                    type="number"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  The buffer time in minutes between bookings.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* Time Slot Increments field */}
+          <FormField
+            control={control}
+            name="timeSlotIncrements"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="timeSlotIncrements">
+                  Time Slot Increments (minutes)
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    id="timeSlotIncrements"
+                    placeholder="Time Slot Increments"
+                    type="number"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  The increments for time slots in minutes.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="sm:grid sm:grid-cols-2 sm:gap-4">
+          {/* Max Advance Booking Days field */}
+          <FormField
+            control={control}
+            name="maxAdvanceBookingDays"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="maxAdvanceBookingDays">
+                  Max Advance Booking Days
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    id="maxAdvanceBookingDays"
+                    placeholder="Max Advance Booking Days"
+                    type="number"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  The maximum number of days in advance a booking can be made.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         {/* Display Unavailable Slots field */}
         <FormField
           control={control}
@@ -583,7 +467,8 @@ export function EditLocationSettingsForm({
                   Display Unavailable Slots
                 </FormLabel>
                 <FormDescription>
-                  Receive emails about your account activity and security.
+                  Whether to display Unavailable slots in the booking portal
+                  (for potential customers).
                 </FormDescription>
               </div>
               <FormControl>
@@ -621,12 +506,36 @@ function DayTimeSelector({
   timeSlots,
   convertTo12HourFormat,
 }: DayTimeSelectorProps) {
+  const isOpen = useWatch({
+    control,
+    name: `dailyAvailability.${day as DayOfWeek}.isOpen`,
+  });
   return (
     <div key={day} className="flex flex-row justify-items-center">
+      <div className="toggle mr-3">
+        <Controller
+          control={control}
+          name={`dailyAvailability.${day as DayOfWeek}.isOpen`}
+          render={({ field }) => (
+            <FormItem>
+              {/* <FormLabel
+                htmlFor={`${day}-isOpen`}
+              >{`${day} Is Open`}</FormLabel> */}
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
       <div className="title flex w-32 justify-items-center">
         <h3>{day}</h3>
       </div>
-      <div className="w-[120px]">
+      <div className="mr-3 w-[120px]">
         <Controller
           control={control}
           name={`dailyAvailability.${day as DayOfWeek}.open`}
@@ -638,6 +547,7 @@ function DayTimeSelector({
                   value={field.value}
                   name={field.name}
                   onValueChange={field.onChange}
+                  disabled={!isOpen}
                 >
                   <SelectTrigger className="w-[120px]">
                     <SelectValue
@@ -655,9 +565,6 @@ function DayTimeSelector({
                   </SelectContent>
                 </Select>
               </FormControl>
-              {/* <FormDescription>
-                    Select opening time for {day}.
-                  </FormDescription> */}
               <FormMessage />
             </FormItem>
           )}
@@ -675,6 +582,7 @@ function DayTimeSelector({
                   value={field.value}
                   name={field.name}
                   onValueChange={field.onChange}
+                  disabled={!isOpen}
                 >
                   <SelectTrigger className="w-[120px]">
                     <SelectValue
@@ -692,9 +600,6 @@ function DayTimeSelector({
                   </SelectContent>
                 </Select>
               </FormControl>
-              {/* <FormDescription>
-                    Select closing time for {day}.
-                  </FormDescription> */}
               <FormMessage />
             </FormItem>
           )}

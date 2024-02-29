@@ -34,6 +34,7 @@ type DailyAvailability = {
     | "Sunday"]: {
     open: string;
     close: string;
+    isOpen: boolean;
   };
 };
 
