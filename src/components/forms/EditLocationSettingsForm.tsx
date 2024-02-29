@@ -77,7 +77,7 @@ type DailyAvailability = Record<
   DayOfWeek,
   { open: string; close: string; isOpen: boolean }
 >;
-type TaxSettings = Record<string, number>;
+// type TaxSettings = Record<string, number>;
 
 /**
  * Converts a time string to 12-hour format.
@@ -162,7 +162,6 @@ export function EditLocationSettingsForm({
     Saturday: { open: "", close: "", isOpen: true },
     Sunday: { open: "", close: "", isOpen: true },
   };
-  let taxSettings: TaxSettings = {};
 
   try {
     dailyAvailability = JSON.parse(ls.dailyAvailability) as DailyAvailability;
@@ -173,18 +172,18 @@ export function EditLocationSettingsForm({
 
   console.log(dailyAvailability);
 
-  try {
-    taxSettings = JSON.parse(ls.taxSettings) as TaxSettings;
-    console.log("taxSettings:", taxSettings);
-  } catch (error) {
-    console.error("Error parsing taxSettings:", error);
-  }
+  // try {
+  //   taxSettings = JSON.parse(ls.taxSettings) as TaxSettings;
+  //   console.log("taxSettings:", taxSettings);
+  // } catch (error) {
+  //   console.error("Error parsing taxSettings:", error);
+  // }
 
   const defaultValues = {
     // dailyAvailability: ls.dailyAvailability ?? [],
     // taxSettings
     dailyAvailability: dailyAvailability,
-    taxSettings: taxSettings,
+    taxSettings: ls.taxSettings ?? "",
     initialCostOfBooking: ls.initialCostOfBooking ?? "",
     initialBookingLength: ls.initialBookingLength ?? "",
     bookingLengthIncrements: ls.bookingLengthIncrements ?? "",
@@ -450,6 +449,28 @@ export function EditLocationSettingsForm({
                 </FormControl>
                 <FormDescription>
                   The maximum number of days in advance a booking can be made.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* Tax Settings field */}
+          <FormField
+            control={control}
+            name="taxSettings"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="taxSettings">Tax Percentage</FormLabel>
+                <FormControl>
+                  <Input
+                    id="taxSettings"
+                    placeholder="Tax Percentage"
+                    type="number"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  For example, 12% tax would be 12.00
                 </FormDescription>
                 <FormMessage />
               </FormItem>

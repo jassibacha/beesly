@@ -155,10 +155,11 @@ export const locationRouter = createTRPCRouter({
               Saturday: { open: "10:00", close: "22:00", isOpen: true },
               Sunday: { open: "10:00", close: "22:00", isOpen: true },
             },
-            taxSettings: {
-              GST: 5,
-            },
-            initialCostOfBooking: "0",
+            // taxSettings: {
+            //   GST: 5,
+            // },
+            taxSettings: "12.50",
+            initialCostOfBooking: "45.00",
             initialBookingLength: 60,
             bookingLengthIncrements: 30,
             maxAdvanceBookingDays: 60,

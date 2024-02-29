@@ -252,10 +252,13 @@ export const locationSettingsFormSchema = z.object({
   //       .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
   //   }),
   // ),
-  taxSettings: z.record(z.string(), z.any()),
-  initialCostOfBooking: z
+  //taxSettings: z.record(z.string(), z.any()),
+  taxSettings: z
     .string()
     .min(1, "Initial cost of booking must be a positive number."),
+  initialCostOfBooking: z
+    .string()
+    .min(1, "Initial cost of booking must be zero or a positive number."),
   initialBookingLength: z
     .number()
     .min(1, "Initial booking length must be a positive number."),

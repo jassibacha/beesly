@@ -107,7 +107,10 @@ export const locationSettings = createTable(
     locationId: varchar("location_id", { length: 256 }).notNull(), // Foreign key didn't work here
     //timeZone: varchar("time_zone", { length: 256 }).notNull(),
     dailyAvailability: json("daily_availability").notNull(),
-    taxSettings: json("tax_settings"),
+    // taxSettings: json("tax_settings"),
+    taxSettings: decimal("tax_settings", { precision: 10, scale: 2 })
+      .notNull()
+      .default("12.50"),
     initialCostOfBooking: decimal("initial_cost_of_booking", {
       precision: 10,
       scale: 2,
