@@ -62,7 +62,9 @@ interface LocationFormProps {
   locationSettings: LocationSetting;
 }
 
-// make enum for days of the week
+/**
+ * Represents the days of the week.
+ */
 enum DayOfWeek {
   Monday = "Monday",
   Tuesday = "Tuesday",
@@ -73,11 +75,13 @@ enum DayOfWeek {
   Sunday = "Sunday",
 }
 
+/**
+ * Represents the daily availability settings for a location.
+ */
 type DailyAvailability = Record<
   DayOfWeek,
   { open: string; close: string; isOpen: boolean }
 >;
-// type TaxSettings = Record<string, number>;
 
 /**
  * Converts a time string to 12-hour format.
@@ -163,12 +167,13 @@ export function EditLocationSettingsForm({
     Sunday: { open: "", close: "", isOpen: true },
   };
 
-  try {
-    dailyAvailability = JSON.parse(ls.dailyAvailability) as DailyAvailability;
-    console.log("dailyAvailability:", dailyAvailability);
-  } catch (error) {
-    console.error("Error parsing dailyAvailability:", error);
-  }
+  dailyAvailability = JSON.parse(ls.dailyAvailability) as DailyAvailability;
+  // try {
+  //   dailyAvailability = JSON.parse(ls.dailyAvailability) as DailyAvailability;
+  //   console.log("dailyAvailability:", dailyAvailability);
+  // } catch (error) {
+  //   console.error("Error parsing dailyAvailability:", error);
+  // }
 
   console.log(dailyAvailability);
 
@@ -203,50 +208,62 @@ export function EditLocationSettingsForm({
     handleSubmit,
     reset,
     setError,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = form;
 
-  //const updateLocationMutation = api.location.update.useMutation();
+  const updateSettingsMutation = api.location.updateSettings.useMutation();
 
   const onSubmit: SubmitHandler<LocationSettingsFormSchemaValues> = async (
     values,
+    event,
   ) => {
+    console.log("Form submitted", values);
+    console.log("formState errors", errors);
+    //console.log(formState.errors);
+    // Set the current data for resetting the form after submission
+    const resetData = { ...values };
+
+    // Convert dailyAvailability back to string for DB storage from JSON Object
+    const dailyAvailabilityString = JSON.stringify(values.dailyAvailability);
+
     const updatedData = {
       ...values,
+      dailyAvailability: dailyAvailabilityString,
       locationId: locationSettings.locationId,
+      //id: locationSettings.id,
     };
 
-    console.log("Submitting data to updateLocationMutation:", updatedData);
-    // updateLocationMutation.mutate(updatedData, {
-    //   onSuccess: () => {
-    //     console.log("Location updated successfully");
-    //     toast({
-    //       variant: "success",
-    //       title: "Location Updated",
-    //       description: "Your location has been successfully updated.",
-    //     });
+    console.log("Submitting data to updateSettingsMutation:", updatedData);
+    updateSettingsMutation.mutate(updatedData, {
+      onSuccess: () => {
+        console.log("Location Settings updated successfully");
+        toast({
+          variant: "success",
+          title: "Advanced Settings Updated",
+          description: "Your location has been successfully updated.",
+        });
 
-    //     reset(updatedData);
-    //   },
-    //   onError: (error) => {
-    //     console.error("Failed to update location:", error);
-    //     toast({
-    //       variant: "destructive",
-    //       title: "Update Failed",
-    //       description:
-    //         error.message || "An unexpected error occurred. Please try again.",
-    //     });
+        reset(resetData);
+      },
+      onError: (error) => {
+        console.error("Failed to update location:", error);
+        toast({
+          variant: "destructive",
+          title: "Update Failed",
+          description:
+            error.message || "An unexpected error occurred. Please try again.",
+        });
 
-    //     // Optionally, handle form-specific errors such as validation issues
-    //     if ("cause" in error && error.cause instanceof ZodError) {
-    //       for (const issue of error.cause.errors) {
-    //         setError(issue.path[0] as keyof UpdateLocationFormSchemaValues, {
-    //           message: issue.message,
-    //         });
-    //       }
-    //     }
-    //   },
-    // });
+        // Optionally, handle form-specific errors such as validation issues
+        if ("cause" in error && error.cause instanceof ZodError) {
+          for (const issue of error.cause.errors) {
+            setError(issue.path[0] as keyof LocationSettingsFormSchemaValues, {
+              message: issue.message,
+            });
+          }
+        }
+      },
+    });
   };
 
   // /**
@@ -503,9 +520,9 @@ export function EditLocationSettingsForm({
         />
         <Button
           type="submit"
-          // disabled={isSubmitting || updateLocationMutation.isLoading}
+          disabled={isSubmitting || updateSettingsMutation.isLoading}
         >
-          {isSubmitting //|| updateLocationMutation.isLoading
+          {isSubmitting || updateSettingsMutation.isLoading
             ? "Saving..."
             : "Save Settings"}
         </Button>
@@ -532,7 +549,7 @@ function DayTimeSelector({
     name: `dailyAvailability.${day as DayOfWeek}.isOpen`,
   });
   return (
-    <div key={day} className="flex flex-row justify-items-center">
+    <div key={day} className="flex flex-row items-center justify-items-center">
       <div className="toggle mr-3">
         <Controller
           control={control}
@@ -556,7 +573,7 @@ function DayTimeSelector({
       <div className="title flex w-32 justify-items-center">
         <h3>{day}</h3>
       </div>
-      <div className="mr-3 w-[120px]">
+      <div className="w-[120px]">
         <Controller
           control={control}
           name={`dailyAvailability.${day as DayOfWeek}.open`}
@@ -591,6 +608,7 @@ function DayTimeSelector({
           )}
         />
       </div>
+      <div className="ml-2 mr-2 w-4">To</div>
       <div className="w-[120]">
         <Controller
           control={control}

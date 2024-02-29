@@ -10,6 +10,7 @@ import { locations, locationSettings, users } from "@/server/db/schema";
 import {
   createLocationSchema,
   updateLocationSchema,
+  locationSettingsSchema,
 } from "@/lib/schemas/locationSchemas";
 import { TRPCError } from "@trpc/server";
 import { ZodError, z } from "zod";
@@ -206,6 +207,7 @@ export const locationRouter = createTRPCRouter({
         }
       });
     }),
+  // Update the location
   update: protectedProcedure
     .input(
       z.object({
@@ -272,6 +274,104 @@ export const locationRouter = createTRPCRouter({
           //   .where(eq(locationSettings.locationId, input.id));
 
           return { success: true, message: "Location updated successfully" };
+        } catch (error) {
+          if (error instanceof ZodError) {
+            const errorMessage = error.errors
+              .map((e) => `${e.path.join(".")} - ${e.message}`)
+              .join("; ");
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: `Validation failed: ${errorMessage}`,
+            });
+          }
+          throw error; // Re-throw other errors
+        }
+      });
+    }),
+
+  // Update the location
+  updateSettings: protectedProcedure
+    .input(
+      z.object({
+        //id: z.string(), // Include the location ID in the input schema
+        ...locationSettingsSchema.shape, // Spread the locationSettingsSchema shape
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.auth.userId;
+      if (!userId) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "User must be logged in to update a location",
+        });
+      }
+      return ctx.db.transaction(async (tx) => {
+        try {
+          // Validate the input using the Zod schema
+          locationSettingsSchema.parse(input);
+
+          // Fetch the existing location to ensure it belongs to the current user
+          const existingLocation = await tx.query.locations.findFirst({
+            where: (locations, { eq }) => eq(locations.id, input.locationId),
+          });
+
+          if (!existingLocation) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: "Location not found",
+            });
+          }
+
+          if (existingLocation.ownerId !== userId) {
+            throw new TRPCError({
+              code: "FORBIDDEN",
+              message: "User is not authorized to update this location",
+            });
+          }
+
+          //console.log("Logo input", input.logo);
+
+          // Update the location
+          // await tx
+          //   .update(locations)
+          //   .set({
+          //     name: input.name,
+          //     slug: input.slug,
+          //     phone: input.phone,
+          //     email: input.email,
+          //     website: input.website,
+          //     streetAddress: input.streetAddress,
+          //     city: input.city,
+          //     state: input.state,
+          //     zipCode: input.zipCode,
+          //     country: input.country,
+          //     timezone: input.timezone,
+          //     logo: input.logo,
+          //   })
+          //   .where(eq(locations.id, input.id));
+
+          //Update the timeZone in locationSettings (REWORKING)
+          await tx
+            .update(locationSettings)
+            .set({
+              dailyAvailability: input.dailyAvailability,
+              taxSettings: input.taxSettings,
+              initialCostOfBooking: input.initialCostOfBooking,
+              initialBookingLength: input.initialBookingLength,
+              bookingLengthIncrements: input.bookingLengthIncrements,
+              maxAdvanceBookingDays: input.maxAdvanceBookingDays,
+              sameDayLeadTimeBuffer: input.sameDayLeadTimeBuffer,
+              bufferTime: input.bufferTime,
+              timeSlotIncrements: input.timeSlotIncrements,
+              displayUnavailableSlots: input.displayUnavailableSlots,
+              updatedAt: new Date(),
+            })
+            .where(eq(locationSettings.locationId, input.locationId));
+
+          return {
+            success: true,
+            message: "Location settings updated successfully",
+          };
         } catch (error) {
           if (error instanceof ZodError) {
             const errorMessage = error.errors

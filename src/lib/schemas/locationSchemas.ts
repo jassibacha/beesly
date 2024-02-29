@@ -285,3 +285,20 @@ export const locationSettingsFormSchema = z.object({
 export type LocationSettingsFormSchemaValues = z.infer<
   typeof locationSettingsFormSchema
 >;
+
+export const updateLocationSettingsSchema = z.object({
+  daiylAvailability: z.string().optional(),
+  taxSettings: z.string().optional(),
+  initialCostOfBooking: z.string().optional(),
+  initialBookingLength: z.number().optional(),
+  bookingLengthIncrements: z.number().optional(),
+  maxAdvanceBookingDays: z.number().optional(),
+  sameDayLeadTimeBuffer: z.number().optional(),
+  bufferTime: z.number().optional(),
+  timeSlotIncrements: z.number().optional(),
+  displayUnavailableSlots: z.boolean().optional(),
+  //logo: z.string().url().optional().nullable(),
+});
+export type UpdateLocationSettingsSchemaValues = z.infer<
+  typeof updateLocationSettingsSchema
+>;
