@@ -198,7 +198,7 @@ export const locationSettingsSchema = z.object({
     .number()
     .min(0, "Time slot in minutes must be a positive number."),
   displayUnavailableSlots: z.boolean().default(false),
-  createdAt: z.date(),
+  //createdAt: z.date(),
   updatedAt: z.date(),
 });
 export type LocationSettingsSchemaValues = z.infer<
@@ -206,9 +206,6 @@ export type LocationSettingsSchemaValues = z.infer<
 >;
 
 export const locationSettingsFormSchema = z.object({
-  id: z.string().min(1, "ID is required."),
-  locationId: z.string().min(1, "Location ID is required."),
-  // second version
   dailyAvailability: z.record(
     z.enum([
       "Monday",
@@ -229,75 +226,60 @@ export const locationSettingsFormSchema = z.object({
       isOpen: z.boolean().default(true),
     }),
   ),
-
-  // dailyAvailability: dailyAvailabilitySchema,
-
-  // This is a temporary fix for the trpc firing on booking email
-  // Realistically we should either modularize the string>object conversion
-  // Or we should parse the dailyAvailability string and taxSettings in the trpc
-  // That fetches locationSettings in the first place .. look at
-  // for more information (Alternatively we just keep this as string since it's unparsed)
-  //dailyAvailability: z.string().min(1, "Not empty"),
-  //taxSettings: z.string().min(1, "Not empty"),
-
-  // first version
-  // dailyAvailability: z.record(
-  //   z.string(),
-  //   z.object({
-  //     open: z
-  //       .string()
-  //       .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
-  //     close: z
-  //       .string()
-  //       .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
-  //   }),
-  // ),
-  //taxSettings: z.record(z.string(), z.any()),
-  taxSettings: z
-    .string()
-    .min(1, "Initial cost of booking must be a positive number."),
+  taxSettings: z.string().min(0, "Tax must be zero or a positive number."),
   initialCostOfBooking: z
     .string()
-    .min(1, "Initial cost of booking must be zero or a positive number."),
-  initialBookingLength: z
+    .min(0, "Initial cost of booking must be zero or a positive number."),
+  initialBookingLength: z.coerce
     .number()
     .min(1, "Initial booking length must be a positive number."),
-  bookingLengthIncrements: z
+  bookingLengthIncrements: z.coerce
     .number()
     .min(1, "Booking length increment must be at least 1."),
-  maxAdvanceBookingDays: z
+  maxAdvanceBookingDays: z.coerce
     .number()
     .min(0, "Maximum advance booking days must be a positive number.")
     .max(365, "Maximum advance booking days must be 365 or less."),
-  sameDayLeadTimeBuffer: z
+  sameDayLeadTimeBuffer: z.coerce
     .number()
     .min(0, "Same day lead time buffer must be 0 or more."),
-  bufferTime: z
+  bufferTime: z.coerce
     .number()
     .min(0, "Buffer time in minutes must be a positive number."),
-  timeSlotIncrements: z
+  timeSlotIncrements: z.coerce
     .number()
     .min(0, "Time slot in minutes must be a positive number."),
   displayUnavailableSlots: z.boolean().default(false),
-  createdAt: z.date(),
-  updatedAt: z.date(),
 });
 export type LocationSettingsFormSchemaValues = z.infer<
   typeof locationSettingsFormSchema
 >;
 
 export const updateLocationSettingsSchema = z.object({
-  daiylAvailability: z.string().optional(),
-  taxSettings: z.string().optional(),
-  initialCostOfBooking: z.string().optional(),
-  initialBookingLength: z.number().optional(),
-  bookingLengthIncrements: z.number().optional(),
-  maxAdvanceBookingDays: z.number().optional(),
-  sameDayLeadTimeBuffer: z.number().optional(),
-  bufferTime: z.number().optional(),
-  timeSlotIncrements: z.number().optional(),
-  displayUnavailableSlots: z.boolean().optional(),
-  //logo: z.string().url().optional().nullable(),
+  locationId: z.string().min(1, "Location ID is required."),
+  dailyAvailability: z.string().min(1, "Daily availability is required."),
+  taxSettings: z.string().min(1, "Tax settings are required."),
+  initialCostOfBooking: z
+    .string()
+    .min(1, "Initial cost of booking is required."),
+  initialBookingLength: z
+    .number()
+    .min(1, "Initial booking length must be at least 1."),
+  bookingLengthIncrements: z
+    .number()
+    .min(1, "Booking length increments must be at least 1."),
+  maxAdvanceBookingDays: z
+    .number()
+    .min(1, "Max advance booking days must be at least 1."),
+  sameDayLeadTimeBuffer: z
+    .number()
+    .min(1, "Same day lead time buffer must be at least 1."),
+  bufferTime: z.number().min(1, "Buffer time must be at least 1."),
+  timeSlotIncrements: z
+    .number()
+    .min(1, "Time slot increments must be at least 1."),
+  displayUnavailableSlots: z.boolean(),
+  updatedAt: z.date(),
 });
 export type UpdateLocationSettingsSchemaValues = z.infer<
   typeof updateLocationSettingsSchema

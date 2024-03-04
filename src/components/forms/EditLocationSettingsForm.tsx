@@ -94,10 +94,19 @@ function convertTo12HourFormat(time: string) {
   if (hours === undefined || minutes === undefined) {
     throw new Error(`Invalid time format: ${time}`);
   }
-  const hour = parseInt(hours, 10);
-  const suffix = hour >= 12 ? "PM" : "AM";
-  const displayHour = hour % 12 || 12;
-  return `${displayHour}:${minutes} ${suffix}`;
+  let hour = parseInt(hours, 10);
+  let suffix = "AM";
+
+  if (hour === 0 || hour === 24) {
+    hour = 12; // Midnight
+  } else if (hour > 12) {
+    hour -= 12;
+    suffix = "PM";
+  } else if (hour === 12) {
+    suffix = "PM";
+  }
+
+  return `${hour}:${minutes} ${suffix}`;
 }
 
 const timeSlots = [
@@ -228,8 +237,10 @@ export function EditLocationSettingsForm({
 
     const updatedData = {
       ...values,
+      id: locationSettings.id,
       dailyAvailability: dailyAvailabilityString,
       locationId: locationSettings.locationId,
+      updatedAt: DateTime.now().toJSDate(),
       //id: locationSettings.id,
     };
 

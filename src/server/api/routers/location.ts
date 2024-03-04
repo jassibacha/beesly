@@ -11,6 +11,8 @@ import {
   createLocationSchema,
   updateLocationSchema,
   locationSettingsSchema,
+  locationSettingsFormSchema,
+  updateLocationSettingsSchema,
 } from "@/lib/schemas/locationSchemas";
 import { TRPCError } from "@trpc/server";
 import { ZodError, z } from "zod";
@@ -293,8 +295,8 @@ export const locationRouter = createTRPCRouter({
   updateSettings: protectedProcedure
     .input(
       z.object({
-        //id: z.string(), // Include the location ID in the input schema
-        ...locationSettingsSchema.shape, // Spread the locationSettingsSchema shape
+        id: z.string(), // Include the location ID in the input schema
+        ...updateLocationSettingsSchema.shape, // Spread the locationSettingsSchema shape
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -364,7 +366,7 @@ export const locationRouter = createTRPCRouter({
               bufferTime: input.bufferTime,
               timeSlotIncrements: input.timeSlotIncrements,
               displayUnavailableSlots: input.displayUnavailableSlots,
-              updatedAt: new Date(),
+              updatedAt: input.updatedAt,
             })
             .where(eq(locationSettings.locationId, input.locationId));
 
