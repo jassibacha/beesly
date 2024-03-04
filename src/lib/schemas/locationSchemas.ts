@@ -198,7 +198,7 @@ export const locationSettingsSchema = z.object({
     .number()
     .min(0, "Time slot in minutes must be a positive number."),
   displayUnavailableSlots: z.boolean().default(false),
-  //createdAt: z.date(),
+  createdAt: z.date(),
   updatedAt: z.date(),
 });
 export type LocationSettingsSchemaValues = z.infer<
@@ -256,6 +256,7 @@ export type LocationSettingsFormSchemaValues = z.infer<
 >;
 
 export const updateLocationSettingsSchema = z.object({
+  id: z.string().min(1, "ID is required."),
   locationId: z.string().min(1, "Location ID is required."),
   dailyAvailability: z.string().min(1, "Daily availability is required."),
   taxSettings: z.string().min(1, "Tax settings are required."),

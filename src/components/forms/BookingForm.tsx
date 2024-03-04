@@ -255,6 +255,12 @@ export function BookingForm({
           <span>Loading time slots...</span>
         </div>
       );
+    if (timeSlotData && !timeSlotData.isOpen)
+      return (
+        <div className="flex flex-col justify-center justify-items-center">
+          Closed for this day.
+        </div>
+      );
     if (timeSlots.length === 0)
       return (
         <div className="flex flex-col justify-center justify-items-center">

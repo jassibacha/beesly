@@ -264,9 +264,10 @@ async function getBookingsByDate(
   return {
     location,
     locationSettings,
-    openTimeISO,
-    closeTimeISO,
-    existingBookings,
+    openTimeISO: daySchedule.isOpen ? openTimeISO : null, // If the location is closed that day, return null
+    closeTimeISO: daySchedule.isOpen ? closeTimeISO : null, // If the location is closed that day, return null
+    existingBookings: daySchedule.isOpen ? existingBookings : [], // If the location is closed that day, return an empty array
+    isOpen: daySchedule.isOpen, // Whether the location is open that day
   };
 }
 
@@ -568,7 +569,7 @@ export const bookingRouter = createTRPCRouter({
         ctx,
       );
 
-      const { location, locationSettings, openTimeISO, closeTimeISO } =
+      const { location, locationSettings, openTimeISO, closeTimeISO, isOpen } =
         bookingsByDate;
       let { existingBookings } = bookingsByDate;
 
@@ -679,6 +680,7 @@ export const bookingRouter = createTRPCRouter({
         openTimeISO,
         closeTimeISO,
         slots: finalSlots,
+        isOpen: isOpen,
       };
     }),
 

@@ -293,12 +293,7 @@ export const locationRouter = createTRPCRouter({
 
   // Update the location
   updateSettings: protectedProcedure
-    .input(
-      z.object({
-        id: z.string(), // Include the location ID in the input schema
-        ...updateLocationSettingsSchema.shape, // Spread the locationSettingsSchema shape
-      }),
-    )
+    .input(updateLocationSettingsSchema)
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.auth.userId;
       if (!userId) {
