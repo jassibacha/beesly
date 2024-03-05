@@ -536,8 +536,13 @@ export const bookingRouter = createTRPCRouter({
       const { locationId, date } = input; // Default duration
       console.log("*** getAvailableTimeSlots firing ***");
 
-      const { locationSettings, existingBookings, openTimeISO, closeTimeISO } =
-        await getBookingsByDate(locationId, date, BookingDetail.Full, ctx);
+      const {
+        locationSettings,
+        existingBookings,
+        openTimeISO,
+        closeTimeISO,
+        isOpen,
+      } = await getBookingsByDate(locationId, date, BookingDetail.Full, ctx);
 
       //const durationMin = parseFloat(duration) * 60; // Convert hours to minutes if necessary
       const incrementMin = locationSettings.timeSlotIncrements; // Time increment between slots (ie. every 15min)
@@ -547,6 +552,7 @@ export const bookingRouter = createTRPCRouter({
         openTimeISO,
         closeTimeISO,
         bookings: existingBookings,
+        isOpen,
       };
     }),
   getAvailableTimeSlots: publicProcedure

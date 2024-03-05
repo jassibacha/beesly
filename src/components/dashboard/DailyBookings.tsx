@@ -64,6 +64,7 @@ interface BookingsResponse {
   openTimeISO: string;
   closeTimeISO: string;
   bookings: BookingData[];
+  isOpen: boolean;
 }
 
 export default function DailyBookings({
@@ -145,6 +146,13 @@ export default function DailyBookings({
           <span>Loading time slots...</span>
         </div>
       );
+    if (bookingsData?.isOpen === false) {
+      return (
+        <div className="flex flex-col justify-center justify-items-center">
+          Location is closed for the day.
+        </div>
+      );
+    }
     if (bookingsData?.bookings?.length === 0)
       return (
         <div className="flex flex-col justify-center justify-items-center">
