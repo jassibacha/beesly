@@ -796,4 +796,20 @@ export const bookingRouter = createTRPCRouter({
 
       return booking;
     }),
+  // Get booking by ID or return null
+  getBookingByIdOrNull: protectedProcedure
+    .input(
+      z.object({
+        bookingId: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { bookingId } = input;
+
+      const booking = await ctx.db.query.bookings.findFirst({
+        where: (bookings, { eq }) => eq(bookings.id, bookingId),
+      });
+
+      return booking; // Returns null if not found
+    }),
 });

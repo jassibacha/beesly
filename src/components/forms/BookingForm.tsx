@@ -383,6 +383,15 @@ export function BookingForm({
               location,
               locationSettings,
             });
+
+            // Redirect to thank-you page with booking details as query parameters
+            if (viewContext === "portal") {
+              router.push(`/${location.slug}/thank-you/${data.booking.id}`);
+            } else if (viewContext === "dashboard") {
+              router.push("/dashboard");
+            } else if (viewContext === "dialog") {
+              //closeDialog();
+            }
           }
 
           // TODO: Can we check if we're on the booking portal? If so, redirect to thank you page.

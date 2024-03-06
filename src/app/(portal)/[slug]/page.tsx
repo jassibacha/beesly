@@ -79,16 +79,6 @@ export default async function Page({ params }: Props) {
     notFound();
   }
 
-  // TODO: We can grab all of the stuff here, because we're a server component
-  // And then pass all of it in as props to a bookingForm component that is client
-  // We can probably wait to grab the individual bookings until the client component
-  // Or we can grab bookings every time the day changes, eventually at least
-
-  // const [invoice, customers] = await Promise.all([
-  //   fetchInvoiceById(id),
-  //   fetchCustomers(),
-  // ]);
-
   return (
     <>
       <Suspense fallback={<div>Loading...</div>}>
