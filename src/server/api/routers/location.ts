@@ -305,7 +305,7 @@ export const locationRouter = createTRPCRouter({
       return ctx.db.transaction(async (tx) => {
         try {
           // Validate the input using the Zod schema
-          locationSettingsSchema.parse(input);
+          updateLocationSettingsSchema.parse(input);
 
           // Fetch the existing location to ensure it belongs to the current user
           const existingLocation = await tx.query.locations.findFirst({
