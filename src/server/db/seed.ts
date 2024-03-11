@@ -176,6 +176,7 @@ async function seedDatabase() {
           customerPhone: faker.phone.number(),
           startTime: startTime,
           endTime: endTime,
+          status: "ACTIVE",
           createdAt: now,
           updatedAt: now,
         });

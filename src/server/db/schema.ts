@@ -194,7 +194,11 @@ export const bookings = createTable(
     // endTime: datetime("end_time", { mode: "string" }).notNull(),
     totalCost: decimal("total_cost", { precision: 10, scale: 2 }),
     taxAmount: decimal("tax_amount", { precision: 10, scale: 2 }),
-    status: varchar("status", { length: 50 }),
+    status: varchar("status", { length: 50 }).notNull(), // Enum: "ACTIVE", "CANCELLED", "COMPLETED"
+    emailReminderSent: boolean("email_reminder_sent").default(false).notNull(),
+    // EmailReminderSent
+    // EmailFollowUpSent PHASE 2
+
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),

@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { DateTime } from "luxon";
@@ -12,11 +13,29 @@ interface BookingItemProps {
     customerPhone: string;
     startTime: Date;
     endTime: Date;
+    status: string;
   };
   timezone: string;
 }
 
+type BadgeVariant = "default" | "secondary" | "destructive";
+
+function getBadgeVariant(status: string): BadgeVariant {
+  switch (status) {
+    case "ACTIVE":
+      return "default";
+    case "CANCELLED":
+      return "destructive";
+    case "COMPLETED":
+      return "secondary";
+    default:
+      return "default";
+  }
+}
+
 export function BookingItem({ booking, timezone }: BookingItemProps) {
+  const badgeVariant = getBadgeVariant(booking.status);
+
   return (
     <div className="flex items-center">
       <Avatar className="h-9 w-9">
@@ -34,7 +53,33 @@ export function BookingItem({ booking, timezone }: BookingItemProps) {
           {booking.customerEmail}
         </p>
       </div>
-      <div className="ml-auto text-right">
+      <div className="ml-auto">
+        <p className="text-right text-sm font-medium">
+          Status: <Badge variant={badgeVariant}>{booking.status}</Badge>
+        </p>
+        <div className="text-right">
+          <p className="font-medium">
+            {DateTime.fromJSDate(booking.startTime)
+              .setZone(timezone)
+              .toFormat("ccc, LLL dd yyyy")}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {DateTime.fromJSDate(booking.startTime)
+              .setZone(timezone)
+              .toFormat("h:mm a")}{" "}
+            -{" "}
+            {DateTime.fromJSDate(booking.endTime)
+              .setZone(timezone)
+              .toFormat("h:mm a")}
+          </p>
+        </div>
+      </div>
+      <Button variant="outline" size="sm" asChild className="ml-2">
+        <Link href={`/dashboard/bookings/edit/${booking.id}`}>
+          <Pencil className="h-4 w-4" />
+        </Link>
+      </Button>
+      {/* <div className="ml-auto text-right">
         <p className="font-medium">
           {DateTime.fromJSDate(booking.startTime)
             .setZone(timezone)
@@ -54,7 +99,7 @@ export function BookingItem({ booking, timezone }: BookingItemProps) {
         <Link href={`/dashboard/bookings/edit/${booking.id}`}>
           <Pencil className="h-4 w-4" />
         </Link>
-      </Button>
+      </Button> */}
     </div>
   );
 }

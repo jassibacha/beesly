@@ -17,7 +17,7 @@ import {
   resources,
 } from "@/server/db/schema";
 import { v4 as uuidv4 } from "uuid";
-import { and, asc, desc, eq, gte, lte } from "drizzle-orm";
+import { and, asc, desc, eq, gte, lte, or } from "drizzle-orm";
 import { DateTime } from "luxon";
 import type { Booking } from "@/server/db/types";
 import type { TRPCContext } from "@/types/trpcContext";
@@ -223,6 +223,8 @@ async function getBookingsByDate(
       .where(
         and(
           eq(bookings.locationId, locationId),
+          // Allow for status to be either ACTIVE or COMPLETED
+          or(eq(bookings.status, "ACTIVE"), eq(bookings.status, "COMPLETED")),
           gte(bookings.startTime, DateTime.fromISO(openTimeISO!).toJSDate()), // DB stores JS Date
           lte(bookings.endTime, DateTime.fromISO(closeTimeISO!).toJSDate()), // DB stores JS Date
         ),
@@ -243,6 +245,8 @@ async function getBookingsByDate(
       .where(
         and(
           eq(bookings.locationId, locationId),
+          // Allow for status to be either ACTIVE or COMPLETED
+          or(eq(bookings.status, "ACTIVE"), eq(bookings.status, "COMPLETED")),
           gte(bookings.startTime, DateTime.fromISO(openTimeISO!).toJSDate()), // DB stores JS Date
           lte(bookings.endTime, DateTime.fromISO(closeTimeISO!).toJSDate()), // DB stores JS Date
         ),
@@ -332,7 +336,7 @@ async function createBooking(
     customerPhone: customerPhone,
     // totalCost: input.totalCost,
     // taxAmount: input.taxAmount,
-    // status: "Confirmed", // Assuming status
+    status: "ACTIVE", // Assuming status
   });
 
   // Fetch the newly created booking from the database
@@ -472,7 +476,12 @@ export const bookingRouter = createTRPCRouter({
 
     // Fetch bookings associated with the user's location
     const userBookings = await ctx.db.query.bookings.findMany({
-      where: (bookings, { eq }) => eq(bookings.locationId, userLocation.id),
+      //where: (bookings, { eq }) => eq(bookings.locationId, userLocation.id),
+      where: (bookings, { eq, and }) =>
+        and(
+          eq(bookings.locationId, userLocation.id),
+          eq(bookings.status, "ACTIVE"),
+        ),
       orderBy: [asc(bookings.startTime)], // Assuming you want to order them by the start time
     });
 
@@ -524,6 +533,8 @@ export const bookingRouter = createTRPCRouter({
         bookings: userBookings,
       };
     }),
+  // List bookings by date, used on Dashboard DailyBookings area
+  // Booking Status: ACTIVE, COMPLETED
   listBookingsByDate: protectedProcedure
     .input(
       z.object({
@@ -555,6 +566,8 @@ export const bookingRouter = createTRPCRouter({
         isOpen,
       };
     }),
+  // Get available time slots for a specific date, used on BookingForm (Portal, Dashboard)
+  // Booking Status: ACTIVE, COMPLETED
   getAvailableTimeSlots: publicProcedure
     .input(
       z.object({
@@ -690,7 +703,7 @@ export const bookingRouter = createTRPCRouter({
       };
     }),
 
-  // Upcoming bookings
+  // Upcoming bookings, should show status ACTIVE
   listUpcomingBookings: protectedProcedure
     .input(
       z.object({
@@ -702,31 +715,25 @@ export const bookingRouter = createTRPCRouter({
       const { limit = 10, locationId } = input; // Default limit to 10 if not provided
       const now = new Date();
 
-      const upcomingBookings2 = await ctx.db
+      const upcomingBookings = await ctx.db
         .select()
         .from(bookings)
         .where(
           and(
             eq(bookings.locationId, locationId),
-            gte(bookings.startTime, now), // DB stores JS Date
-            //lte(bookings.endTime, DateTime.fromISO(closeTimeISO!).toJSDate()), // DB stores JS Date
+            eq(bookings.status, "ACTIVE"), // Ensure booking status is ACTIVE
+            gte(bookings.startTime, now), // Ensure booking start time is in the future
           ),
         )
         .orderBy(asc(bookings.startTime))
         .limit(limit);
 
-      // const upcomingBookings = await ctx.db.query.bookings.findMany({
-      //   where: (bookings, { gte }) => gte(bookings.startTime, now),
-      //   orderBy: [asc(bookings.startTime)],
-      //   limit,
-      // });
-
       return {
-        bookings: upcomingBookings2,
+        bookings: upcomingBookings,
       };
     }),
 
-  // Recent bookings
+  // Recent bookings, should show all status
   listRecentBookings: protectedProcedure
     .input(
       z.object({

@@ -8,6 +8,7 @@ interface Booking {
   customerPhone: string;
   startTime: Date;
   endTime: Date;
+  status: string;
 }
 
 interface BookingsListProps {
