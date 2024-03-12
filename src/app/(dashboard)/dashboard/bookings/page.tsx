@@ -77,40 +77,26 @@ export default async function BookingsPage() {
           </TabsList>
           <TabsContent value="bookings" className="space-y-4">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-1 lg:grid-cols-2">
-              <Card className="">
-                <CardHeader>
-                  <CardTitle>Upcoming Bookings</CardTitle>
-                  <CardDescription>
-                    There are 10 bookings today.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <BookingsList
-                    bookings={upcomingBookings.bookings}
-                    timezone={location.timezone}
-                    location={location}
-                    locationSettings={locationSettings}
-                    resources={resources}
-                  />
-                </CardContent>
-              </Card>
-              <Card className="">
-                <CardHeader>
-                  <CardTitle>Recent Bookings</CardTitle>
-                  <CardDescription>
-                    You have 6 bookings in the past 24h
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <BookingsList
-                    bookings={recentBookings.bookings}
-                    timezone={location.timezone}
-                    location={location}
-                    locationSettings={locationSettings}
-                    resources={resources}
-                  />
-                </CardContent>
-              </Card>
+              <Suspense fallback={<div>Loading...</div>}>
+                <BookingsList
+                  // bookings={upcomingBookings.bookings}
+                  type="upcoming"
+                  timezone={location.timezone}
+                  location={location}
+                  locationSettings={locationSettings}
+                  resources={resources}
+                />
+              </Suspense>
+              <Suspense fallback={<div>Loading...</div>}>
+                <BookingsList
+                  // bookings={recentBookings.bookings}
+                  type="recent"
+                  timezone={location.timezone}
+                  location={location}
+                  locationSettings={locationSettings}
+                  resources={resources}
+                />
+              </Suspense>
             </div>
           </TabsContent>
           <TabsContent value="search" className="space-y-4">

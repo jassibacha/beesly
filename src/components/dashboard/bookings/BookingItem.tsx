@@ -1,3 +1,4 @@
+"use client";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ interface BookingItemProps {
   location: Location;
   locationSettings: LocationSetting;
   resources: Resource[];
+  refetch: () => void;
 }
 
 type BadgeVariant = "default" | "secondary" | "destructive";
@@ -49,6 +51,7 @@ export function BookingItem({
   location,
   locationSettings,
   resources,
+  refetch,
 }: BookingItemProps) {
   const badgeVariant = getBadgeVariant(booking.status);
 
@@ -106,6 +109,7 @@ export function BookingItem({
           variant="outline"
           size="sm"
           buttonType="IconOnly"
+          refetch={refetch}
         />
       </div>
     </div>

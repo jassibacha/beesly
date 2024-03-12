@@ -38,9 +38,10 @@ interface BookingDialogProps {
     | "destructive"
     | "ghost";
   size: "sm" | "default" | "lg";
+  refetch?: () => void;
 }
 
-export async function EditBookingDialog({
+export function EditBookingDialog({
   location,
   locationSettings,
   resources,
@@ -48,6 +49,7 @@ export async function EditBookingDialog({
   buttonType = "Normal",
   variant,
   size = "default",
+  refetch,
 }: BookingDialogProps) {
   //const [openEditDialog, setOpenEditDialog] = useState(false);
 
@@ -80,6 +82,7 @@ export async function EditBookingDialog({
             booking={booking}
             viewContext="dialog"
             //closeDialog={() => setOpenEditDialog(false)}
+            refetch={refetch}
           />
         </Suspense>
         {/* <DialogFooter className="sm:justify-start">

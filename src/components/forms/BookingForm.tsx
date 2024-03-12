@@ -57,6 +57,7 @@ interface BookingFormProps {
   booking?: Booking;
   viewContext: "dashboard" | "dialog" | "portal";
   closeDialog?: () => void;
+  refetch?: () => void;
 }
 
 interface ExtendedTimeSlot {
@@ -99,6 +100,7 @@ export function BookingForm({
   booking,
   viewContext,
   closeDialog,
+  refetch,
 }: BookingFormProps) {
   const isEditing = !!booking; // Determine if we are editing an existing booking
   const isDialog = viewContext === "dialog"; // Determine if we are in a dialog
@@ -295,12 +297,8 @@ export function BookingForm({
             if (isDashboard) {
               router.push("/dashboard"); // Redirect to the dashboard or another appropriate page
             } else if (isDialog) {
-              router.push("#");
-              console.log("Refreshing the form");
-              // Refresh the dialog content
-              //setRefreshForm(Date.now().toString());
-              // Use the current timestamp as a unique key
-              // Toggle the refresh state to trigger a re-render
+              // Refetch the bookings from the parent component
+              if (refetch) void refetch();
             }
           },
           onError: (error) => {
@@ -375,7 +373,12 @@ export function BookingForm({
           // Reset form or redirect user as needed
           // TODO: Conditional for dialog or page
           // reset(commonData);
-          router.push("/dashboard");
+          if (viewContext === "dashboard") {
+            router.push("/dashboard");
+          } else if (viewContext === "dialog") {
+            // Refetch the bookings from the parent component
+            if (refetch) void refetch();
+          }
         },
         onError: (error) => {
           // Handle error scenario
@@ -426,7 +429,8 @@ export function BookingForm({
             } else if (viewContext === "dashboard") {
               router.push("/dashboard");
             } else if (viewContext === "dialog") {
-              //closeDialog();
+              // Refetch the bookings from the parent component
+              if (refetch) void refetch();
             }
           }
 
