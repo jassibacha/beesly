@@ -29,6 +29,15 @@ interface BookingDialogProps {
   locationSettings: LocationSetting;
   resources: Resource[];
   booking: Booking;
+  buttonType?: "IconOnly" | "Normal";
+  variant:
+    | "secondary"
+    | "outline"
+    | "link"
+    | "default"
+    | "destructive"
+    | "ghost";
+  size: "sm" | "default" | "lg";
 }
 
 export async function EditBookingDialog({
@@ -36,6 +45,9 @@ export async function EditBookingDialog({
   locationSettings,
   resources,
   booking,
+  buttonType = "Normal",
+  variant,
+  size = "default",
 }: BookingDialogProps) {
   //const [openEditDialog, setOpenEditDialog] = useState(false);
 
@@ -47,14 +59,17 @@ export async function EditBookingDialog({
     // <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="secondary" size="sm">
-          <Pencil className="mr-1 h-3 w-3" />
-          Edit
+        <Button variant={variant} size={size}>
+          <Pencil
+            className={`${buttonType === "IconOnly" ? "h-4 w-4" : "mr-1 h-3 w-3 "}`}
+          />
+          {buttonType === "Normal" && "Edit"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md md:max-w-5xl">
         <DialogHeader>
           <DialogTitle>Edit Booking: {booking.id}</DialogTitle>
+          {/* TODO: Change this from update to say it's cancelled or completed */}
           <DialogDescription>Update this booking.</DialogDescription>
         </DialogHeader>
         <Suspense fallback={<div>Loading...</div>}>

@@ -4,18 +4,28 @@ import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { DateTime } from "luxon";
 import Link from "next/link";
-
+import { EditBookingDialog } from "./EditBookingDialog";
+import type {
+  Booking,
+  Location,
+  LocationSetting,
+  Resource,
+} from "@/server/db/types";
 interface BookingItemProps {
-  booking: {
-    id: string;
-    customerName: string;
-    customerEmail: string;
-    customerPhone: string;
-    startTime: Date;
-    endTime: Date;
-    status: string;
-  };
+  booking: Booking;
+  // booking: {
+  //   id: string;
+  //   customerName: string;
+  //   customerEmail: string;
+  //   customerPhone: string;
+  //   startTime: Date;
+  //   endTime: Date;
+  //   status: string;
+  // };
   timezone: string;
+  location: Location;
+  locationSettings: LocationSetting;
+  resources: Resource[];
 }
 
 type BadgeVariant = "default" | "secondary" | "destructive";
@@ -33,7 +43,13 @@ function getBadgeVariant(status: string): BadgeVariant {
   }
 }
 
-export function BookingItem({ booking, timezone }: BookingItemProps) {
+export function BookingItem({
+  booking,
+  timezone,
+  location,
+  locationSettings,
+  resources,
+}: BookingItemProps) {
   const badgeVariant = getBadgeVariant(booking.status);
 
   return (
@@ -74,32 +90,24 @@ export function BookingItem({ booking, timezone }: BookingItemProps) {
           </p>
         </div>
       </div>
-      <Button variant="outline" size="sm" asChild className="ml-2">
+      <Button variant="outline" size="sm" asChild className="ml-2 md:hidden">
         <Link href={`/dashboard/bookings/edit/${booking.id}`}>
           <Pencil className="h-4 w-4" />
         </Link>
       </Button>
-      {/* <div className="ml-auto text-right">
-        <p className="font-medium">
-          {DateTime.fromJSDate(booking.startTime)
-            .setZone(timezone)
-            .toFormat("ccc, LLL dd yyyy")}
-        </p>
-        <p className="text-sm text-muted-foreground">
-          {DateTime.fromJSDate(booking.startTime)
-            .setZone(timezone)
-            .toFormat("h:mm a")}{" "}
-          -{" "}
-          {DateTime.fromJSDate(booking.endTime)
-            .setZone(timezone)
-            .toFormat("h:mm a")}
-        </p>
+      <div className="ml-2 hidden md:block">
+        <EditBookingDialog
+          key={`edit${booking.id}`}
+          location={location}
+          locationSettings={locationSettings}
+          resources={resources}
+          //id={booking.id}
+          booking={booking}
+          variant="outline"
+          size="sm"
+          buttonType="IconOnly"
+        />
       </div>
-      <Button variant="outline" size="sm" asChild className="ml-2">
-        <Link href={`/dashboard/bookings/edit/${booking.id}`}>
-          <Pencil className="h-4 w-4" />
-        </Link>
-      </Button> */}
     </div>
   );
 }

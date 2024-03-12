@@ -45,6 +45,7 @@ interface DailyBookingProps {
   resources: Resource[];
 }
 
+// Eventually we can swap this to actual Booking
 interface BookingData {
   locationId: string;
   id: string;
@@ -53,17 +54,18 @@ interface BookingData {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
-  status: string | null;
+  status: string;
   totalCost: string | null;
   taxAmount: string | null;
   createdAt: Date;
   updatedAt: Date | null;
+  emailReminderSent: boolean;
 }
 
 interface BookingsResponse {
   openTimeISO: string;
   closeTimeISO: string;
-  bookings: BookingData[];
+  bookings: BookingData[]; // Eventually we can swap this to actual Booking
   isOpen: boolean;
 }
 
@@ -244,6 +246,8 @@ export default function DailyBookings({
                       resources={resources}
                       //id={booking.id}
                       booking={bookingData}
+                      variant="secondary"
+                      size="sm"
                     />
                   </div>
                 </div>

@@ -43,11 +43,12 @@ export default async function BookingsPage() {
     return notFound();
   }
 
-  const [locationSettings, upcomingBookings, recentBookings] =
+  const [locationSettings, resources, upcomingBookings, recentBookings] =
     await Promise.all([
       api.location.getLocationSettingsByLocationId.query({
         locationId: location.id,
       }),
+      api.resource.getResourcesByLocationId.query({ locationId: location.id }),
       api.booking.listUpcomingBookings.query({
         locationId: location.id,
         limit: 5,
@@ -87,6 +88,9 @@ export default async function BookingsPage() {
                   <BookingsList
                     bookings={upcomingBookings.bookings}
                     timezone={location.timezone}
+                    location={location}
+                    locationSettings={locationSettings}
+                    resources={resources}
                   />
                 </CardContent>
               </Card>
@@ -101,6 +105,9 @@ export default async function BookingsPage() {
                   <BookingsList
                     bookings={recentBookings.bookings}
                     timezone={location.timezone}
+                    location={location}
+                    locationSettings={locationSettings}
+                    resources={resources}
                   />
                 </CardContent>
               </Card>
