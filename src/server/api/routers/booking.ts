@@ -454,6 +454,51 @@ export const bookingRouter = createTRPCRouter({
         booking: updatedBooking,
       };
     }),
+  // Cancel a booking, Dashboard & Dialog Only
+  cancel: protectedProcedure
+    .input(z.object({ bookingId: z.string(), locationId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { bookingId, locationId } = input;
+
+      // Fetch the booking to ensure it exists
+      const booking = await ctx.db.query.bookings.findFirst({
+        where: (bookings, { eq, and }) =>
+          and(eq(bookings.id, bookingId), eq(bookings.locationId, locationId)),
+      });
+
+      if (!booking) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Booking not found",
+        });
+      }
+
+      // Check if the booking is already completed or cancelled
+      if (booking.status === "COMPLETED" || booking.status === "CANCELLED") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Booking is already ${booking.status.toLowerCase()}`,
+        });
+      }
+
+      // Update the booking status to CANCELLED
+      await ctx.db
+        .update(bookings)
+        .set({ status: "CANCELLED" })
+        .where(eq(bookings.id, bookingId));
+
+      // Fetch the updated booking from the database
+      const updatedBooking = await ctx.db.query.bookings.findFirst({
+        where: (bookings, { eq }) => eq(bookings.id, bookingId),
+      });
+
+      // Return the updated booking
+      return {
+        success: true,
+        message: "Booking cancelled successfully",
+        booking: updatedBooking,
+      };
+    }),
   listBookings: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.auth.userId;
     if (!userId) {
