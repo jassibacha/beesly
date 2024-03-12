@@ -295,9 +295,10 @@ export function BookingForm({
             if (isDashboard) {
               router.push("/dashboard"); // Redirect to the dashboard or another appropriate page
             } else if (isDialog) {
+              router.push("#");
               console.log("Refreshing the form");
               // Refresh the dialog content
-              setRefreshForm(Date.now().toString());
+              //setRefreshForm(Date.now().toString());
               // Use the current timestamp as a unique key
               // Toggle the refresh state to trigger a re-render
             }
@@ -458,7 +459,7 @@ export function BookingForm({
 
   return (
     <>
-      <div key={refreshForm}>
+      <div>
         <div className="temp-info-display mb-8 border border-violet-400 bg-purple-900 p-4 text-sm">
           <div>View Context: {viewContext}</div>
 
