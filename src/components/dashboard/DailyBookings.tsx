@@ -104,6 +104,7 @@ export default function DailyBookings({
     data: bookingsData,
     isLoading: bookingsIsLoading,
     error: bookingsError,
+    refetch: refetchBookings,
   } = api.booking.listBookingsByDate.useQuery<BookingsResponse>(
     {
       locationId: location.id,
@@ -248,6 +249,7 @@ export default function DailyBookings({
                       booking={bookingData}
                       variant="secondary"
                       size="sm"
+                      refetch={refetchBookings}
                     />
                   </div>
                 </div>

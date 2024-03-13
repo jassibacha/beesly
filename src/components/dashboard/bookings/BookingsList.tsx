@@ -49,7 +49,7 @@ export default function BookingsList({
     bookings = bookingsData?.bookings ?? [];
     refetch = refetchUpcoming;
     title = "Upcoming Bookings";
-    desc = "There are 10 bookings today";
+    desc = "There are X bookings today"; // TODO: Make this dynamic (additional query inside of trpc?)
   } else if (type === "recent") {
     const { data: bookingsData, refetch: refetchRecent } =
       api.booking.listRecentBookings.useQuery({
@@ -59,7 +59,7 @@ export default function BookingsList({
     bookings = bookingsData?.bookings ?? [];
     refetch = refetchRecent;
     title = "Recent Bookings";
-    desc = "You have 6 bookings in the past 24h";
+    desc = "You have X bookings in the past 24h"; // TODO: Make this dynamic (additional query inside of trpc?)
   }
 
   return (
