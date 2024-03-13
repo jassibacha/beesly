@@ -1,5 +1,4 @@
 import { Pencil } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -57,6 +56,25 @@ export function EditBookingDialog({
     notFound();
   }
 
+  let title;
+  let description;
+
+  switch (booking.status) {
+    case "COMPLETED":
+      title = `Booking: ${booking.id}`;
+      description = "This booking has been completed.";
+      break;
+    case "CANCELLED":
+      title = `Booking: ${booking.id}`;
+      description = "This booking has been cancelled.";
+      break;
+    case "ACTIVE":
+    default:
+      title = `Edit Booking: ${booking.id}`;
+      description = "Update this booking.";
+      break;
+  }
+
   return (
     <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
       {/* <Dialog> */}
@@ -70,9 +88,8 @@ export function EditBookingDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-md md:max-w-5xl">
         <DialogHeader>
-          <DialogTitle>Edit Booking: {booking.id}</DialogTitle>
-          {/* TODO: Change this from update to say it's cancelled or completed */}
-          <DialogDescription>Update this booking.</DialogDescription>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <Suspense fallback={<div>Loading...</div>}>
           <BookingForm
@@ -85,13 +102,6 @@ export function EditBookingDialog({
             refetch={refetch}
           />
         </Suspense>
-        {/* <DialogFooter className="sm:justify-start">
-          <DialogClose asChild>
-            <Button type="button" variant="secondary">
-              Close
-            </Button>
-          </DialogClose>
-        </DialogFooter> */}
       </DialogContent>
     </Dialog>
   );
