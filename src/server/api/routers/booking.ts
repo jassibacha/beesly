@@ -255,13 +255,9 @@ async function getBookingsByDate(
 
     // Convert existing bookings to ISO strings
     existingBookings = existingBookingsData.map((booking) => ({
-      locationId: booking.locationId,
-      id: booking.id,
+      ...booking,
       startTime: DateTime.fromJSDate(booking.startTime).toISO(), // Convert to ISO String
       endTime: DateTime.fromJSDate(booking.endTime).toISO(), // Convert to ISO String
-      customerName: booking.customerName,
-      customerEmail: booking.customerEmail,
-      customerPhone: booking.customerPhone,
     }));
   }
 

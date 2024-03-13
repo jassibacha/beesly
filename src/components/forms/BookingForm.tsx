@@ -103,8 +103,10 @@ export function BookingForm({
   refetch,
 }: BookingFormProps) {
   const isEditing = !!booking; // Determine if we are editing an existing booking
+  const isCancelled = booking?.status === "CANCELLED"; // Determine if the booking is cancelled
+  const isCompleted = booking?.status === "COMPLETED"; // Determine if the booking is completed
   const isDialog = viewContext === "dialog"; // Determine if we are in a dialog
-  const isDashboard = viewContext === "dashboard"; // Determine if we are in a dialog
+  const isDashboard = viewContext === "dashboard"; // Determine if we are on a dashboard page
   //const isDialog = !!isInDialog; // Determine if we are in a dialog
 
   const router = useRouter();
@@ -166,10 +168,10 @@ export function BookingForm({
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
 
   // States for open/close times
-  const [openCloseTimes, setOpenCloseTimes] = useState<{
-    open: string;
-    close: string;
-  } | null>(null);
+  // const [openCloseTimes, setOpenCloseTimes] = useState<{
+  //   open: string;
+  //   close: string;
+  // } | null>(null);
 
   useEffect(() => {
     // Set timeslots and open/close times when the data is available
@@ -177,11 +179,11 @@ export function BookingForm({
       console.log("Setting timeSlots + open/close times");
       setTimeSlots(timeSlotData.slots);
 
-      setOpenCloseTimes({
-        open: timeSlotData.openTimeISO!,
-        close: timeSlotData.closeTimeISO!,
-      });
-      console.log(timeSlotData.slots);
+      // setOpenCloseTimes({
+      //   open: timeSlotData.openTimeISO!,
+      //   close: timeSlotData.closeTimeISO!,
+      // });
+      // console.log(timeSlotData.slots);
 
       // Set selectedTimeSlot based on the booking's start time when editing
       if (isEditing && booking) {
@@ -671,45 +673,53 @@ export function BookingForm({
                 )}
               />
             </div>
-            <Button type="submit">Submit</Button>
 
-            {isEditing && (isDialog || isDashboard) && (
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={handleCancelBooking}
-              >
-                Cancel
-              </Button>
-            )}
+            <div className="flex space-x-2">
+              {!isCancelled && !isCompleted && (
+                <Button type="submit">{isEditing ? "Update" : "Create"}</Button>
+              )}
 
-            {/* Specific close for the dialog */}
+              {isEditing &&
+                !isCancelled &&
+                !isCompleted &&
+                (isDialog || isDashboard) && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={handleCancelBooking}
+                  >
+                    Cancel
+                  </Button>
+                )}
 
-            {isDialog && (
-              <DialogClose asChild>
-                <Button type="button" variant="secondary">
-                  Close
+              {/* Specific close for the dialog */}
+
+              {isDialog && (
+                <DialogClose asChild>
+                  <Button type="button" variant="secondary">
+                    Close
+                  </Button>
+                </DialogClose>
+                // <Button
+                //     type="button"
+                //     variant="secondary"
+                //     onClick={closeDialog}
+                //     className="ml-2"
+                //   >
+                //     Close2
+                //   </Button>
+              )}
+
+              {isDashboard && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => router.back()}
+                >
+                  Back
                 </Button>
-              </DialogClose>
-              // <Button
-              //     type="button"
-              //     variant="secondary"
-              //     onClick={closeDialog}
-              //     className="ml-2"
-              //   >
-              //     Close2
-              //   </Button>
-            )}
-
-            {isDashboard && (
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => router.back()}
-              >
-                Cancel
-              </Button>
-            )}
+              )}
+            </div>
           </form>
         </Form>
       </div>
