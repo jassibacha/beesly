@@ -346,6 +346,8 @@ export function BookingForm({
             if (isDashboard) {
               router.push("/dashboard"); // Redirect to the dashboard or another appropriate page
             } else if (isDialog) {
+              // Close the dialog
+              closeDialog?.();
               // Refetch the bookings from the parent component
               if (refetch) void refetch();
             }
@@ -425,6 +427,7 @@ export function BookingForm({
           if (viewContext === "dashboard") {
             router.push("/dashboard");
           } else if (viewContext === "dialog") {
+            closeDialog?.();
             // Refetch the bookings from the parent component
             if (refetch) void refetch();
           }
@@ -472,12 +475,16 @@ export function BookingForm({
               locationSettings,
             });
 
+            console.log("viewContext:", viewContext);
+
             // Redirect to thank-you page with booking details as query parameters
             if (viewContext === "portal") {
               router.push(`/${location.slug}/thank-you/${data.booking.id}`);
             } else if (viewContext === "dashboard") {
               router.push("/dashboard");
             } else if (viewContext === "dialog") {
+              // Close the dialog
+              closeDialog?.();
               // Refetch the bookings from the parent component
               if (refetch) void refetch();
             }
@@ -554,19 +561,21 @@ export function BookingForm({
         </div>
         <div className="flex space-x-2">
           {isDialog && (
-            <DialogClose asChild>
-              <Button type="button" variant="secondary">
-                Close
+            <>
+              <DialogClose asChild>
+                <Button type="button" variant="secondary">
+                  Close
+                </Button>
+              </DialogClose>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={closeDialog}
+                className="ml-2"
+              >
+                Close2
               </Button>
-            </DialogClose>
-            // <Button
-            //     type="button"
-            //     variant="secondary"
-            //     onClick={closeDialog}
-            //     className="ml-2"
-            //   >
-            //     Close2
-            //   </Button>
+            </>
           )}
 
           {isDashboard && (
@@ -792,19 +801,21 @@ export function BookingForm({
               {/* Specific close for the dialog */}
 
               {isDialog && (
-                <DialogClose asChild>
-                  <Button type="button" variant="secondary">
-                    Close
+                <>
+                  <DialogClose asChild>
+                    <Button type="button" variant="secondary">
+                      Close
+                    </Button>
+                  </DialogClose>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={closeDialog}
+                    className="ml-2"
+                  >
+                    Close2
                   </Button>
-                </DialogClose>
-                // <Button
-                //     type="button"
-                //     variant="secondary"
-                //     onClick={closeDialog}
-                //     className="ml-2"
-                //   >
-                //     Close2
-                //   </Button>
+                </>
               )}
 
               {isDashboard && (

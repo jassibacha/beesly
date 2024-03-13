@@ -51,15 +51,15 @@ export function EditBookingDialog({
   size = "default",
   refetch,
 }: BookingDialogProps) {
-  //const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
 
   if (!location || !locationSettings || !resources || !booking) {
     notFound();
   }
 
   return (
-    // <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
-    <Dialog>
+    <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
+      {/* <Dialog> */}
       <DialogTrigger asChild>
         <Button variant={variant} size={size}>
           <Pencil
@@ -81,7 +81,7 @@ export function EditBookingDialog({
             resources={resources}
             booking={booking}
             viewContext="dialog"
-            //closeDialog={() => setOpenEditDialog(false)}
+            closeDialog={() => setOpenEditDialog(false)}
             refetch={refetch}
           />
         </Suspense>

@@ -7,6 +7,7 @@ import TeamSwitcher from "./team-switcher";
 import { UserNav } from "./user-nav";
 import Link from "next/link";
 import { NewBookingDialog } from "./bookings/NewBookingDialog";
+import { NewBooking } from "./bookings/NewBooking";
 
 function Header() {
   return (
@@ -24,7 +25,7 @@ function Header() {
           </Button>
 
           <div className="hidden md:block">
-            <NewBookingDialog />
+            <NewBooking />
           </div>
           <UserNav />
           <ModeToggle />

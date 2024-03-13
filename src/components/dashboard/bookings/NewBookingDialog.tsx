@@ -1,3 +1,4 @@
+"use client";
 import { Copy, PlusCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -15,29 +16,29 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/trpc/server";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { BookingForm } from "@/components/forms/BookingForm";
+import type { Location, LocationSetting, Resource } from "@/server/db/types";
 
-export async function NewBookingDialog() {
-  const location = await api.location.getLocationByUserId.query();
+interface NewBookingDialogProps {
+  location: Location;
+  locationSettings: LocationSetting;
+  resources: Resource[];
+}
 
-  if (!location) {
-    notFound();
-  }
+export function NewBookingDialog({
+  location,
+  locationSettings,
+  resources,
+}: NewBookingDialogProps) {
+  const [openEditDialog, setOpenEditDialog] = useState(false);
 
-  const [locationSettings, resources] = await Promise.all([
-    api.location.getLocationSettingsByLocationId.query({
-      locationId: location.id,
-    }),
-    api.resource.getResourcesByLocationId.query({ locationId: location.id }),
-  ]);
-
-  if (!locationSettings || !resources) {
+  if (!location || !locationSettings || !resources) {
     notFound();
   }
 
   return (
-    <Dialog>
+    <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
       <DialogTrigger asChild>
         <Button variant="default" size="sm">
           <PlusCircle className="mr-1 h-4 w-4" />
@@ -55,6 +56,7 @@ export async function NewBookingDialog() {
             locationSettings={locationSettings}
             resources={resources}
             viewContext="dialog"
+            closeDialog={() => setOpenEditDialog(false)}
           />
         </Suspense>
         {/* <div className="flex items-center space-x-2">
