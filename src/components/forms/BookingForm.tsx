@@ -93,6 +93,54 @@ function calculateDuration(startTime: Date, endTime: Date): string {
   return duration.toFixed(1); // Return duration as a string with one decimal place
 }
 
+function TempInfoDisplay({
+  viewContext,
+  booking,
+  location,
+  isEditing,
+}: {
+  viewContext: string;
+  booking?: Booking;
+  location: Location;
+  isEditing: boolean;
+}) {
+  return (
+    <div className="temp-info-display mb-8 border border-violet-400 bg-purple-900 p-4 text-sm">
+      <div>View Context: {viewContext}</div>
+      {isEditing && (
+        <>
+          <div>Booking: {booking ? "true" : "false"}</div>
+          {booking && (
+            <>
+              <div>Status: {booking.status}</div>
+              <div>
+                Date:{" "}
+                {DateTime.fromJSDate(booking.startTime)
+                  .setZone(location.timezone)
+                  .toFormat("ccc, LLL dd yyyy")}
+              </div>
+            </>
+          )}
+          {booking && (
+            <div>
+              Time:{" "}
+              {DateTime.fromJSDate(booking.startTime)
+                .setZone(location.timezone)
+                .toFormat("h:mma")}{" "}
+              -{" "}
+              {DateTime.fromJSDate(booking.endTime)
+                .setZone(location.timezone)
+                .toFormat("h:mma")}{" "}
+              ({calculateDuration(booking.startTime, booking.endTime)} Hours)
+            </div>
+          )}
+        </>
+      )}
+      {!isEditing && <div>Booking: false</div>}
+    </div>
+  );
+}
+
 export function BookingForm({
   location,
   locationSettings,
@@ -111,7 +159,6 @@ export function BookingForm({
 
   const router = useRouter();
 
-  const [refreshForm, setRefreshForm] = useState<string>("initial");
   const form = useForm<BookingFormSchemaValues>({
     resolver: zodResolver(bookingFormSchema),
     defaultValues: {
@@ -435,10 +482,6 @@ export function BookingForm({
               if (refetch) void refetch();
             }
           }
-
-          // TODO: Can we check if we're on the booking portal? If so, redirect to thank you page.
-          // Otherwise, if we're on a page it's the dashboard, so go back to the dashboard.
-          // Lastly, if we're in a dialog, close the dialog.
         },
         onError: (error) => {
           // Handle error scenario
@@ -463,44 +506,98 @@ export function BookingForm({
     }
   };
 
+  // If the booking is cancelled or completed, display the booking information without form fields
+  if (isCancelled || isCompleted) {
+    return (
+      <>
+        <TempInfoDisplay
+          viewContext={viewContext}
+          booking={booking}
+          location={location}
+          isEditing={isEditing}
+        />
+        <div className="sm:grid sm:grid-cols-3 sm:gap-4">
+          {/* Display booking information without form fields */}
+          <div>
+            <label>Date:</label>
+            <div>
+              {DateTime.fromJSDate(booking.startTime).toFormat(
+                "ccc, LLL dd yyyy",
+              )}
+            </div>
+          </div>
+          <div>
+            <label>Time:</label>
+            <div>
+              {DateTime.fromJSDate(booking.startTime).toFormat("h:mma")} -{" "}
+              {DateTime.fromJSDate(booking.endTime).toFormat("h:mma")}
+            </div>
+          </div>
+          <div>
+            <label>Status:</label>
+            <div>{booking.status}</div>
+          </div>
+        </div>
+        <div className="sm:grid sm:grid-cols-3 sm:gap-4">
+          <div>
+            <label>Name:</label>
+            <div>{booking.customerName}</div>
+          </div>
+          <div>
+            <label>Phone:</label>
+            <div>{booking.customerPhone}</div>
+          </div>
+          <div>
+            <label>Email:</label>
+            <div>{booking.customerEmail}</div>
+          </div>
+        </div>
+        <div className="flex space-x-2">
+          {isDialog && (
+            <DialogClose asChild>
+              <Button type="button" variant="secondary">
+                Close
+              </Button>
+            </DialogClose>
+            // <Button
+            //     type="button"
+            //     variant="secondary"
+            //     onClick={closeDialog}
+            //     className="ml-2"
+            //   >
+            //     Close2
+            //   </Button>
+          )}
+
+          {isDashboard && (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                if (window.history.length > 1) {
+                  router.back();
+                } else {
+                  router.push("/dashboard");
+                }
+              }}
+            >
+              Back
+            </Button>
+          )}
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <div>
-        <div className="temp-info-display mb-8 border border-violet-400 bg-purple-900 p-4 text-sm">
-          <div>View Context: {viewContext}</div>
-
-          {isEditing && (
-            <>
-              <div>Booking: {booking ? "true" : "false"}</div>
-              {booking && (
-                <>
-                  <div>Status: {booking.status}</div>
-                  <div>
-                    Date:{" "}
-                    {DateTime.fromJSDate(booking.startTime)
-                      .setZone(location.timezone)
-                      .toFormat("ccc, LLL dd yyyy")}
-                  </div>
-                </>
-              )}
-              {booking && (
-                <div>
-                  Time:{" "}
-                  {DateTime.fromJSDate(booking.startTime)
-                    .setZone(location.timezone)
-                    .toFormat("h:mma")}{" "}
-                  -{" "}
-                  {DateTime.fromJSDate(booking.endTime)
-                    .setZone(location.timezone)
-                    .toFormat("h:mma")}{" "}
-                  ({calculateDuration(booking.startTime, booking.endTime)}{" "}
-                  Hours)
-                </div>
-              )}
-            </>
-          )}
-          {!isEditing && <div>Booking: false</div>}
-        </div>
+        <TempInfoDisplay
+          viewContext={viewContext}
+          booking={booking}
+          location={location}
+          isEditing={isEditing}
+        />
 
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
@@ -714,7 +811,13 @@ export function BookingForm({
                 <Button
                   type="button"
                   variant="secondary"
-                  onClick={() => router.back()}
+                  onClick={() => {
+                    if (window.history.length > 1) {
+                      router.back();
+                    } else {
+                      router.push("/dashboard");
+                    }
+                  }}
                 >
                   Back
                 </Button>
