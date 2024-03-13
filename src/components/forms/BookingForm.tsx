@@ -6,7 +6,7 @@ import { CalendarIcon, Loader2 } from "lucide-react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { cn } from "@/lib/utils";
+import { cn, getBadgeVariant } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -49,6 +49,7 @@ import type {
 import { DialogClose } from "../ui/dialog";
 import { EmailTemplateType } from "@/types/emailTypes";
 import { error } from "console";
+import { Badge, badgeVariants } from "../ui/badge";
 
 interface BookingFormProps {
   location: Location;
@@ -262,6 +263,11 @@ export function BookingForm({
     // Cleanup timeout on component unmount or before running effect again
     return () => clearTimeout(timer);
   }, [selectedDuration]);
+
+  let badgeVariant;
+  if (booking) {
+    badgeVariant = getBadgeVariant(booking.status);
+  }
 
   // Time slot button logic
   const renderTimeSlotButton = (slot: ExtendedTimeSlot, index: number) => {
@@ -526,7 +532,7 @@ export function BookingForm({
         <div className="sm:grid sm:grid-cols-3 sm:gap-4">
           {/* Display booking information without form fields */}
           <div>
-            <label>Date:</label>
+            <label className="mb-4 text-sm">Date:</label>
             <div>
               {DateTime.fromJSDate(booking.startTime).toFormat(
                 "ccc, LLL dd yyyy",
@@ -534,28 +540,30 @@ export function BookingForm({
             </div>
           </div>
           <div>
-            <label>Time:</label>
+            <label className="mb-4 text-sm">Time:</label>
             <div>
               {DateTime.fromJSDate(booking.startTime).toFormat("h:mma")} -{" "}
               {DateTime.fromJSDate(booking.endTime).toFormat("h:mma")}
             </div>
           </div>
           <div>
-            <label>Status:</label>
-            <div>{booking.status}</div>
+            <label className="mb-4 text-sm">Status:</label>
+            <div>
+              <Badge variant={badgeVariant}>{booking.status}</Badge>
+            </div>
           </div>
         </div>
         <div className="sm:grid sm:grid-cols-3 sm:gap-4">
           <div>
-            <label>Name:</label>
+            <label className="mb-4 text-sm">Name:</label>
             <div>{booking.customerName}</div>
           </div>
           <div>
-            <label>Phone:</label>
+            <label className="mb-4 text-sm">Phone:</label>
             <div>{booking.customerPhone}</div>
           </div>
           <div>
-            <label>Email:</label>
+            <label className="mb-4 text-sm">Email:</label>
             <div>{booking.customerEmail}</div>
           </div>
         </div>

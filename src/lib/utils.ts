@@ -22,3 +22,18 @@ export const colors = {
 //   isActive && 'bg-blue-500 text-white',
 //   !isActive && 'bg-gray-200 text-gray-800'
 // )}>
+
+export type BadgeVariant = "default" | "secondary" | "destructive" | "success";
+
+export function getBadgeVariant(status: string): BadgeVariant {
+  switch (status) {
+    case "ACTIVE":
+      return "default";
+    case "CANCELLED":
+      return "destructive";
+    case "COMPLETED":
+      return "success";
+    default:
+      return "default";
+  }
+}

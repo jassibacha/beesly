@@ -12,6 +12,7 @@ import type {
   LocationSetting,
   Resource,
 } from "@/server/db/types";
+import { getBadgeVariant } from "@/lib/utils";
 interface BookingItemProps {
   booking: Booking;
   // booking: {
@@ -30,20 +31,20 @@ interface BookingItemProps {
   refetch: () => void;
 }
 
-type BadgeVariant = "default" | "secondary" | "destructive";
+// type BadgeVariant = "default" | "secondary" | "destructive";
 
-function getBadgeVariant(status: string): BadgeVariant {
-  switch (status) {
-    case "ACTIVE":
-      return "default";
-    case "CANCELLED":
-      return "destructive";
-    case "COMPLETED":
-      return "secondary";
-    default:
-      return "default";
-  }
-}
+// function getBadgeVariant(status: string): BadgeVariant {
+//   switch (status) {
+//     case "ACTIVE":
+//       return "default";
+//     case "CANCELLED":
+//       return "destructive";
+//     case "COMPLETED":
+//       return "secondary";
+//     default:
+//       return "default";
+//   }
+// }
 
 export function BookingItem({
   booking,
