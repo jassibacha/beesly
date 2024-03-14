@@ -75,8 +75,8 @@ export const emailRouter = createTRPCRouter({
     }
 
     const now = DateTime.now(); // Get the current time
-    const reminderTimeStart = now.plus({ days: 1 }).startOf("hour"); // Start of the hour, 24 hours from now
-    const reminderTimeEnd = reminderTimeStart.plus({ hours: 1 }); // Check the next 2 hours of bookings (overlap)
+    const reminderTimeStart = now.plus({ days: 1 }); // Exactly 24 hours from now
+    const reminderTimeEnd = reminderTimeStart.plus({ hours: 1 }); // Check the next 1 hour of bookings (30min overlap)
 
     // Fetch bookings that are happening within the next hour, 24 hours from now, and haven't had a reminder sent
     const bookingsToSendReminder = await ctx.db
