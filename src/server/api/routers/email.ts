@@ -95,59 +95,47 @@ export const emailRouter = createTRPCRouter({
     // We could do a join here to get all of the locations and locationSettings at the same time then we just have that data for each booking
     // Or we could extract the list of unique locationIds from the list of bookings,
 
-    // Setup cache for location and locationSettings to avoid duplicate database calls
+    // Setup caches to avoid duplicate database calls
     const locationsCache: Record<string, Location> = {};
     const locationSettingsCache: Record<string, LocationSetting> = {};
 
     for (const booking of bookingsToSendReminder) {
-      // Grab the location from cache if it exists, if not from the database
-      const location =
-        locationsCache[booking.locationId] ??
-        (await ctx.db.query.locations.findFirst({
+      // Fetch and cache location data if not already in cache
+      if (!locationsCache[booking.locationId]) {
+        const location = await ctx.db.query.locations.findFirst({
           where: (locations, { eq }) => eq(locations.id, booking.locationId),
-        }));
-
-      if (locationsCache[booking.locationId]) {
-        console.log("Location already in cache: ", booking.locationId);
-      } else {
-        console.log("Location not in cache: ", booking.locationId);
-      }
-
-      if (!location) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Location not found",
         });
+        if (!location) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Location not found",
+          });
+        }
+        locationsCache[booking.locationId] = location as Location;
       }
 
-      // Add location to locationsCache with locationId as the key
-      // If it already exists, it's just overwriting the value
-      locationsCache[booking.locationId] = location;
-
-      const locationSettings =
-        locationSettingsCache[booking.locationId] ??
-        (await ctx.db.query.locationSettings.findFirst({
+      // Fetch and cache location settings data if not already in cache
+      if (!locationSettingsCache[booking.locationId]) {
+        const locationSettings = await ctx.db.query.locationSettings.findFirst({
           where: (locationSettings, { eq }) =>
             eq(locationSettings.locationId, booking.locationId),
-        }));
-      if (!locationSettings) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Location settings not found",
         });
+        if (!locationSettings) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Location settings not found",
+          });
+        }
+        locationSettingsCache[booking.locationId] =
+          locationSettings as LocationSetting;
       }
 
-      // Add locationSetting to cache with locationId as the key
-      // If it already exists, it's just overwriting the value
-      locationSettingsCache[booking.locationId] =
-        locationSettings as LocationSetting;
-
-      // Build the booking reminder email
+      // Build the booking reminder email using cached data
       const reminderEmail = buildBookingEmail(
         EmailTemplateType.BookingReminder,
-        booking as Booking,
-        location,
-        locationSettings as LocationSetting,
+        booking,
+        locationsCache[booking.locationId]!,
+        locationSettingsCache[booking.locationId]!,
       );
 
       try {
