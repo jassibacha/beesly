@@ -173,9 +173,10 @@ function buildBookingEmail(
   // Return the dynamic data object
   // Set defaults for template switches
   let subject = "";
-  let textBody = "";
-  let heading = "";
   let preheader = "";
+  let heading = "";
+  let bodyHeading = "";
+  let textBody = "";
   let templateId = "d-bef6d1c8eb924c238bfb75195cb8705c"; // Default template
 
   // Parse the dailyAvailability and taxSettings fields back into objects
@@ -200,22 +201,25 @@ function buildBookingEmail(
     case EmailTemplateType.BookingConfirmation:
       subject = `Booking Confirmation - ${startTime} ${date}`;
       preheader = `We'll see you at ${startTime} ${date}.`;
-      textBody = `Dear ${booking.customerName}, your booking for ${date} at ${startTime} has been confirmed.`;
       heading = "Booking Confirmed!";
+      bodyHeading = "We're excited to see you!";
+      textBody = `Dear ${booking.customerName}, your booking for ${date} at ${startTime} has been confirmed.`;
       templateId = "d-bef6d1c8eb924c238bfb75195cb8705c";
       break;
     case EmailTemplateType.BookingUpdate:
       subject = `Booking Updated - ${startTime} ${date}`;
       preheader = `Your booking on ${date} has been updated.`;
-      textBody = `Dear ${booking.customerName}, your booking for ${date} at ${startTime} has been updated.`;
       heading = "Booking Updated";
+      bodyHeading = "Your booking has changed.";
+      textBody = `Dear ${booking.customerName}, your booking for ${date} at ${startTime} has been updated.`;
       templateId = "d-bef6d1c8eb924c238bfb75195cb8705c";
       break;
     case EmailTemplateType.BookingReminder:
       subject = `Booking Reminder - ${startTime} ${date}`;
       preheader = `Your booking on ${date} is coming up soon.`;
-      textBody = `Dear ${booking.customerName}, your booking for ${date} at ${startTime} is coming up soon.`;
       heading = "Booking Reminder";
+      bodyHeading = "It's almost time!";
+      textBody = `Dear ${booking.customerName}, your booking for ${date} at ${startTime} is coming up soon.`;
       templateId = "d-bef6d1c8eb924c238bfb75195cb8705c";
       break;
   }
@@ -230,6 +234,7 @@ function buildBookingEmail(
     subject,
     preheader,
     heading,
+    bodyHeading,
     textBody,
     date: date,
     startTime: startTime,
