@@ -65,6 +65,14 @@ export const emailRouter = createTRPCRouter({
     }),
   // Scan and send booking reminders
   sendBookingReminders: publicProcedure.query(async ({ ctx }) => {
+    const secretKey = ctx.headers.get("x-secret-key");
+    if (secretKey !== process.env.EASYCRON_SECRET_KEY) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Invalid secret key",
+      });
+    }
+
     const now = DateTime.now(); // Get the current time
     const reminderTimeStart = now.plus({ days: 1 }).startOf("hour"); // Start of the hour, 24 hours from now
     const reminderTimeEnd = reminderTimeStart.plus({ hours: 1 }); // Check the next 2 hours of bookings (overlap)
