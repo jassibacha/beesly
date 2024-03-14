@@ -65,20 +65,13 @@ export const emailRouter = createTRPCRouter({
     }),
   // Scan and send booking reminders
   sendBookingReminders: publicProcedure.query(async ({ ctx }) => {
-    console.log("*** sendBookingReminders ***");
-
     const secretKey = ctx.headers.get("x-secret-key");
-
-    console.log("secretKey: ", secretKey);
-    console.log("EASYCRON_SECRET_KEY: ", process.env.EASYCRON_SECRET_KEY);
     if (secretKey !== process.env.EASYCRON_SECRET_KEY) {
-      console.log("Invalid secret key");
+      console.log("sendBookingReminders Error: Invalid secret key");
       throw new TRPCError({
         code: "UNAUTHORIZED",
         message: "Invalid secret key",
       });
-    } else {
-      console.log("Valid secret key");
     }
 
     const now = DateTime.now(); // Get the current time
@@ -99,21 +92,44 @@ export const emailRouter = createTRPCRouter({
       )
       .execute();
 
+    // We could do a join here to get all of the locations and locationSettings at the same time then we just have that data for each booking
+    // Or we could extract the list of unique locationIds from the list of bookings,
+
+    // Setup cache for location and locationSettings to avoid duplicate database calls
+    const locationsCache: Record<string, Location> = {};
+    const locationSettingsCache: Record<string, LocationSetting> = {};
+
     for (const booking of bookingsToSendReminder) {
-      // Grab the location and location settings for each booking
-      const location = await ctx.db.query.locations.findFirst({
-        where: (locations, { eq }) => eq(locations.id, booking.locationId),
-      });
+      // Grab the location from cache if it exists, if not from the database
+      const location =
+        locationsCache[booking.locationId] ??
+        (await ctx.db.query.locations.findFirst({
+          where: (locations, { eq }) => eq(locations.id, booking.locationId),
+        }));
+
+      if (locationsCache[booking.locationId]) {
+        console.log("Location already in cache: ", booking.locationId);
+      } else {
+        console.log("Location not in cache: ", booking.locationId);
+      }
+
       if (!location) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Location not found",
         });
       }
-      const locationSettings = await ctx.db.query.locationSettings.findFirst({
-        where: (locationSettings, { eq }) =>
-          eq(locationSettings.locationId, booking.locationId),
-      });
+
+      // Add location to locationsCache with locationId as the key
+      // If it already exists, it's just overwriting the value
+      locationsCache[booking.locationId] = location;
+
+      const locationSettings =
+        locationSettingsCache[booking.locationId] ??
+        (await ctx.db.query.locationSettings.findFirst({
+          where: (locationSettings, { eq }) =>
+            eq(locationSettings.locationId, booking.locationId),
+        }));
       if (!locationSettings) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -121,11 +137,16 @@ export const emailRouter = createTRPCRouter({
         });
       }
 
+      // Add locationSetting to cache with locationId as the key
+      // If it already exists, it's just overwriting the value
+      locationSettingsCache[booking.locationId] =
+        locationSettings as LocationSetting;
+
       // Build the booking reminder email
       const reminderEmail = buildBookingEmail(
         EmailTemplateType.BookingReminder,
         booking as Booking,
-        location as Location,
+        location,
         locationSettings as LocationSetting,
       );
 
