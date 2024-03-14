@@ -190,15 +190,13 @@ export const bookings = createTable(
     customerPhone: varchar("customer_phone", { length: 50 }).notNull(),
     startTime: datetime("start_time").notNull(),
     endTime: datetime("end_time").notNull(),
-    // startTime: datetime("start_time", { mode: "string" }).notNull(),
-    // endTime: datetime("end_time", { mode: "string" }).notNull(),
     totalCost: decimal("total_cost", { precision: 10, scale: 2 }),
     taxAmount: decimal("tax_amount", { precision: 10, scale: 2 }),
     status: varchar("status", { length: 50 }).notNull(), // Enum: "ACTIVE", "CANCELLED", "COMPLETED"
     emailReminderSent: boolean("email_reminder_sent").default(false).notNull(),
-    // EmailReminderSent
     // EmailFollowUpSent PHASE 2
-
+    // smsReminderSent PHASE 2
+    // smsFollowUpSent PHASE 2
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
@@ -206,7 +204,13 @@ export const bookings = createTable(
   },
   (table) => ({
     locationIdIdx: index("location_id_idx").on(table.locationId),
-    // TODO: Should look into adding startTime and endTime, and maybe a a composite index of location and them?
+    // Composite index to search location id, startTime, emailReminderSent and status
+    // Used for the reminder cron job
+    reminderStatusIdx: index("reminder_status_idx").on(
+      table.startTime,
+      table.emailReminderSent,
+      table.status,
+    ),
   }),
 );
 

@@ -24,4 +24,5 @@ export type DynamicEmailData = {
 export enum EmailTemplateType {
   BookingConfirmation,
   BookingUpdate,
+  BookingReminder,
 }
