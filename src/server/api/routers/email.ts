@@ -65,12 +65,20 @@ export const emailRouter = createTRPCRouter({
     }),
   // Scan and send booking reminders
   sendBookingReminders: publicProcedure.query(async ({ ctx }) => {
+    console.log("*** sendBookingReminders ***");
+
     const secretKey = ctx.headers.get("x-secret-key");
+
+    console.log("secretKey: ", secretKey);
+    console.log("EASYCRON_SECRET_KEY: ", process.env.EASYCRON_SECRET_KEY);
     if (secretKey !== process.env.EASYCRON_SECRET_KEY) {
+      console.log("Invalid secret key");
       throw new TRPCError({
         code: "UNAUTHORIZED",
         message: "Invalid secret key",
       });
+    } else {
+      console.log("Valid secret key");
     }
 
     const now = DateTime.now(); // Get the current time
