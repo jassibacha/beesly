@@ -198,21 +198,21 @@ function buildBookingEmail(
 
   switch (templateType) {
     case EmailTemplateType.BookingConfirmation:
-      subject = `Booking Confirmation - ${date}`;
+      subject = `Booking Confirmation - ${startTime} ${date}`;
       preheader = `We'll see you at ${startTime} ${date}.`;
       textBody = `Dear ${booking.customerName}, your booking for ${date} at ${startTime} has been confirmed.`;
       heading = "Booking Confirmed!";
       templateId = "d-bef6d1c8eb924c238bfb75195cb8705c";
       break;
     case EmailTemplateType.BookingUpdate:
-      subject = `Booking Updated - ${date}`;
+      subject = `Booking Updated - ${startTime} ${date}`;
       preheader = `Your booking on ${date} has been updated.`;
       textBody = `Dear ${booking.customerName}, your booking for ${date} at ${startTime} has been updated.`;
       heading = "Booking Updated";
       templateId = "d-bef6d1c8eb924c238bfb75195cb8705c";
       break;
     case EmailTemplateType.BookingReminder:
-      subject = `Booking Reminder - ${date}`;
+      subject = `Booking Reminder - ${startTime} ${date}`;
       preheader = `Your booking on ${date} is coming up soon.`;
       textBody = `Dear ${booking.customerName}, your booking for ${date} at ${startTime} is coming up soon.`;
       heading = "Booking Reminder";
