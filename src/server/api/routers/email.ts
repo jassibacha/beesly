@@ -38,6 +38,7 @@ const sendBookingEmailSchema = z.object({
 });
 
 export const emailRouter = createTRPCRouter({
+  // Send booking email
   sendBookingEmail: publicProcedure
     .input(sendBookingEmailSchema)
     .mutation(async ({ input }) => {
@@ -62,11 +63,11 @@ export const emailRouter = createTRPCRouter({
         });
       }
     }),
-
+  // Scan and send booking reminders
   sendBookingReminders: publicProcedure.query(async ({ ctx }) => {
     const now = DateTime.now(); // Get the current time
     const reminderTimeStart = now.plus({ days: 1 }).startOf("hour"); // Start of the hour, 24 hours from now
-    const reminderTimeEnd = reminderTimeStart.plus({ hours: 2 }); // Check the next 2 hours of bookings (overlap)
+    const reminderTimeEnd = reminderTimeStart.plus({ hours: 1 }); // Check the next 2 hours of bookings (overlap)
 
     // Fetch bookings that are happening within the next hour, 24 hours from now, and haven't had a reminder sent
     const bookingsToSendReminder = await ctx.db
@@ -83,23 +84,20 @@ export const emailRouter = createTRPCRouter({
       .execute();
 
     for (const booking of bookingsToSendReminder) {
-      // Send email reminder
+      // Grab the location and location settings for each booking
       const location = await ctx.db.query.locations.findFirst({
         where: (locations, { eq }) => eq(locations.id, booking.locationId),
       });
-
       if (!location) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Location not found",
         });
       }
-
       const locationSettings = await ctx.db.query.locationSettings.findFirst({
         where: (locationSettings, { eq }) =>
           eq(locationSettings.locationId, booking.locationId),
       });
-
       if (!locationSettings) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -107,6 +105,7 @@ export const emailRouter = createTRPCRouter({
         });
       }
 
+      // Build the booking reminder email
       const reminderEmail = buildBookingEmail(
         EmailTemplateType.BookingReminder,
         booking as Booking,
@@ -115,11 +114,13 @@ export const emailRouter = createTRPCRouter({
       );
 
       try {
+        // Send the booking reminder email
         await sendEmail(
           reminderEmail.text,
           reminderEmail.templateId,
           reminderEmail.dynamicData,
         );
+        // Update booking to mark emailReminderSent as true
         await ctx.db
           .update(bookings)
           .set({ emailReminderSent: true })
@@ -134,13 +135,6 @@ export const emailRouter = createTRPCRouter({
           message: "Failed to send booking email",
         });
       }
-
-      // // Update booking to mark emailReminderSent as true
-      // await ctx.db
-      //   .update(bookings)
-      //   .set({ emailReminderSent: true })
-      //   .where(eq(bookings.id, booking.id))
-      //   .execute();
     }
 
     return { success: true, message: "Email reminders sent" };

@@ -1,3 +1,4 @@
+// Type definitions for booking emails: UNUSED?
 export type DynamicEmailData = {
   toEmail: string;
   toName: string;
@@ -21,6 +22,7 @@ export type DynamicEmailData = {
   // Add other fields as needed
 };
 
+// Enum template definitions for booking emails
 export enum EmailTemplateType {
   BookingConfirmation,
   BookingUpdate,
