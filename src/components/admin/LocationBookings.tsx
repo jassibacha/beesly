@@ -1,6 +1,8 @@
+"use client";
 import type { Booking, Location } from "@/server/db/types";
-import React from "react";
+import React, { useState } from "react";
 import { DateTime } from "luxon";
+import { Calendar } from "@/components/ui/calendar";
 
 interface LocationBookingsProps {
   locations: Location[];
@@ -11,16 +13,18 @@ export function LocationBookings({
   locations,
   bookings,
 }: LocationBookingsProps) {
-  // Determine the range of hours to display
-  const startHour = 0; // Start at midnight
-  const endHour = 23; // End at 11 PM
-  const hours = Array.from(
-    { length: endHour - startHour + 1 },
-    (_, i) => startHour + i,
+  // State for selected date
+  const [selectedDate, setSelectedDate] = useState<DateTime>(
+    DateTime.now().startOf("day"),
+  );
+
+  // Filter bookings based on selected date
+  const filteredBookings = bookings.filter((booking) =>
+    DateTime.fromJSDate(booking.startTime).hasSame(selectedDate, "day"),
   );
 
   // Group bookings by location
-  const bookingsByLocation = bookings.reduce(
+  const bookingsByLocation = filteredBookings.reduce(
     (acc, booking) => {
       const locationBookings = acc[booking.locationId] ?? [];
       return {
@@ -33,6 +37,13 @@ export function LocationBookings({
 
   return (
     <div>
+      <div className="mb-4">
+        <Calendar
+          mode="single"
+          selected={selectedDate.toJSDate()}
+          onSelect={(date) => setSelectedDate(DateTime.fromJSDate(date))}
+        />
+      </div>
       <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
         <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
           <tr>
@@ -45,7 +56,7 @@ export function LocationBookings({
           </tr>
         </thead>
         <tbody>
-          {hours.map((hour) => (
+          {Array.from({ length: 24 }).map((_, hour) => (
             <tr
               key={hour}
               className="border-b bg-white dark:border-gray-700 dark:bg-gray-800"
