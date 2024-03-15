@@ -51,6 +51,20 @@ export const locationRouter = createTRPCRouter({
 
     return location as Location;
   }),
+  // Get all locations
+  getAllLocations: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.auth.userId;
+    if (!userId) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "User must be logged in to list locations",
+      });
+    }
+
+    const locations = await ctx.db.query.locations.findMany();
+
+    return locations;
+  }),
   getLocationById: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {

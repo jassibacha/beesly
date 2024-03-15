@@ -534,6 +534,24 @@ export const bookingRouter = createTRPCRouter({
       bookings: userBookings,
     };
   }),
+  // Grab EVERY booking that is status ACTIVE
+  getAllBookings: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.auth.userId;
+    if (!userId) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "User must be logged in to list bookings",
+      });
+    }
+
+    // Fetch all bookings with status "ACTIVE"
+    const allBookings = await ctx.db.query.bookings.findMany({
+      where: (bookings, { eq }) => eq(bookings.status, "ACTIVE"),
+      orderBy: [asc(bookings.startTime)], // Order by the start time
+    });
+
+    return allBookings;
+  }),
   listBookingsByLocation: protectedProcedure
     .input(
       z.object({
