@@ -45,7 +45,7 @@ interface DailyBookingProps {
   resources: Resource[];
 }
 
-// Eventually we can swap this to actual Booking
+// TODO: Eventually we can swap this to actual Booking
 interface BookingData {
   locationId: string;
   id: string;
@@ -74,8 +74,6 @@ export default function DailyBookings({
   locationSettings,
   resources,
 }: DailyBookingProps) {
-  //const { isSignedIn, user, isLoaded } = useUser();
-
   const form = useForm({
     defaultValues: {
       date: DateTime.now().setZone(location.timezone).toJSDate(),
@@ -309,14 +307,16 @@ export default function DailyBookings({
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
-                          disabled={
-                            (date) =>
-                              // Disabling dates based on Luxon comparisons
-                              DateTime.fromJSDate(date) <
-                                DateTime.now().startOf("day") ||
-                              DateTime.fromJSDate(date) >
-                                DateTime.now().plus({ days: 60 }) // TOOD: Change this to dynamic setting for max days
-                          }
+                          // This calendar is dashboard staff use, shouldnt have any min/max date
+                          // disabled={(date) =>
+                          //   // Disabling dates based on Luxon comparisons
+                          //   DateTime.fromJSDate(date) <
+                          //     DateTime.now().startOf("day") ||
+                          //   DateTime.fromJSDate(date) >
+                          //     DateTime.now().plus({
+                          //       days: locationSettings.maxAdvanceBookingDays,
+                          //     })
+                          // }
                           initialFocus
                         />
                       </PopoverContent>

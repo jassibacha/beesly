@@ -669,13 +669,16 @@ export function BookingForm({
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
-                          disabled={
-                            (date) =>
-                              // Disabling dates based on Luxon comparisons
-                              DateTime.fromJSDate(date) <
-                                DateTime.now().startOf("day") ||
-                              DateTime.fromJSDate(date) >
-                                DateTime.now().plus({ days: 60 }) // TOOD: Change this to dynamic setting for max days
+                          disabled={(date) =>
+                            // Disabling dates based on Luxon comparisons
+                            DateTime.fromJSDate(date) <
+                              DateTime.now().startOf("day") ||
+                            DateTime.fromJSDate(date) >
+                              DateTime.now()
+                                .plus({
+                                  days: locationSettings.maxAdvanceBookingDays,
+                                })
+                                .startOf("day")
                           }
                           initialFocus
                         />
