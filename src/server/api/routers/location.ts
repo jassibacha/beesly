@@ -148,8 +148,7 @@ export const locationRouter = createTRPCRouter({
 
           // Define default location settings
           const defaultSettings = {
-            timeZone: input.timezone, // TZTODO: Remove me
-            dailyAvailability: {
+            dailyAvailability: JSON.stringify({
               Monday: { open: "10:00", close: "22:00", isOpen: true },
               Tuesday: { open: "10:00", close: "22:00", isOpen: true },
               Wednesday: { open: "10:00", close: "22:00", isOpen: true },
@@ -157,7 +156,7 @@ export const locationRouter = createTRPCRouter({
               Friday: { open: "10:00", close: "22:00", isOpen: true },
               Saturday: { open: "10:00", close: "22:00", isOpen: true },
               Sunday: { open: "10:00", close: "22:00", isOpen: true },
-            },
+            }),
             // taxSettings: {
             //   GST: 5,
             // },
