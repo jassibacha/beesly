@@ -94,7 +94,6 @@ function generateAllTimeSlots(
   console.log(
     colors.green + "***** generateAllTimeSlots firing *****" + colors.reset,
   );
-  console.log(colors.green + "timezone: ", timezone + colors.reset);
   // Initialize an empty array to store the slots
   const slots: ExtendedTimeSlot[] = [];
   // Convert the opening time from ISO format to DateTime object

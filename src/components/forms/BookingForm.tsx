@@ -106,39 +106,54 @@ function TempInfoDisplay({
   isEditing: boolean;
 }) {
   return (
-    <div className="temp-info-display mb-8 border border-violet-400 bg-purple-900 p-4 text-sm">
-      <div>View Context: {viewContext}</div>
-      <div>Timezone: {location.timezone}</div>
+    <div className="temp-info-display mb-8 grid grid-cols-1 gap-2  border border-violet-400 bg-purple-900 p-4 text-sm  md:grid-cols-3">
+      <div>
+        <span className="font-bold">View Context:</span> {viewContext}
+      </div>
+      <div>
+        <span className="font-bold">Timezone:</span> {location.timezone}
+      </div>
       {isEditing && (
         <>
-          <div>Booking: {booking ? "true" : "false"}</div>
+          <div>
+            <span className="font-bold">Booking:</span>{" "}
+            {booking ? "true" : "false"}
+          </div>
           {booking && (
             <>
-              <div>Status: {booking.status}</div>
               <div>
-                Date:{" "}
+                <span className="font-bold">Status:</span> {booking.status}
+              </div>
+              <div>
+                <span className="font-bold">Reminder Sent:</span>{" "}
+                {booking.emailReminderSent ? "true" : "false"}
+              </div>
+              <div>
+                <span className="font-bold">Date:</span>{" "}
                 {DateTime.fromJSDate(booking.startTime)
                   .setZone(location.timezone)
                   .toFormat("ccc, LLL dd yyyy")}
               </div>
+              <div>
+                <span className="font-bold">Time:</span>{" "}
+                {DateTime.fromJSDate(booking.startTime)
+                  .setZone(location.timezone)
+                  .toFormat("h:mma")}{" "}
+                -{" "}
+                {DateTime.fromJSDate(booking.endTime)
+                  .setZone(location.timezone)
+                  .toFormat("h:mma")}{" "}
+                ({calculateDuration(booking.startTime, booking.endTime)} Hours)
+              </div>
             </>
-          )}
-          {booking && (
-            <div>
-              Time:{" "}
-              {DateTime.fromJSDate(booking.startTime)
-                .setZone(location.timezone)
-                .toFormat("h:mma")}{" "}
-              -{" "}
-              {DateTime.fromJSDate(booking.endTime)
-                .setZone(location.timezone)
-                .toFormat("h:mma")}{" "}
-              ({calculateDuration(booking.startTime, booking.endTime)} Hours)
-            </div>
           )}
         </>
       )}
-      {!isEditing && <div>Booking: false</div>}
+      {!isEditing && (
+        <div>
+          <span className="font-bold">Booking:</span> false
+        </div>
+      )}
     </div>
   );
 }
