@@ -64,7 +64,6 @@ function CreateLocationForm() {
         // Lazy initialize the router inside the onSuccess callback
 
         // Redirect to the dashboard
-
         // Once redirected, show the toast
         toast({
           variant: "success",
@@ -96,7 +95,7 @@ function CreateLocationForm() {
     <Form {...form}>
       <form
         id="create-location-form"
-        className="w-2/3 space-y-6"
+        className="space-y-8"
         onSubmit={handleSubmit(onSubmit)}
       >
         {/* Name field */}
@@ -184,7 +183,7 @@ function CreateLocationForm() {
                   {...field}
                 />
               </FormControl>
-              <FormDescription>Your business phone number.</FormDescription>
+              <FormDescription>Your business email address.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
