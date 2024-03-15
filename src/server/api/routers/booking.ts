@@ -91,6 +91,10 @@ function generateAllTimeSlots(
   bufferTimeMinutes: number, // The buffer time in minutes
   timezone: string, // The timezone of the location
 ): ExtendedTimeSlot[] {
+  console.log(
+    colors.green + "***** generateAllTimeSlots firing *****" + colors.reset,
+  );
+  console.log(colors.green + "timezone: ", timezone + colors.reset);
   // Initialize an empty array to store the slots
   const slots: ExtendedTimeSlot[] = [];
   // Convert the opening time from ISO format to DateTime object
@@ -622,6 +626,10 @@ export const bookingRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const { locationId, date, duration, bookingId } = input;
 
+      console.log(
+        colors.red + "***** getAvailableTimeSlots firing *****" + colors.reset,
+      );
+
       const bookingsByDate = await getBookingsByDate(
         locationId,
         date,
@@ -660,7 +668,6 @@ export const bookingRouter = createTRPCRouter({
           adjustedOpenTimeISO = earliestStartTime.toISO();
         }
       }
-      console.log("leadTimeBuffer: ", locationSettings.sameDayLeadTimeBuffer);
 
       // Generate all possible slots
       const allSlots = generateAllTimeSlots(

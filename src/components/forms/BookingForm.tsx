@@ -108,6 +108,7 @@ function TempInfoDisplay({
   return (
     <div className="temp-info-display mb-8 border border-violet-400 bg-purple-900 p-4 text-sm">
       <div>View Context: {viewContext}</div>
+      <div>Timezone: {location.timezone}</div>
       {isEditing && (
         <>
           <div>Booking: {booking ? "true" : "false"}</div>
@@ -297,7 +298,9 @@ export function BookingForm({
         }}
         type="button" // Not the submit button!
       >
-        {DateTime.fromISO(slot.startTime).toFormat("h:mm a")}
+        {DateTime.fromISO(slot.startTime)
+          .setZone(location.timezone)
+          .toFormat("h:mm a")}
         {/* -{" "}{DateTime.fromISO(slot.endTime).toFormat("h:mm a")} */}
       </Button>
     );
