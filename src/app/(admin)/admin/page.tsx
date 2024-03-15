@@ -35,13 +35,15 @@ export default async function AdminDashboardPage() {
   //   redirect("/dashboard");
   // }
 
-  // Pulling this in at server level
-  const [locations, bookings] = await Promise.all([
-    api.location.getAllLocations.query(),
-    api.booking.getAllBookings.query(),
-  ]);
+  const locations = await api.location.getAllLocations.query();
 
-  if (!locations || !bookings) {
+  // Pulling this in at server level
+  // const [locations, bookings] = await Promise.all([
+  //   api.location.getAllLocations.query(),
+  //   api.booking.getAllBookings.query(),
+  // ]);
+
+  if (!locations) {
     return notFound();
   }
 
@@ -50,7 +52,7 @@ export default async function AdminDashboardPage() {
       <div className="flex-1 space-y-4 p-8 pt-6">
         <div className="">
           <Suspense fallback={<div>Loading...</div>}>
-            <LocationBookings locations={locations} bookings={bookings} />
+            <LocationBookings locations={locations} />
           </Suspense>
         </div>
       </div>

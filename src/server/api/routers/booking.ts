@@ -274,6 +274,44 @@ async function getBookingsByDate(
   };
 }
 
+async function getAllBookingsByDate(date: Date, ctx: TRPCContext) {
+  const timezone = "America/Los_Angeles"; // Default timezone for admin view
+  const dayOfWeek = DateTime.fromJSDate(date).setZone(timezone).weekdayLong!;
+
+  const openTimeISO = DateTime.fromISO(
+    `${DateTime.fromJSDate(date).toISODate()}T00:00`,
+    { zone: timezone },
+  ).toISO();
+  const closeTimeISO = DateTime.fromISO(
+    `${DateTime.fromJSDate(date).toISODate()}T23:59:59`,
+    { zone: timezone },
+  ).toISO();
+
+  // Fetch existing bookings for the selected date
+  const existingBookingsData = await ctx.db
+    .select()
+    .from(bookings)
+    .where(
+      and(
+        // Filter bookings by date range
+        gte(bookings.startTime, DateTime.fromISO(openTimeISO!).toJSDate()),
+        lte(bookings.endTime, DateTime.fromISO(closeTimeISO!).toJSDate()),
+        // Include only ACTIVE and COMPLETED bookings
+        or(eq(bookings.status, "ACTIVE"), eq(bookings.status, "COMPLETED")),
+      ),
+    )
+    .orderBy(asc(bookings.startTime));
+
+  // Convert existing bookings to ISO strings
+  const existingBookings = existingBookingsData.map((booking) => ({
+    ...booking,
+    startTime: DateTime.fromJSDate(booking.startTime).toISO(), // Convert to ISO String
+    endTime: DateTime.fromJSDate(booking.endTime).toISO(), // Convert to ISO String
+  }));
+
+  return existingBookingsData;
+}
+
 interface BookingInput {
   locationId: string;
   startTime: Date;
@@ -552,6 +590,18 @@ export const bookingRouter = createTRPCRouter({
 
     return allBookings;
   }),
+  getAllBookingsByDate: protectedProcedure
+    .input(
+      z.object({
+        date: z.date(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { date } = input;
+      const allBookings = await getAllBookingsByDate(date, ctx);
+
+      return allBookings;
+    }),
   listBookingsByLocation: protectedProcedure
     .input(
       z.object({
