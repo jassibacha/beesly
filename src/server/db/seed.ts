@@ -204,61 +204,76 @@ async function seedDatabase() {
     const daysToSeed = 5; // Number of days to seed bookings for
     const minBookingsPerDay = 5;
     const maxBookingsPerDay = 7;
+    const locationsArr = [
+      {
+        id: location1Id,
+        timezone: "America/Los_Angeles",
+        resourceId: resource1Id,
+      },
+      {
+        id: location2Id,
+        timezone: "America/New_York",
+        resourceId: resource2Id,
+      },
+    ];
 
-    for (let day = 0; day < daysToSeed; day++) {
-      const bookingsToday = faker.number.int({
-        min: minBookingsPerDay,
-        max: maxBookingsPerDay,
-      });
-
-      const firstBookingHour = faker.number.int({ min: 9, max: 11 });
-      let lastEndTime: DateTime = DateTime.now()
-        .plus({ days: day + 1 })
-        .set({ hour: firstBookingHour, minute: 0 });
-
-      for (let i = 0; i < bookingsToday; i++) {
-        // Randomly choose between a 15-minute or 30-minute gap after the last end time
-        const gap = faker.number.int({ min: 1, max: 2 }) * 15;
-        const startTime = roundToNearest15(
-          lastEndTime.plus({ minutes: gap }),
-        ).toJSDate();
-
-        const durationOptions = [1, 1.5, 2];
-        const duration =
-          durationOptions[
-            faker.number.int({ min: 0, max: durationOptions.length - 1 })
-          ];
-
-        const endTime = roundToNearest15(
-          DateTime.fromJSDate(startTime).plus({ hours: duration }),
-        ).toJSDate();
-
-        // Update last end time to the end time of the new booking
-        lastEndTime = DateTime.fromJSDate(endTime);
-
-        const bookingId = uuidv4();
-
-        await db.insert(bookings).values({
-          id: bookingId,
-          locationId: location1Id,
-          customerName: faker.person.fullName(),
-          //customerEmail: faker.internet.email(),
-          customerEmail: "admin@jassibacha.com",
-          customerPhone: faker.phone.number(),
-          startTime: startTime,
-          endTime: endTime,
-          status: "ACTIVE",
-          createdAt: now,
-          updatedAt: now,
+    for (const location of locationsArr) {
+      for (let day = 0; day < daysToSeed; day++) {
+        const bookingsToday = faker.number.int({
+          min: minBookingsPerDay,
+          max: maxBookingsPerDay,
         });
 
-        await db.insert(resourceBookings).values({
-          id: uuidv4(),
-          bookingId: bookingId,
-          resourceId: resource1Id,
-          createdAt: now,
-          updatedAt: now,
-        });
+        const firstBookingHour = faker.number.int({ min: 9, max: 11 });
+        let lastEndTime: DateTime = DateTime.now()
+          .setZone(location.timezone)
+          .plus({ days: day + 1 })
+          .set({ hour: firstBookingHour, minute: 0 });
+
+        for (let i = 0; i < bookingsToday; i++) {
+          // Randomly choose between a 15-minute or 30-minute gap after the last end time
+          const gap = faker.number.int({ min: 1, max: 2 }) * 15;
+          const startTime = roundToNearest15(
+            lastEndTime.plus({ minutes: gap }),
+          ).toJSDate();
+
+          const durationOptions = [1, 1.5, 2];
+          const duration =
+            durationOptions[
+              faker.number.int({ min: 0, max: durationOptions.length - 1 })
+            ];
+
+          const endTime = roundToNearest15(
+            DateTime.fromJSDate(startTime).plus({ hours: duration }),
+          ).toJSDate();
+
+          // Update last end time to the end time of the new booking
+          lastEndTime = DateTime.fromJSDate(endTime);
+
+          const bookingId = uuidv4();
+
+          await db.insert(bookings).values({
+            id: bookingId,
+            locationId: location.id,
+            customerName: faker.person.fullName(),
+            //customerEmail: faker.internet.email(),
+            customerEmail: "admin@jassibacha.com",
+            customerPhone: faker.phone.number(),
+            startTime: startTime,
+            endTime: endTime,
+            status: "ACTIVE",
+            createdAt: now,
+            updatedAt: now,
+          });
+
+          await db.insert(resourceBookings).values({
+            id: uuidv4(),
+            bookingId: bookingId,
+            resourceId: location.resourceId,
+            createdAt: now,
+            updatedAt: now,
+          });
+        }
       }
     }
     console.log(colors.green + "Database seeding finished" + colors.reset);
