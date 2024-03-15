@@ -5,7 +5,12 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { locations, locationSettings, users } from "@/server/db/schema";
+import {
+  locations,
+  locationSettings,
+  resources,
+  users,
+} from "@/server/db/schema";
 
 import {
   createLocationSchema,
@@ -186,6 +191,17 @@ export const locationRouter = createTRPCRouter({
             locationId: newLocationId,
             ...defaultSettings,
           });
+
+          const defaultResource = {
+            id: uuidv4(),
+            locationId: newLocationId,
+            type: "VR Booth",
+            name: "Booth 1",
+            status: "Available",
+          };
+
+          // Insert default resource for this location
+          await tx.insert(resources).values(defaultResource);
 
           // Update the onboarded status of the user
           await tx
