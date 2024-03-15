@@ -78,7 +78,7 @@ export default function DailyBookings({
 
   const form = useForm({
     defaultValues: {
-      date: DateTime.now().toJSDate(),
+      date: DateTime.now().setZone(location.timezone).toJSDate(),
     },
   });
 
@@ -201,8 +201,12 @@ export default function DailyBookings({
               ></div>
             ))}
             {bookingsData?.bookings?.map((booking, index) => {
-              const start = DateTime.fromISO(booking.startTime!);
-              const end = DateTime.fromISO(booking.endTime!);
+              const start = DateTime.fromISO(booking.startTime!, {
+                zone: location.timezone,
+              });
+              const end = DateTime.fromISO(booking.endTime!, {
+                zone: location.timezone,
+              });
               const durationInMinutes = end.diff(start, "minutes").minutes;
               const height = calculateHeight(durationInMinutes); // Calculate the height based on the booking duration
 
