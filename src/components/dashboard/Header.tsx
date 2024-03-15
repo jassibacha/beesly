@@ -8,8 +8,13 @@ import { UserNav } from "./user-nav";
 import Link from "next/link";
 import { NewBookingDialog } from "./bookings/NewBookingDialog";
 import { NewBooking } from "./bookings/NewBooking";
+import { syncUser } from "@/lib/auth/utils";
+import { redirect } from "next/navigation";
 
-function Header() {
+async function Header() {
+  // Check & sync the currentUser to db if they don't exist
+  const user = await syncUser();
+
   return (
     <div className="border-b">
       <div className="flex h-16 items-center px-4">
@@ -17,16 +22,23 @@ function Header() {
         <MainNav className="mx-6" />
         <div className="ml-auto flex items-center space-x-4">
           {/* <Search /> */}
-          <Button variant="default" size="sm" asChild className="md:hidden">
-            <Link href="/dashboard/bookings/new" className="flex items-center">
-              <PlusCircle className="mr-1 h-4 w-4" />
-              New
-            </Link>
-          </Button>
+          {user?.onboarded && (
+            <>
+              <Button variant="default" size="sm" asChild className="md:hidden">
+                <Link
+                  href="/dashboard/bookings/new"
+                  className="flex items-center"
+                >
+                  <PlusCircle className="mr-1 h-4 w-4" />
+                  New
+                </Link>
+              </Button>
 
-          <div className="hidden md:block">
-            <NewBooking />
-          </div>
+              <div className="hidden md:block">
+                <NewBooking />
+              </div>
+            </>
+          )}
           <UserNav />
           <ModeToggle />
         </div>
