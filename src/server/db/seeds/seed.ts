@@ -1,4 +1,4 @@
-import { db } from "./index";
+import { db } from "../index";
 import { v4 as uuidv4 } from "uuid";
 import { DateTime } from "luxon";
 import {
@@ -8,7 +8,7 @@ import {
   resourceBookings,
   resources,
   users,
-} from "./schema";
+} from "../schema";
 import { faker } from "@faker-js/faker";
 import { colors } from "@/lib/utils";
 
@@ -49,6 +49,11 @@ async function wipeTables() {
     console.error(error);
   }
 }
+
+export const location1Id = "27edff40-b49c-4b18-a3ae-b813b42dadca";
+export const location2Id = "a21bc8d0-7e8c-4c96-b788-393cfc2ead35";
+export const resource1Id = "bb9996c8-8a42-448a-8f6a-1508723f8831";
+export const resource2Id = "95d6f509-e298-4d49-98ff-a3f1e110b79c";
 
 const user1 = {
   id: ownerId,
@@ -142,7 +147,7 @@ async function seedDatabase() {
     await db.insert(users).values(user2);
 
     // Location 1 details
-    const location1Id = uuidv4();
+    //const location1Id = uuidv4();
     await db.insert(locations).values({
       ...location1,
       ownerId: ownerId,
@@ -151,7 +156,7 @@ async function seedDatabase() {
       updatedAt: nowPST,
     });
     // Location 2 details
-    const location2Id = uuidv4();
+    //const location2Id = uuidv4();
     await db.insert(locations).values({
       ...location2,
       ownerId: secondOwnerId,
@@ -178,7 +183,7 @@ async function seedDatabase() {
     });
 
     // Resource 1 details
-    const resource1Id = uuidv4();
+    //const resource1Id = uuidv4();
     await db.insert(resources).values({
       id: resource1Id,
       locationId: location1Id,
@@ -189,7 +194,7 @@ async function seedDatabase() {
       updatedAt: nowPST,
     });
     // Resource 2 details
-    const resource2Id = uuidv4();
+    //const resource2Id = uuidv4();
     await db.insert(resources).values({
       id: resource2Id,
       locationId: location2Id,
