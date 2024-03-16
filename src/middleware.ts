@@ -14,20 +14,36 @@ export default authMiddleware({
       return NextResponse.next();
     }
 
-    // Check if user is authenticated and trying to access a dashboard route
-    if (auth.userId && req.nextUrl.pathname.startsWith("/dashboard")) {
-      console.log("authMiddleware afterAuth auth.userId", auth.userId);
-      // Fetch user data to check onboarded status (pseudo-code)
-      const user = await db.query.users.findFirst({
-        where: (users, { eq }) => eq(users.id, auth.userId),
-      });
+    // If user is trying to access a dashboard route
+    if (req.nextUrl.pathname.startsWith("/dashboard")) {
+      // Check if user is authenticated
+      if (auth.userId) {
+        console.log("authMiddleware afterAuth auth.userId", auth.userId);
+        // Fetch user data to check onboarded status (pseudo-code)
+        const user = await db.query.users.findFirst({
+          where: (users, { eq }) => eq(users.id, auth.userId),
+        });
 
-      console.log("authMiddleware afterAuth user onboarded", user?.onboarded);
+        console.log("authMiddleware afterAuth user onboarded", user?.onboarded);
 
-      // Redirect to onboarding if not onboarded
-      if (!user?.onboarded) {
-        console.log("authMiddleware afterAuth redirect to /dashboard/setup");
-        return NextResponse.redirect(new URL("/dashboard/setup", req.url));
+        // Redirect to onboarding if not onboarded
+        if (!user?.onboarded) {
+          console.log("authMiddleware afterAuth redirect to /dashboard/setup");
+          return NextResponse.redirect(new URL("/dashboard/setup", req.url));
+        }
+      } else {
+        // User is not authenticated, redirect to sign-in
+        console.log("authMiddleware afterAuth redirect to /sign-in");
+        return NextResponse.redirect(new URL("/sign-in", req.url));
+      }
+    }
+
+    // If user is trying to access an admin route
+    if (req.nextUrl.pathname.startsWith("/admin")) {
+      // Check if user is not the owner
+      if (auth.userId !== process.env.OWNER_ID) {
+        // Redirect to dashboard if not the owner
+        return NextResponse.redirect(new URL("/dashboard", req.url));
       }
     }
 
@@ -36,6 +52,13 @@ export default authMiddleware({
   },
 });
 
+// Whatever pages we want matched need to be in matcher below
 export const config = {
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
+  matcher: [
+    "/((?!.+\\.[\\w]+$|_next).*)",
+    "/",
+    "/dashboard(.*)",
+    "/admin(.*)",
+    "/(api|trpc)(.*)",
+  ],
 };
