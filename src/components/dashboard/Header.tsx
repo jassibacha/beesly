@@ -1,3 +1,4 @@
+"use client";
 import { PlusCircle } from "lucide-react";
 import { Button } from "../ui/button";
 import { MainNav } from "./main-nav";
@@ -10,10 +11,24 @@ import { NewBookingDialog } from "./bookings/NewBookingDialog";
 import { NewBooking } from "./bookings/NewBooking";
 import { syncUser } from "@/lib/auth/utils";
 import { redirect } from "next/navigation";
+import { UserContext, useUser } from "@/context/UserContext";
+import { useContext } from "react";
 
-async function Header() {
-  // Check & sync the currentUser to db if they don't exist
-  const user = await syncUser();
+export default function Header() {
+  // // Check & sync the currentUser to db if they don't exist
+  // const user = await syncUser();
+
+  // if (!user) {
+  //   redirect("/sign-in");
+  // }
+
+  // // If user has not been onboarded, redirect to setup
+  // // This is handled in middleware but this is one last check
+  // if (!user.onboarded) {
+  //   redirect("/dashboard/setup");
+  // }
+
+  const { user } = useUser();
 
   return (
     <div className="border-b">
@@ -35,7 +50,7 @@ async function Header() {
               </Button>
 
               <div className="hidden md:block">
-                <NewBooking />
+                New Booking{/* <NewBooking /> */}
               </div>
             </>
           )}
@@ -47,4 +62,4 @@ async function Header() {
   );
 }
 
-export default Header;
+//export default Header;

@@ -1,3 +1,4 @@
+"use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,10 +11,13 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { currentUser, SignOutButton, SignedIn } from "@clerk/nextjs";
+import { currentUser, SignOutButton, SignedIn, useUser } from "@clerk/nextjs";
 
-export async function UserNav() {
-  const clerkUser = await currentUser();
+export function UserNav() {
+  // We're using clerk's useUser hook to get the user
+  // To get up-to-date data to display in here
+  // Anywhere else we'll use our own useUser hook
+  const { isLoaded, user: clerkUser } = useUser();
 
   return (
     <SignedIn>
@@ -21,18 +25,20 @@ export async function UserNav() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
-              {clerkUser?.imageUrl ? (
-                <AvatarImage
-                  src={clerkUser.imageUrl}
-                  alt={clerkUser.firstName ?? "User"}
-                />
+              {isLoaded ? (
+                clerkUser?.imageUrl ? (
+                  <AvatarImage
+                    src={clerkUser.imageUrl}
+                    alt={clerkUser.firstName ?? "User"}
+                  />
+                ) : (
+                  <AvatarFallback>
+                    {clerkUser?.firstName?.[0] ?? "U"}
+                  </AvatarFallback>
+                )
               ) : (
-                <AvatarFallback>
-                  {clerkUser?.firstName?.[0] ?? "U"}
-                </AvatarFallback>
+                <AvatarFallback></AvatarFallback>
               )}
-              {/* <AvatarImage src="/avatars/01.png" alt="@shadcn" />
-            <AvatarFallback>SC</AvatarFallback> */}
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
