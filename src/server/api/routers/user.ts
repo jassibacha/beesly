@@ -1,10 +1,14 @@
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
 import { currentUser } from "@clerk/nextjs/server";
 import { users } from "@/server/db/schema";
 
 export const userRouter = createTRPCRouter({
   // Sync user and return user or null
-  syncUser: protectedProcedure.query(async ({ ctx }) => {
+  syncUser: publicProcedure.query(async ({ ctx }) => {
     // Get the current Clerk user
     const clerkUser = await currentUser();
 

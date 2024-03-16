@@ -8,59 +8,51 @@ import React, {
   type ReactNode,
 } from "react";
 import { api } from "@/trpc/react";
-import { redirect } from "next/navigation";
 import type { User } from "@/server/db/types";
+import type { QueryObserverResult } from "@tanstack/react-query";
 
 export type UserContextType = {
   user: User | null;
   setUser: (user: User | null) => void;
+  isLoading: boolean;
+  refetch: () => Promise<QueryObserverResult<User | null | undefined, unknown>>;
 };
 
 const defaultContext: UserContextType = {
   user: null,
   setUser: () => null,
+  isLoading: false,
+  refetch: async () =>
+    ({}) as QueryObserverResult<User | null | undefined, unknown>,
 };
 
 export const UserContext = createContext<UserContextType>(defaultContext);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-  //console.log("UserProvider firing");
   const [user, setUser] = useState<User | null>(null);
 
-  const { refetch: refetchUser, isLoading } = api.user.syncUser.useQuery(
-    undefined,
-    {
-      onSuccess: (syncedUser) => {
-        console.log("onSuccess", syncedUser);
-        if (syncedUser) {
-          setUser(syncedUser);
-          // If user has not been onboarded, redirect to setup
-          if (!syncedUser.onboarded) {
-            redirect("/dashboard/setup");
-          }
-        } else {
-          //console.log("No user, redirecting to sign-in");
-          redirect("/sign-in");
-        }
-      },
-      enabled: !user, // Enable the query only if there is no user set
+  // Sync the user from clerk to the server
+  const { refetch, isLoading } = api.user.syncUser.useQuery(undefined, {
+    onSettled: (syncedUser) => {
+      if (syncedUser) {
+        setUser(syncedUser); // Set the user in the context if we get a valid user object
+      }
     },
-  );
+    enabled: !user, // Enable the query only if there is no user set
+  });
 
   useEffect(() => {
-    //console.log("useEffect firing");
-    // Refetch the user on component mount or when the user state is null and not loading
+    // Refetch the user data if the user is not set and the query is not already loading
     if (!user && !isLoading) {
-      console.log("Refetching user");
-      void refetchUser();
+      void refetch();
     }
-  }, [user, isLoading, refetchUser]);
+  }, [user, isLoading, refetch]);
 
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ user, setUser, isLoading, refetch }}>
       {children}
     </UserContext.Provider>
   );
 };
 
-export const useUser = () => useContext(UserContext);
+export const useDashboardUser = () => useContext(UserContext);
