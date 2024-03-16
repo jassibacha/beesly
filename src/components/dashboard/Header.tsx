@@ -12,7 +12,8 @@ import { NewBooking } from "./bookings/NewBooking";
 import { syncUser } from "@/lib/auth/utils";
 import { redirect } from "next/navigation";
 import { UserContext, useDashboardUser } from "@/context/UserContext";
-import { useContext } from "react";
+import { Suspense, useContext } from "react";
+import { Skeleton } from "../ui/skeleton";
 
 export default function Header() {
   // // Check & sync the currentUser to db if they don't exist - SERVER SIDE
@@ -39,7 +40,35 @@ export default function Header() {
         <MainNav className="mx-6" />
         <div className="ml-auto flex items-center space-x-4">
           {/* <Search /> */}
-          {user?.onboarded && (
+          {isLoading ? (
+            // Show skeletons while loading
+            <>
+              <Skeleton className="h-8 w-32 rounded-md md:hidden" />
+              <div className="hidden md:block">
+                <Skeleton className="h-8 w-32 rounded-md" />
+              </div>
+            </>
+          ) : user?.onboarded === false ? (
+            // Show disabled button when user is not onboarded
+            <>
+              <Button
+                variant="default"
+                size="sm"
+                disabled
+                className="md:hidden"
+              >
+                <PlusCircle className="mr-1 h-4 w-4" />
+                New
+              </Button>
+              <div className="hidden md:block">
+                <Button variant="default" size="sm" disabled>
+                  <PlusCircle className="mr-1 h-4 w-4" />
+                  New Booking
+                </Button>
+              </div>
+            </>
+          ) : (
+            // Show actual components when data is available
             <>
               <Button variant="default" size="sm" asChild className="md:hidden">
                 <Link
@@ -50,13 +79,17 @@ export default function Header() {
                   New
                 </Link>
               </Button>
-
               <div className="hidden md:block">
-                New Booking{/* <NewBooking /> */}
+                <NewBookingDialog />
               </div>
             </>
           )}
-          <UserNav />
+
+          {isLoading ? (
+            <Skeleton className="h-8 w-8 rounded-full" />
+          ) : (
+            <UserNav />
+          )}
           <ModeToggle />
         </div>
       </div>

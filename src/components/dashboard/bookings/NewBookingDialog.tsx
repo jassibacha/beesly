@@ -2,6 +2,7 @@
 import { Copy, PlusCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
   DialogClose,
@@ -14,11 +15,12 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { api } from "@/trpc/server";
+import { api } from "@/trpc/react";
 import { notFound } from "next/navigation";
 import { Suspense, useState } from "react";
 import { BookingForm } from "@/components/forms/BookingForm";
 import type { Location, LocationSetting, Resource } from "@/server/db/types";
+import { useDashboardUser } from "@/context/UserContext";
 
 interface NewBookingDialogProps {
   location: Location;
@@ -26,15 +28,29 @@ interface NewBookingDialogProps {
   resources: Resource[];
 }
 
-export function NewBookingDialog({
-  location,
-  locationSettings,
-  resources,
-}: NewBookingDialogProps) {
+// export function NewBookingDialog({
+//   location,
+//   locationSettings,
+//   resources,
+// }: NewBookingDialogProps) {
+export function NewBookingDialog() {
   const [openEditDialog, setOpenEditDialog] = useState(false);
 
+  //const { user } = useDashboardUser();
+
+  const { data: location } = api.location.getLocationByUserId.useQuery();
+  const { data: locationSettings } =
+    api.location.getLocationSettingsByLocationId.useQuery(
+      { locationId: location?.id ?? "" },
+      { enabled: !!location },
+    );
+  const { data: resources } = api.resource.getResourcesByLocationId.useQuery(
+    { locationId: location?.id ?? "" },
+    { enabled: !!location },
+  );
+
   if (!location || !locationSettings || !resources) {
-    notFound();
+    return <Skeleton className="h-8 w-32 rounded-md" />;
   }
 
   return (
