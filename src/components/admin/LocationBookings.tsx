@@ -129,7 +129,7 @@ export function LocationBookings({ locations }: LocationBookingsProps) {
                 </td>
                 {locations.map((location) => {
                   const locationBookings =
-                    bookingsByLocation[location.id] ?? [];
+                    bookingsByLocation?.[location.id] ?? [];
                   const hourBookings = locationBookings.filter(
                     (booking) =>
                       DateTime.fromJSDate(booking.startTime).hour === hour,
