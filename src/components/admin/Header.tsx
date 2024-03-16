@@ -12,16 +12,16 @@ import { syncUser } from "@/lib/auth/utils";
 import { redirect } from "next/navigation";
 
 async function Header() {
-  // Check currentUser
-  const user = await syncUser();
-  // If no user, redirect to sign-in
-  if (!user) {
-    redirect("/sign-in");
-  }
-  // If user is not the owner, redirect to dashboard
-  if (user.id !== process.env.OWNER_ID) {
-    redirect("/dashboard");
-  }
+  // // Check currentUser
+  // const user = await syncUser();
+  // // If no user, redirect to sign-in
+  // if (!user) {
+  //   redirect("/sign-in");
+  // }
+  // // If user is not the owner, redirect to dashboard
+  // if (user.id !== process.env.OWNER_ID) {
+  //   redirect("/dashboard");
+  // }
 
   return (
     <div className="border-b">
