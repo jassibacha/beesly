@@ -2,7 +2,12 @@ import { DateTime } from "luxon";
 import { db } from "../index";
 import { bookings, resourceBookings } from "../schema";
 import { v4 as uuidv4 } from "uuid";
-import { location1Id, location2Id, resource1Id, resource2Id } from "./seed";
+import {
+  location1Id,
+  location2Id,
+  resource1Id,
+  resource2Id,
+} from "./seedUtils";
 import { faker } from "@faker-js/faker";
 import { colors } from "@/lib/utils";
 
