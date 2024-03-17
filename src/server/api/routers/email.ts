@@ -114,73 +114,74 @@ export const emailRouter = createTRPCRouter({
 
         // default to simpler version for testing without cache
 
-        const location = await ctx.db.query.locations.findFirst({
-          where: (locations, { eq }) => eq(locations.id, booking.locationId),
-        });
+        // const location = await ctx.db.query.locations.findFirst({
+        //   where: (locations, { eq }) => eq(locations.id, booking.locationId),
+        // });
 
-        if (!location) {
-          console.error(
-            `Location not found for booking ID: ${booking.id} [SBR]`,
-          );
-          //continue;
-        }
-
-        const locationSettings = await ctx.db.query.locationSettings.findFirst({
-          where: (locationSettings, { eq }) =>
-            eq(locationSettings.locationId, booking.locationId),
-        });
-
-        if (!locationSettings) {
-          console.error(
-            `Location settings not found for booking ID: ${booking.id} [SBR]`,
-          );
-          //continue;
-        }
-
-        const reminderEmail = buildBookingEmail(
-          EmailTemplateType.BookingReminder,
-          booking as Booking,
-          location as Location,
-          locationSettings as LocationSetting,
-        );
-
-        // // Fetch and cache location data if not already in cache
-        // if (!locationsCache[booking.locationId]) {
-        //   const location = await ctx.db.query.locations.findFirst({
-        //     where: (locations, { eq }) => eq(locations.id, booking.locationId),
-        //   });
-        //   if (!location) {
-        //     throw new TRPCError({
-        //       code: "NOT_FOUND",
-        //       message: "Location not found",
-        //     });
-        //   }
-        //   locationsCache[booking.locationId] = location as Location;
+        // if (!location) {
+        //   console.error(
+        //     `Location not found for booking ID: ${booking.id} [SBR]`,
+        //   );
+        //   continue;
         // }
 
-        // // Fetch and cache location settings data if not already in cache
-        // if (!locationSettingsCache[booking.locationId]) {
-        //   const locationSettings = await ctx.db.query.locationSettings.findFirst({
-        //     where: (locationSettings, { eq }) =>
-        //       eq(locationSettings.locationId, booking.locationId),
-        //   });
-        //   if (!locationSettings) {
-        //     throw new TRPCError({
-        //       code: "NOT_FOUND",
-        //       message: "Location settings not found",
-        //     });
-        //   }
-        //   locationSettingsCache[booking.locationId] =
-        //     locationSettings as LocationSetting;
+        // const locationSettings = await ctx.db.query.locationSettings.findFirst({
+        //   where: (locationSettings, { eq }) =>
+        //     eq(locationSettings.locationId, booking.locationId),
+        // });
+
+        // if (!locationSettings) {
+        //   console.error(
+        //     `Location settings not found for booking ID: ${booking.id} [SBR]`,
+        //   );
+        //   continue;
         // }
 
-        // // Build the booking reminder email using cached data
         // const reminderEmail = buildBookingEmail(
         //   EmailTemplateType.BookingReminder,
-        //   booking,
-        //   locationsCache[booking.locationId]!,
-        //   locationSettingsCache[booking.locationId]!,
+        //   booking as Booking,
+        //   location as Location,
+        //   locationSettings as LocationSetting,
         // );
+
+        // Fetch and cache location data if not already in cache
+        if (!locationsCache[booking.locationId]) {
+          const location = await ctx.db.query.locations.findFirst({
+            where: (locations, { eq }) => eq(locations.id, booking.locationId),
+          });
+          if (!location) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: "Location not found",
+            });
+          }
+          locationsCache[booking.locationId] = location as Location;
+        }
+
+        // Fetch and cache location settings data if not already in cache
+        if (!locationSettingsCache[booking.locationId]) {
+          const locationSettings =
+            await ctx.db.query.locationSettings.findFirst({
+              where: (locationSettings, { eq }) =>
+                eq(locationSettings.locationId, booking.locationId),
+            });
+          if (!locationSettings) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: "Location settings not found",
+            });
+          }
+          locationSettingsCache[booking.locationId] =
+            locationSettings as LocationSetting;
+        }
+
+        // Build the booking reminder email using cached data
+        const reminderEmail = buildBookingEmail(
+          EmailTemplateType.BookingReminder,
+          booking,
+          locationsCache[booking.locationId]!,
+          locationSettingsCache[booking.locationId]!,
+        );
 
         console.log(
           `Sending email reminder for booking ID: ${booking.id} [SBR]`,
