@@ -23,9 +23,15 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/trpc/react";
 import { useRouter } from "next/navigation";
+import { useDashboardUser } from "@/context/UserContext";
 
 function CreateLocationForm() {
   const { toast } = useToast();
+  const {
+    user,
+    isLoading: userIsLoading,
+    refetch: refetchUser,
+  } = useDashboardUser();
   const router = useRouter();
 
   // 1. Define your form.
@@ -70,6 +76,10 @@ function CreateLocationForm() {
           title: "Success!",
           description: "Your Business has been created.",
         });
+
+        void refetchUser();
+        console.log("New Location: User refetched");
+
         router.push("/dashboard");
       },
       onError: (error) => {
