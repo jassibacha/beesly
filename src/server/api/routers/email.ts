@@ -100,102 +100,130 @@ export const emailRouter = createTRPCRouter({
     // We could do a join here to get all of the locations and locationSettings at the same time then we just have that data for each booking
     // Or we could extract the list of unique locationIds from the list of bookings,
 
+    // Success and error counters
+    let successCount = 0;
+    let errorCount = 0;
+
     // Setup caches to avoid duplicate database calls
     const locationsCache: Record<string, Location> = {};
     const locationSettingsCache: Record<string, LocationSetting> = {};
 
     for (const booking of bookingsToSendReminder) {
-      const location = await ctx.db.query.locations.findFirst({
-        where: (locations, { eq }) => eq(locations.id, booking.locationId),
-      });
-
-      if (!location) {
-        console.error(`Location not found for booking ID: ${booking.id}`);
-        continue;
-      }
-
-      const locationSettings = await ctx.db.query.locationSettings.findFirst({
-        where: (locationSettings, { eq }) =>
-          eq(locationSettings.locationId, booking.locationId),
-      });
-
-      if (!locationSettings) {
-        console.error(
-          `Location settings not found for booking ID: ${booking.id}`,
-        );
-        continue;
-      }
-
-      const reminderEmail = buildBookingEmail(
-        EmailTemplateType.BookingReminder,
-        booking,
-        location,
-        locationSettings as LocationSetting,
-      );
-
-      // // Fetch and cache location data if not already in cache
-      // if (!locationsCache[booking.locationId]) {
-      //   const location = await ctx.db.query.locations.findFirst({
-      //     where: (locations, { eq }) => eq(locations.id, booking.locationId),
-      //   });
-      //   if (!location) {
-      //     throw new TRPCError({
-      //       code: "NOT_FOUND",
-      //       message: "Location not found",
-      //     });
-      //   }
-      //   locationsCache[booking.locationId] = location as Location;
-      // }
-
-      // // Fetch and cache location settings data if not already in cache
-      // if (!locationSettingsCache[booking.locationId]) {
-      //   const locationSettings = await ctx.db.query.locationSettings.findFirst({
-      //     where: (locationSettings, { eq }) =>
-      //       eq(locationSettings.locationId, booking.locationId),
-      //   });
-      //   if (!locationSettings) {
-      //     throw new TRPCError({
-      //       code: "NOT_FOUND",
-      //       message: "Location settings not found",
-      //     });
-      //   }
-      //   locationSettingsCache[booking.locationId] =
-      //     locationSettings as LocationSetting;
-      // }
-
-      // // Build the booking reminder email using cached data
-      // const reminderEmail = buildBookingEmail(
-      //   EmailTemplateType.BookingReminder,
-      //   booking,
-      //   locationsCache[booking.locationId]!,
-      //   locationSettingsCache[booking.locationId]!,
-      // );
-
       try {
+        console.log(`Processing booking ID: ${booking.id} [SBR]`);
+
+        // default to simpler version for testing without cache
+
+        const location = await ctx.db.query.locations.findFirst({
+          where: (locations, { eq }) => eq(locations.id, booking.locationId),
+        });
+
+        if (!location) {
+          console.error(
+            `Location not found for booking ID: ${booking.id} [SBR]`,
+          );
+          //continue;
+        }
+
+        const locationSettings = await ctx.db.query.locationSettings.findFirst({
+          where: (locationSettings, { eq }) =>
+            eq(locationSettings.locationId, booking.locationId),
+        });
+
+        if (!locationSettings) {
+          console.error(
+            `Location settings not found for booking ID: ${booking.id} [SBR]`,
+          );
+          //continue;
+        }
+
+        const reminderEmail = buildBookingEmail(
+          EmailTemplateType.BookingReminder,
+          booking as Booking,
+          location as Location,
+          locationSettings as LocationSetting,
+        );
+
+        // // Fetch and cache location data if not already in cache
+        // if (!locationsCache[booking.locationId]) {
+        //   const location = await ctx.db.query.locations.findFirst({
+        //     where: (locations, { eq }) => eq(locations.id, booking.locationId),
+        //   });
+        //   if (!location) {
+        //     throw new TRPCError({
+        //       code: "NOT_FOUND",
+        //       message: "Location not found",
+        //     });
+        //   }
+        //   locationsCache[booking.locationId] = location as Location;
+        // }
+
+        // // Fetch and cache location settings data if not already in cache
+        // if (!locationSettingsCache[booking.locationId]) {
+        //   const locationSettings = await ctx.db.query.locationSettings.findFirst({
+        //     where: (locationSettings, { eq }) =>
+        //       eq(locationSettings.locationId, booking.locationId),
+        //   });
+        //   if (!locationSettings) {
+        //     throw new TRPCError({
+        //       code: "NOT_FOUND",
+        //       message: "Location settings not found",
+        //     });
+        //   }
+        //   locationSettingsCache[booking.locationId] =
+        //     locationSettings as LocationSetting;
+        // }
+
+        // // Build the booking reminder email using cached data
+        // const reminderEmail = buildBookingEmail(
+        //   EmailTemplateType.BookingReminder,
+        //   booking,
+        //   locationsCache[booking.locationId]!,
+        //   locationSettingsCache[booking.locationId]!,
+        // );
+
+        console.log(
+          `Sending email reminder for booking ID: ${booking.id} [SBR]`,
+        );
         // Send the booking reminder email
         await sendEmail(
           reminderEmail.text,
           reminderEmail.templateId,
           reminderEmail.dynamicData,
         );
+        // sE.catch((error) => {
+        //   console.error(
+        //     `Failed to send booking email for booking ID: ${booking.id} [SBR][SE]`,
+        //     error,
+        //   );
+        // });
+
         // Update booking to mark emailReminderSent as true
         await ctx.db
           .update(bookings)
           .set({ emailReminderSent: true })
           .where(eq(bookings.id, booking.id))
           .execute();
-        console.log("Email reminder sent successfully: ", booking.id);
-        return { success: true, message: "Email sent successfully" };
+        console.log("Email reminder sent successfully [SBR]: ", booking.id);
+        successCount++;
+        //return { success: true, message: "Email sent successfully" };
       } catch (error) {
-        console.error("Failed to send booking email:", error);
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to send booking email",
-        });
+        console.error(
+          `Failed to send booking email for booking ID: ${booking.id} [SBR]`,
+          error,
+        );
+        errorCount++;
+        // throw new TRPCError({
+        //   code: "INTERNAL_SERVER_ERROR",
+        //   message: "Failed to send booking email",
+        // });
       }
     }
 
-    return { success: true, message: "Email reminders sent" };
+    return {
+      success: errorCount === 0,
+      message: `Email reminders sent. Success: ${successCount}, Failed: ${errorCount}`,
+    };
   }),
   // Add a new procedure for sending an email
   // sendEmail: publicProcedure
