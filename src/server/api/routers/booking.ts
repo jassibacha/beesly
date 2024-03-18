@@ -476,7 +476,10 @@ export const bookingRouter = createTRPCRouter({
       }
 
       // Update the booking with the provided data
-      await ctx.db.update(bookings).set(updateData).where(eq(bookings.id, id));
+      await ctx.db
+        .update(bookings)
+        .set({ ...updateData, updatedAt: new Date() })
+        .where(eq(bookings.id, id));
 
       // Fetch the updated booking from the database
       const updatedBooking = await ctx.db.query.bookings.findFirst({
@@ -521,7 +524,7 @@ export const bookingRouter = createTRPCRouter({
       // Update the booking status to CANCELLED
       await ctx.db
         .update(bookings)
-        .set({ status: "CANCELLED" })
+        .set({ status: "CANCELLED", updatedAt: new Date() })
         .where(eq(bookings.id, bookingId));
 
       // Fetch the updated booking from the database
