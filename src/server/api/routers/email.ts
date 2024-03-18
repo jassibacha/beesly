@@ -146,6 +146,7 @@ export const emailRouter = createTRPCRouter({
 
         // Fetch and cache location data if not already in cache
         if (!locationsCache[booking.locationId]) {
+          console.log(`locationsCache not found for ${booking.locationId}`);
           const location = await ctx.db.query.locations.findFirst({
             where: (locations, { eq }) => eq(locations.id, booking.locationId),
           });
@@ -160,6 +161,9 @@ export const emailRouter = createTRPCRouter({
 
         // Fetch and cache location settings data if not already in cache
         if (!locationSettingsCache[booking.locationId]) {
+          console.log(
+            `locationSettingsCache not found for ${booking.locationId}`,
+          );
           const locationSettings =
             await ctx.db.query.locationSettings.findFirst({
               where: (locationSettings, { eq }) =>
