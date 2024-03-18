@@ -293,6 +293,7 @@ export const locationRouter = createTRPCRouter({
               country: input.country,
               timezone: input.timezone,
               logo: input.logo,
+              updatedAt: new Date(),
             })
             .where(eq(locations.id, input.id));
 
@@ -390,7 +391,7 @@ export const locationRouter = createTRPCRouter({
               bufferTime: input.bufferTime,
               timeSlotIncrements: input.timeSlotIncrements,
               displayUnavailableSlots: input.displayUnavailableSlots,
-              updatedAt: input.updatedAt,
+              updatedAt: new Date(),
             })
             .where(eq(locationSettings.locationId, input.locationId));
 

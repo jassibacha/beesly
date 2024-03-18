@@ -280,7 +280,6 @@ export const updateLocationSettingsSchema = z.object({
     .number()
     .min(1, "Time slot increments must be at least 1."),
   displayUnavailableSlots: z.boolean(),
-  updatedAt: z.date(),
 });
 export type UpdateLocationSettingsSchemaValues = z.infer<
   typeof updateLocationSettingsSchema

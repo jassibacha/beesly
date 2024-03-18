@@ -240,7 +240,7 @@ export function EditLocationSettingsForm({
       id: locationSettings.id,
       dailyAvailability: dailyAvailabilityString,
       locationId: locationSettings.locationId,
-      updatedAt: DateTime.now().toJSDate(),
+      // updatedAt: DateTime.now().toJSDate(),
       //id: locationSettings.id,
     };
 
