@@ -8,29 +8,13 @@ import TeamSwitcher from "./team-switcher";
 import { UserNav } from "./user-nav";
 import Link from "next/link";
 import { NewBookingDialog } from "./bookings/NewBookingDialog";
-import { syncUser } from "@/lib/auth/utils";
 import { redirect } from "next/navigation";
 import { UserContext, useDashboardUser } from "@/context/UserContext";
 import { Suspense, useContext } from "react";
 import { Skeleton } from "../ui/skeleton";
 
 export default function Header() {
-  // // Check & sync the currentUser to db if they don't exist - SERVER SIDE
-  // const user = await syncUser();
-
   const { user, isLoading } = useDashboardUser();
-
-  // // If these next two if statements are uncommented, we redirect even when logged in right now
-  // // I assume because useDashboardUser is not yet loaded. This is a problem.
-  // if (!user) {
-  //   redirect("/sign-in");
-  // }
-
-  // // If user has not been onboarded, redirect to setup
-  // // This is handled in middleware but this is one last check
-  // if (!user?.onboarded) {
-  //   redirect("/dashboard/setup");
-  // }
 
   return (
     <div className="border-b">

@@ -6,7 +6,6 @@ import { api } from "@/trpc/server";
 import { type Metadata, type ResolvingMetadata } from "next/types";
 import { Suspense, useContext } from "react";
 import { TimezoneContext } from "@/context/TimezoneContext";
-import { syncUser } from "@/lib/auth/utils";
 import {
   Card,
   CardContent,
@@ -68,18 +67,6 @@ import { BookingForm } from "@/components/forms/BookingForm";
 // }
 
 export default async function Page() {
-  // Check & sync the currentUser to db if they don't exist
-  const user = await syncUser();
-  if (!user) {
-    redirect("/sign-in");
-  }
-
-  // If user has not been onboarded, redirect to setup
-  // This is handled in middleware but this is one last check
-  if (!user.onboarded) {
-    redirect("/dashboard/setup");
-  }
-
   //const id = params.id;
 
   const location = await api.location.getLocationByUserId.query();

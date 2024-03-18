@@ -12,7 +12,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDateRangePicker } from "@/components/dashboard/date-range-picker";
 import { RecentSales } from "@/components/dashboard/recent-sales";
-import { syncUser } from "@/lib/auth/utils";
+
 import { notFound, redirect } from "next/navigation";
 import DailyBookings from "@/components/dashboard/DailyBookings";
 import { Suspense } from "react";
@@ -25,16 +25,6 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminDashboardPage() {
-  // MOVED THIS TO ADMIN HEADER SO IT HITS ON EVERY PAGE OF /admin
-  // // Check & sync the currentUser to db if they don't exist
-  // const user = await syncUser();
-  // if (!user) {
-  //   redirect("/sign-in");
-  // }
-  // if (user.id !== process.env.OWNER_ID) {
-  //   redirect("/dashboard");
-  // }
-
   const locations = await api.location.getAllLocations.query();
 
   // Pulling this in at server level

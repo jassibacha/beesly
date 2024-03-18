@@ -1,18 +1,6 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDateRangePicker } from "@/components/dashboard/date-range-picker";
-import { RecentSales } from "@/components/dashboard/recent-sales";
-import { syncUser } from "@/lib/auth/utils";
 import { notFound, redirect } from "next/navigation";
 import DailyBookings from "@/components/dashboard/DailyBookings";
 import { Suspense } from "react";
@@ -25,18 +13,6 @@ export const metadata: Metadata = {
 };
 
 export default async function BookingsPage() {
-  // Check & sync the currentUser to db if they don't exist
-  const user = await syncUser();
-  if (!user) {
-    redirect("/sign-in");
-  }
-
-  // If user has not been onboarded, redirect to setup
-  // This is handled in middleware but this is one last check
-  if (!user.onboarded) {
-    redirect("/dashboard/setup");
-  }
-
   const location = await api.location.getLocationByUserId.query();
 
   if (!location) {

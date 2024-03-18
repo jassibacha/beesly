@@ -10,7 +10,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { syncUser } from "@/lib/auth/utils";
 import { redirect } from "next/navigation";
 import { api } from "@/trpc/server";
 
