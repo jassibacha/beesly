@@ -107,6 +107,9 @@ function TempInfoDisplay({
 }) {
   return (
     <div className="temp-info-display mb-8 grid grid-cols-1 gap-2  border border-violet-400 bg-purple-900 p-4 text-sm  md:grid-cols-3">
+      {/* <div>
+        <span className="font-bold">Location:</span> {location.name}
+      </div> */}
       <div>
         <span className="font-bold">View Context:</span> {viewContext}
       </div>
@@ -115,6 +118,12 @@ function TempInfoDisplay({
       </div>
       {isEditing && (
         <>
+          {booking && (
+            <div>
+              <span className="font-bold">Location:</span>{" "}
+              {booking.locationId === location.id ? location.name : "INCORRECT"}
+            </div>
+          )}
           <div>
             <span className="font-bold">Booking:</span>{" "}
             {booking ? "true" : "false"}

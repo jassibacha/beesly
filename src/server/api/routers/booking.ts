@@ -860,12 +860,14 @@ export const bookingRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { limit = 10 } = input; // Default limit to 10 if not provided
+      const { limit = 10, locationId } = input; // Default limit to 10 if not provided
 
-      const recentBookings = await ctx.db.query.bookings.findMany({
-        orderBy: [desc(bookings.createdAt)],
-        limit,
-      });
+      const recentBookings = await ctx.db
+        .select()
+        .from(bookings)
+        .where(eq(bookings.locationId, locationId))
+        .orderBy(desc(bookings.createdAt))
+        .limit(limit);
 
       return {
         bookings: recentBookings,
