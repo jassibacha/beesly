@@ -92,10 +92,10 @@ export const emailRouter = createTRPCRouter({
       )
       .execute();
 
-    console.log(
-      "Bookings to send reminders for: ",
-      bookingsToSendReminder.length,
-    );
+    // console.log(
+    //   "Bookings to send reminders for: ",
+    //   bookingsToSendReminder.length,
+    // );
 
     // We could do a join here to get all of the locations and locationSettings at the same time then we just have that data for each booking
     // Or we could extract the list of unique locationIds from the list of bookings,
@@ -110,43 +110,11 @@ export const emailRouter = createTRPCRouter({
 
     for (const booking of bookingsToSendReminder) {
       try {
-        console.log(`Processing booking ID: ${booking.id} [SBR]`);
-
-        // default to simpler version for testing without cache
-
-        // const location = await ctx.db.query.locations.findFirst({
-        //   where: (locations, { eq }) => eq(locations.id, booking.locationId),
-        // });
-
-        // if (!location) {
-        //   console.error(
-        //     `Location not found for booking ID: ${booking.id} [SBR]`,
-        //   );
-        //   continue;
-        // }
-
-        // const locationSettings = await ctx.db.query.locationSettings.findFirst({
-        //   where: (locationSettings, { eq }) =>
-        //     eq(locationSettings.locationId, booking.locationId),
-        // });
-
-        // if (!locationSettings) {
-        //   console.error(
-        //     `Location settings not found for booking ID: ${booking.id} [SBR]`,
-        //   );
-        //   continue;
-        // }
-
-        // const reminderEmail = buildBookingEmail(
-        //   EmailTemplateType.BookingReminder,
-        //   booking as Booking,
-        //   location as Location,
-        //   locationSettings as LocationSetting,
-        // );
+        //console.log(`Processing booking ID: ${booking.id} [SBR]`);
 
         // Fetch and cache location data if not already in cache
         if (!locationsCache[booking.locationId]) {
-          console.log(`locationsCache not found for ${booking.locationId}`);
+          //console.log(`locationsCache not found for ${booking.locationId}`);
           const location = await ctx.db.query.locations.findFirst({
             where: (locations, { eq }) => eq(locations.id, booking.locationId),
           });
@@ -161,9 +129,9 @@ export const emailRouter = createTRPCRouter({
 
         // Fetch and cache location settings data if not already in cache
         if (!locationSettingsCache[booking.locationId]) {
-          console.log(
-            `locationSettingsCache not found for ${booking.locationId}`,
-          );
+          // console.log(
+          //   `locationSettingsCache not found for ${booking.locationId}`,
+          // );
           const locationSettings =
             await ctx.db.query.locationSettings.findFirst({
               where: (locationSettings, { eq }) =>
@@ -187,9 +155,9 @@ export const emailRouter = createTRPCRouter({
           locationSettingsCache[booking.locationId]!,
         );
 
-        console.log(
-          `Sending email reminder for booking ID: ${booking.id} [SBR]`,
-        );
+        // console.log(
+        //   `Sending email reminder for booking ID: ${booking.id} [SBR]`,
+        // );
         // Send the booking reminder email
         await sendEmail(
           reminderEmail.text,
@@ -209,7 +177,7 @@ export const emailRouter = createTRPCRouter({
           .set({ emailReminderSent: true })
           .where(eq(bookings.id, booking.id))
           .execute();
-        console.log("Email reminder sent successfully [SBR]: ", booking.id);
+        //console.log("Email reminder sent successfully [SBR]: ", booking.id);
         successCount++;
         //return { success: true, message: "Email sent successfully" };
       } catch (error) {
