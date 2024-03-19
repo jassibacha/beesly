@@ -654,7 +654,7 @@ export function BookingForm({
                     <FormLabel htmlFor="date" aria-required={true}>
                       Booking Date
                     </FormLabel>
-                    <Popover>
+                    <Popover modal={isDialog}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
