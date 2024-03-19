@@ -602,14 +602,6 @@ export function BookingForm({
                   Close
                 </Button>
               </DialogClose>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={closeDialog}
-                className="ml-2"
-              >
-                Close2
-              </Button>
             </>
           )}
 

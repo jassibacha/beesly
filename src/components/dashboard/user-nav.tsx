@@ -11,13 +11,20 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { currentUser, SignOutButton, SignedIn, useUser } from "@clerk/nextjs";
+import { SignOutButton, SignedIn, useUser } from "@clerk/nextjs";
 
 export function UserNav() {
   // We're using clerk's useUser hook to get the user
   // To get up-to-date data to display in here
   // Anywhere else we'll use our own useUser hook
   const { isLoaded, user: clerkUser } = useUser();
+
+  // Force redirect to sign-in page when user signs out
+  const handleSignOut = () => {
+    // Fully reload the page to force re-rendering
+    window.location.href = "/sign-in";
+    //router.push("/sign-in");
+  };
 
   return (
     <SignedIn>
@@ -71,7 +78,9 @@ export function UserNav() {
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
-            <SignOutButton>Log out</SignOutButton>
+            <SignOutButton signOutCallback={handleSignOut}>
+              Log out
+            </SignOutButton>
 
             <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
           </DropdownMenuItem>
