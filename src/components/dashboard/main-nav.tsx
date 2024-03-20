@@ -34,6 +34,15 @@ export function MainNav({
       >
         Bookings
       </Link>
+      <Link
+        href="/dashboard/search"
+        className={cn(
+          "text-sm font-medium transition-colors hover:text-primary",
+          isActive("/dashboard/search") ? "" : "text-muted-foreground",
+        )}
+      >
+        Search
+      </Link>
       {/* <Link
         href="/dashboard/reports"
         className={cn(

@@ -879,25 +879,53 @@ export const bookingRouter = createTRPCRouter({
     .input(
       z.object({
         query: z.string(),
-        // Add more fields if needed
+        locationId: z.string(),
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { query } = input;
+      const { query, locationId } = input;
 
-      const matchingBookings = await ctx.db.query.bookings.findMany({
-        where: (bookings, { or, like }) =>
-          or(
-            like(bookings.customerName, `%${query}%`),
-            like(bookings.customerEmail, `%${query}%`),
-            like(bookings.customerPhone, `%${query}%`),
-          ),
-        // Add more conditions if needed
+      const userId = ctx.auth.userId;
+
+      if (!userId) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "User must be logged in",
+        });
+      }
+
+      // Check that location exists, and that the location ownerid matches the current user
+      const location = await ctx.db.query.locations.findFirst({
+        where: (locations, { and, eq }) => and(eq(locations.id, locationId)),
       });
 
-      return {
-        bookings: matchingBookings,
-      };
+      if (!location) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Location not found",
+        });
+      }
+
+      if (location.ownerId !== userId) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You are not authorized to view bookings for this location",
+        });
+      }
+
+      const matchingBookings = await ctx.db.query.bookings.findMany({
+        where: (bookings, { and, or, like, eq }) =>
+          and(
+            eq(bookings.locationId, locationId),
+            or(
+              like(bookings.customerName, `%${query}%`),
+              like(bookings.customerEmail, `%${query}%`),
+              like(bookings.customerPhone, `%${query}%`),
+            ),
+          ),
+      });
+
+      return matchingBookings;
     }),
 
   // Get booking by ID
