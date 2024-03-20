@@ -68,9 +68,14 @@ export default async function SearchResults({
                 </Badge>
               </TableCell>
               <TableCell>
+                <span className="hidden md:inline">
+                  {DateTime.fromJSDate(booking.startTime, {
+                    zone: location.timezone,
+                  }).toFormat("ccc, ")}
+                </span>
                 {DateTime.fromJSDate(booking.startTime, {
                   zone: location.timezone,
-                }).toFormat("ccc, LLL dd yyyy")}
+                }).toFormat("LLL dd yyyy")}
               </TableCell>
               <TableCell>
                 {DateTime.fromJSDate(booking.startTime, {
