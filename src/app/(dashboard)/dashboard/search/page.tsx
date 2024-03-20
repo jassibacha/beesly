@@ -1,17 +1,6 @@
 import type { Metadata } from "next";
-// import Search from "./_components/Search";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import debounce from "lodash/debounce";
-import { CalendarDateRangePicker } from "@/components/dashboard/date-range-picker";
-import { notFound, redirect } from "next/navigation";
-import DailyBookings from "@/components/dashboard/DailyBookings";
-import { Suspense } from "react";
 import { api } from "@/trpc/server";
-import BookingsList from "@/components/dashboard/bookings/BookingsList";
-import SearchResultsDtC from "@/components/dashboard/search/SearchResultsDtC";
-import SearchResultsDtS from "@/components/dashboard/search/SearchResultsDtS";
+import SearchResults from "@/components/dashboard/search/SearchResults";
 import SearchInput from "@/components/dashboard/search/SearchInput";
 
 export const metadata: Metadata = {
@@ -43,7 +32,7 @@ export default async function SearchPage({
         <div className="space-y-4">
           <SearchInput placeholder="Search bookings..." />
           <div className="grid grid-cols-1 gap-4 md:grid-cols-1 lg:grid-cols-2"></div>
-          <SearchResultsDtS
+          <SearchResults
             query={query}
             currentPage={currentPage}
             location={location}
@@ -52,25 +41,4 @@ export default async function SearchPage({
       </div>
     </>
   );
-}
-
-function fetchInvoicesPages(query: string) {
-  // noStore();
-  // try {
-  //   const count = await sql`SELECT COUNT(*)
-  //   FROM invoices
-  //   JOIN customers ON invoices.customer_id = customers.id
-  //   WHERE
-  //     customers.name ILIKE ${`%${query}%`} OR
-  //     customers.email ILIKE ${`%${query}%`} OR
-  //     invoices.amount::text ILIKE ${`%${query}%`} OR
-  //     invoices.date::text ILIKE ${`%${query}%`} OR
-  //     invoices.status ILIKE ${`%${query}%`}
-  // `;
-  //   const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
-  //   return totalPages;
-  // } catch (error) {
-  //   console.error("Database Error:", error);
-  //   throw new Error("Failed to fetch total number of invoices.");
-  // }
 }
