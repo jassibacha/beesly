@@ -8,10 +8,12 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { DateTime } from "luxon";
 import Link from "next/link";
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
+// Add timezone to booking type to ensure date/time is displayed correctly
+type BookingWithTimezone = Booking & {
+  timezone: string;
+};
 
-export const getColumns = (location: Location): ColumnDef<Booking>[] => [
+export const columns: ColumnDef<BookingWithTimezone>[] = [
   {
     accessorKey: "status",
     header: "Status",
@@ -29,13 +31,13 @@ export const getColumns = (location: Location): ColumnDef<Booking>[] => [
     cell: ({ row }) => {
       return (
         <>
-          <span className="hidden md:inline">
+          <span className="hidden lg:inline">
             {DateTime.fromJSDate(row.original.startTime, {
-              zone: location.timezone,
-            }).toFormat("ccc, ")}
+              zone: row.original.timezone,
+            }).toFormat("ccc,")}{" "}
           </span>
           {DateTime.fromJSDate(row.original.startTime, {
-            zone: location.timezone,
+            zone: row.original.timezone,
           }).toFormat("LLL dd yyyy")}
         </>
       );
@@ -48,75 +50,18 @@ export const getColumns = (location: Location): ColumnDef<Booking>[] => [
       return (
         <>
           {DateTime.fromJSDate(row.original.startTime, {
-            zone: location.timezone,
+            zone: row.original.timezone,
           }).toFormat("h:mm a")}{" "}
           -{" "}
           {DateTime.fromJSDate(row.original.endTime, {
-            zone: location.timezone,
+            zone: row.original.timezone,
           }).toFormat("h:mm a")}
-        </>
-      );
-    },
-  },
-  {
-    accessorKey: "customerName",
-    header: "Name",
-  },
-  {
-    accessorKey: "customerPhone",
-    header: "Phone",
-  },
-  {
-    accessorKey: "customerEmail",
-    header: "Email",
-  },
-  {
-    accessorKey: "actions",
-    header: "",
-    cell: ({ row }) => {
-      return (
-        <Button size="sm" variant="outline" asChild>
-          <Link href={`/dashboard/bookings/edit/${row.original.id}`}>Edit</Link>
-        </Button>
-      );
-    },
-  },
-];
-
-export const columns: ColumnDef<Booking>[] = [
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      return (
-        <Badge variant={getBadgeVariant(row.original.status)} className="">
-          {row.original.status}
-        </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: "date",
-    header: "Date",
-    cell: ({ row }) => {
-      return (
-        <>
-          <span className="hidden md:inline">
-            {DateTime.fromJSDate(row.original.startTime).toFormat("ccc, ")}
+          <span className="hidden lg:inline">
+            {" "}
+            {DateTime.fromJSDate(row.original.startTime, {
+              zone: row.original.timezone,
+            }).toFormat("ZZZZ")}
           </span>
-          {DateTime.fromJSDate(row.original.startTime).toFormat("LLL dd yyyy")}
-        </>
-      );
-    },
-  },
-  {
-    accessorKey: "time",
-    header: "Time",
-    cell: ({ row }) => {
-      return (
-        <>
-          {DateTime.fromJSDate(row.original.startTime).toFormat("h:mm a")} -{" "}
-          {DateTime.fromJSDate(row.original.endTime).toFormat("h:mm a")}
         </>
       );
     },

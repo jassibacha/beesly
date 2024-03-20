@@ -33,14 +33,14 @@ export default function SearchResultsDtC({
       },
     );
 
-  if (isLoading) {
-    return <div>LOADING</div>;
-  }
+  // if (isLoading) {
+  //   return <div>LOADING</div>;
+  // }
 
   return (
     <div className="container mx-auto py-10">
       {/* {bookingResults && <DataTable columns={columns} data={bookingResults} />} */}
-      <DataTable columns={columns} data={bookingResults} />
+      <DataTable columns={columns} data={bookingResults ?? []} />
     </div>
   );
 }

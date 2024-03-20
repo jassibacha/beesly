@@ -925,7 +925,13 @@ export const bookingRouter = createTRPCRouter({
           ),
       });
 
-      return matchingBookings;
+      // Map over the results to add location.timezone to each booking
+      const bookingsWithTimezone = matchingBookings.map((booking) => ({
+        ...booking,
+        timezone: location.timezone,
+      }));
+
+      return bookingsWithTimezone;
     }),
 
   // Get booking by ID
