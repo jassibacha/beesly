@@ -40,7 +40,7 @@ export default async function SearchPage({
           <h2 className="text-3xl font-bold tracking-tight">Search</h2>
         </div>
         <div className="space-y-4">
-          <SearchInput placeholder="Search invoices..." />
+          <SearchInput placeholder="Search bookings..." />
           <SearchResults
             query={query}
             currentPage={currentPage}
