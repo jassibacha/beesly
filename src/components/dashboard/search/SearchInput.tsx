@@ -11,9 +11,10 @@ interface SearchInputProps {
 function SearchInput({ placeholder }: { placeholder: string }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const { replace } = useRouter();
+  const router = useRouter();
+  //const { replace } = useRouter();
 
-  const handleSearch = useDebouncedCallback((term) => {
+  const handleSearch = useDebouncedCallback((term: string) => {
     //console.log(`Searching... ${term}`);
     const params = new URLSearchParams(searchParams);
     params.set("p", "1");
@@ -23,7 +24,8 @@ function SearchInput({ placeholder }: { placeholder: string }) {
     } else {
       params.delete("q");
     }
-    replace(`${pathname}?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`);
+    //replace(`${pathname}?${params.toString()}`);
   }, 300);
 
   return (
