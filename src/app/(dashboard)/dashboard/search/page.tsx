@@ -10,7 +10,8 @@ import DailyBookings from "@/components/dashboard/DailyBookings";
 import { Suspense } from "react";
 import { api } from "@/trpc/server";
 import BookingsList from "@/components/dashboard/bookings/BookingsList";
-import SearchResults from "@/components/dashboard/search/SearchResults";
+import SearchResultsDtC from "@/components/dashboard/search/SearchResultsDtC";
+import SearchResultsDtS from "@/components/dashboard/search/SearchResultsDtS";
 import SearchInput from "@/components/dashboard/search/SearchInput";
 
 export const metadata: Metadata = {
@@ -41,7 +42,8 @@ export default async function SearchPage({
         </div>
         <div className="space-y-4">
           <SearchInput placeholder="Search bookings..." />
-          <SearchResults
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-1 lg:grid-cols-2"></div>
+          <SearchResultsDtS
             query={query}
             currentPage={currentPage}
             location={location}
