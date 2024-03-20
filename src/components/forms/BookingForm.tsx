@@ -377,11 +377,11 @@ export function BookingForm({
               description: "The booking has been successfully cancelled.",
             });
             if (isDashboard) {
-              router.push("/dashboard"); // Redirect to the dashboard or another appropriate page
+              // If dashboard page, go to dashboard home
+              router.push("/dashboard");
             } else if (isDialog) {
-              // Close the dialog
+              // If dialog, close the dialog and refetch the bookings in the parent component
               closeDialog?.();
-              // Refetch the bookings from the parent component
               if (refetch) void refetch();
             }
           },
@@ -454,14 +454,12 @@ export function BookingForm({
             }
           }
 
-          // Reset form or redirect user as needed
-          // TODO: Conditional for dialog or page
-          // reset(commonData);
           if (viewContext === "dashboard") {
+            // If dashboard page, go to dashboard home
             router.push("/dashboard");
           } else if (viewContext === "dialog") {
+            // If dialog, close the dialog and refetch the bookings in the parent component
             closeDialog?.();
-            // Refetch the bookings from the parent component
             if (refetch) void refetch();
           }
         },

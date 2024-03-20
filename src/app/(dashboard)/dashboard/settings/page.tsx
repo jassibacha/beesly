@@ -17,9 +17,9 @@ import { RecentSales } from "@/components/dashboard/recent-sales";
 import { api } from "@/trpc/server";
 import dynamic from "next/dynamic";
 import { LocationForm } from "./_components/EditLocationForm";
+import { EditLocationSettingsForm } from "./_components/EditLocationSettingsForm";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { Suspense } from "react";
-import { EditLocationSettingsForm } from "@/components/forms/EditLocationSettingsForm";
 
 export const metadata: Metadata = {
   title: "Settings",

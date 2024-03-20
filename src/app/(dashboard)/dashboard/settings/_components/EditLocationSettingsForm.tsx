@@ -56,7 +56,7 @@ import {
   locationSettingsFormSchema,
   type LocationSettingsFormSchemaValues,
 } from "@/lib/schemas/locationSchemas";
-import { Switch } from "../ui/switch";
+import { Switch } from "../../../../../components/ui/switch";
 
 interface LocationFormProps {
   locationSettings: LocationSetting;
