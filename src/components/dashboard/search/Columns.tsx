@@ -114,6 +114,7 @@ export const columns: ColumnDef<BookingWithTimezone>[] = [
     id: "Actions",
     accessorKey: "Actions",
     header: "",
+    // This could eventually be an area where they could re-send emails, etc.
     cell: ({ row }) => {
       return (
         <Button size="sm" variant="outline" asChild>
