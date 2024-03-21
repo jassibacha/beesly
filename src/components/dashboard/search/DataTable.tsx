@@ -109,11 +109,18 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex flex-col space-x-2 py-4 lg:flex-row">
-        <div className="flex-grow">
-          <DataTablePagination table={table} />
+      {/* <div className="grid grid-cols-2 gap-4 py-3 lg:flex lg:justify-between"> */}
+      <div className="flex py-3 lg:flex lg:justify-between">
+        <div className="order-2 text-sm text-muted-foreground lg:order-1 lg:block">
+          {table.getFilteredRowModel().rows.length} bookings
         </div>
-        <div className="ml-auto">
+        <div className="order-1 flex justify-between lg:order-2 lg:w-2/4">
+          <DataTablePagination table={table} />
+          {/* <div className="text-sm text-muted-foreground lg:hidden">
+            {table.getFilteredRowModel().rows.length} bookings
+          </div> */}
+        </div>
+        <div className="order-3 lg:order-3">
           <DataTableViewOptions table={table} />
         </div>
       </div>
