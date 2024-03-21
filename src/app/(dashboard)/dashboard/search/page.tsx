@@ -13,11 +13,9 @@ export default async function SearchPage({
 }: {
   searchParams?: {
     q?: string;
-    p?: string;
   };
 }) {
   const query = searchParams?.q ?? "";
-  const currentPage = Number(searchParams?.p) || 1;
 
   const location = await api.location.getLocationByUserId.query();
 
@@ -31,12 +29,7 @@ export default async function SearchPage({
         </div>
         <div className="space-y-4">
           <SearchInput placeholder="Search bookings..." />
-
-          <SearchResults
-            query={query}
-            currentPage={currentPage}
-            location={location}
-          />
+          <SearchResults query={query} location={location} />
         </div>
       </div>
     </>

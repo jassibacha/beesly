@@ -5,11 +5,9 @@ import { DataTable } from "./DataTable";
 
 export default async function SearchResultsDtS({
   query,
-  currentPage,
   location,
 }: {
   query: string;
-  currentPage: number;
   location: Location;
 }) {
   // We could do this as a client fetch instead
