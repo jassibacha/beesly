@@ -3,7 +3,8 @@
 import * as React from "react";
 import {
   type ColumnDef,
-  SortingState,
+  type SortingState,
+  type VisibilityState,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
@@ -19,7 +20,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { DataTablePagination } from "./DataTablePagination";
+import { DataTableViewOptions } from "./DataTableViewOptions";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -32,6 +40,9 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+
   const table = useReactTable({
     data,
     columns,
@@ -39,13 +50,15 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
     state: {
       sorting,
+      columnVisibility,
     },
   });
 
   return (
-    <div>
+    <div className="">
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -96,8 +109,13 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="space-x-2 py-4">
-        <DataTablePagination table={table} />
+      <div className="flex flex-col space-x-2 py-4 lg:flex-row">
+        <div className="flex-grow">
+          <DataTablePagination table={table} />
+        </div>
+        <div className="ml-auto">
+          <DataTableViewOptions table={table} />
+        </div>
       </div>
     </div>
   );

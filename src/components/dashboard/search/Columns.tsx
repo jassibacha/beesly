@@ -18,6 +18,7 @@ type BookingWithTimezone = Omit<Booking, "startTime" | "endTime"> & {
 
 export const columns: ColumnDef<BookingWithTimezone>[] = [
   {
+    id: "Status",
     accessorKey: "status",
     header: ({ column }) => {
       return (
@@ -39,6 +40,7 @@ export const columns: ColumnDef<BookingWithTimezone>[] = [
     },
   },
   {
+    id: "Date & Time",
     accessorKey: "startTime",
     header: ({ column }) => {
       return (
@@ -84,6 +86,7 @@ export const columns: ColumnDef<BookingWithTimezone>[] = [
     },
   },
   {
+    id: "Name",
     accessorKey: "customerName",
     header: ({ column }) => {
       return (
@@ -98,15 +101,18 @@ export const columns: ColumnDef<BookingWithTimezone>[] = [
     },
   },
   {
+    id: "Phone",
     accessorKey: "customerPhone",
     header: "Phone",
   },
   {
+    id: "Email",
     accessorKey: "customerEmail",
     header: "Email",
   },
   {
-    accessorKey: "actions",
+    id: "Actions",
+    accessorKey: "Actions",
     header: "",
     cell: ({ row }) => {
       return (
@@ -115,5 +121,6 @@ export const columns: ColumnDef<BookingWithTimezone>[] = [
         </Button>
       );
     },
+    enableHiding: false,
   },
 ];
