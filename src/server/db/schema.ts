@@ -26,6 +26,7 @@ import {
   //datetime,
   bigint,
   json,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 import { relations, sql } from "drizzle-orm";
@@ -60,6 +61,7 @@ export const users = createTable(
   },
   (table) => ({
     emailIndex: index("email_idx").on(table.email),
+    // TODO: We can do uniqueIndex as well, look into the difference
   }),
 );
 
