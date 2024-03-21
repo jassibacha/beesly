@@ -928,6 +928,8 @@ export const bookingRouter = createTRPCRouter({
       // Map over the results to add location.timezone to each booking
       const bookingsWithTimezone = matchingBookings.map((booking) => ({
         ...booking,
+        startTime: booking.startTime.toISOString(),
+        endTime: booking.endTime.toISOString(),
         timezone: location.timezone,
       }));
 
