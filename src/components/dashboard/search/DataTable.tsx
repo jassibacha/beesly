@@ -110,8 +110,8 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
       {/* <div className="grid grid-cols-2 gap-4 py-3 lg:flex lg:justify-between"> */}
-      <div className="flex py-3 lg:flex lg:justify-between">
-        <div className="order-2 text-sm text-muted-foreground lg:order-1 lg:block">
+      <div className="flex flex-col flex-wrap py-3 lg:flex lg:flex-row lg:flex-nowrap lg:justify-between">
+        <div className="order-2 hidden py-2 text-sm text-muted-foreground lg:order-1 lg:block">
           {table.getFilteredRowModel().rows.length} bookings
         </div>
         <div className="order-1 flex justify-between lg:order-2 lg:w-2/4">
@@ -120,7 +120,10 @@ export function DataTable<TData, TValue>({
             {table.getFilteredRowModel().rows.length} bookings
           </div> */}
         </div>
-        <div className="order-3 lg:order-3">
+        <div className="order-3 flex pt-3 lg:order-3 lg:pt-0">
+          <div className="py-2 text-sm  text-muted-foreground lg:hidden">
+            {table.getFilteredRowModel().rows.length} bookings
+          </div>
           <DataTableViewOptions table={table} />
         </div>
       </div>
