@@ -31,7 +31,7 @@ export default async function SearchPage({
         </div>
         <div className="space-y-4">
           <SearchInput placeholder="Search bookings..." />
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-1 lg:grid-cols-2"></div>
+
           <SearchResults
             query={query}
             currentPage={currentPage}

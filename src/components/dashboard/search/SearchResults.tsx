@@ -19,7 +19,7 @@ export default async function SearchResultsDtS({
   });
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="pt-0">
       <DataTable columns={columns} data={bookingResults} />
     </div>
   );
