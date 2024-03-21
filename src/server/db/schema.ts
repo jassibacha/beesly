@@ -155,7 +155,9 @@ export const locationSettings = createTable(
     updatedAt: timestamp("updated_at"),
   },
   (table) => ({
-    locationIdIdx: index("location_id_idx").on(table.locationId),
+    settingsLocationIdIdx: index("settings_location_id_idx").on(
+      table.locationId,
+    ),
     // timeZoneIdx: index("time_zone_idx").on(table.timeZone),
   }),
 );
@@ -184,7 +186,9 @@ export const resources = createTable(
     updatedAt: timestamp("updated_at"),
   },
   (table) => ({
-    locationIdIdx: index("location_id_idx").on(table.locationId),
+    resourcesLocationIdIdx: index("resources_location_id_idx").on(
+      table.locationId,
+    ),
   }),
 );
 

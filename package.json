@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "next build",
-    "db:push": "drizzle-kit push:mysql",
+    "db:push": "drizzle-kit push:pg",
     "db:studio": "drizzle-kit studio",
     "db:seed": "node --import tsx --env-file .env ./src/server/db/seeds/seed.ts",
     "db:generate-test-bookings": "node --import tsx --env-file .env ./src/server/db/seeds/generateTestBookings.ts",
@@ -51,7 +51,7 @@
     "next": "^14.0.4",
     "next-themes": "^0.2.1",
     "pg": "^8.11.3",
-    "postgres": "^3.4.4",
+    "postgres": "3.3.0",
     "react": "18.2.0",
     "react-day-picker": "^8.10.0",
     "react-dom": "18.2.0",
