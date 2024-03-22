@@ -176,7 +176,15 @@ export function EditLocationSettingsForm({
     Sunday: { open: "", close: "", isOpen: true },
   };
 
-  dailyAvailability = JSON.parse(ls.dailyAvailability) as DailyAvailability;
+  // Check if dailyAvailability is an object or a string
+  // And parse it if necessary
+  if (typeof locationSettings.dailyAvailability === "object") {
+    dailyAvailability = ls.dailyAvailability as unknown as DailyAvailability;
+    console.log("dailyAvailability is an object already.");
+  } else if (typeof locationSettings.dailyAvailability === "string") {
+    dailyAvailability = JSON.parse(ls.dailyAvailability) as DailyAvailability;
+    console.log("dailyAvailability is a string and was parsed.");
+  }
   // try {
   //   dailyAvailability = JSON.parse(ls.dailyAvailability) as DailyAvailability;
   //   console.log("dailyAvailability:", dailyAvailability);

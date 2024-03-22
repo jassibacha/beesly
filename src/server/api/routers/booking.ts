@@ -164,40 +164,62 @@ async function getBookingsByDate(
     });
   }
 
-  if (typeof locationSettings.dailyAvailability !== "string") {
-    throw new TRPCError({
-      code: "BAD_REQUEST",
-      message: "Daily availability settings are not properly configured.",
-    });
-  }
+  // if (typeof locationSettings.dailyAvailability !== "string") {
+  //   console.log(
+  //     "dailyAvailability is not a string. Actual type:",
+  //     typeof locationSettings.dailyAvailability,
+  //   );
+  //   console.log("dailyAvailability: ", locationSettings.dailyAvailability);
+  //   throw new TRPCError({
+  //     code: "BAD_REQUEST",
+  //     message: "Daily availability settings are not properly configured.",
+  //   });
+  // }
 
   // Initialize a variable to hold parsed daily availability if applicable
   let dailyAvailability: DailyAvailability | undefined;
-  try {
-    // Attempt to parse the JSON string into an object
-    const parsed: unknown = JSON.parse(locationSettings.dailyAvailability);
-    // Validate the parsed object against the expected structure using isDailyAvailability
-    if (isDailyAvailability(parsed)) {
-      console.log("dailyAvailabilityParsed: ", parsed);
-      // If valid, assign parsed data to dailyAvailability
-      dailyAvailability = parsed;
+
+  // Check if dailyAvailability is already an object and has the correct format
+  if (typeof locationSettings.dailyAvailability === "object") {
+    if (isDailyAvailability(locationSettings.dailyAvailability)) {
+      dailyAvailability = locationSettings.dailyAvailability;
     } else {
-      throw new Error(
-        "Parsed daily availability does not match expected structure.",
+      console.error(
+        "The dailyAvailability object does not match the expected structure:",
+        locationSettings.dailyAvailability,
       );
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Daily availability settings are not properly configured.",
+      });
     }
-  } catch (error) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Failed to parse daily availability settings.",
-    });
+  } else if (typeof locationSettings.dailyAvailability === "string") {
+    try {
+      // Attempt to parse the JSON string into an object
+      const parsed: unknown = JSON.parse(locationSettings.dailyAvailability);
+      // Validate the parsed object against the expected structure using isDailyAvailability
+      if (isDailyAvailability(parsed)) {
+        console.log("dailyAvailabilityParsed: ", parsed);
+        // If valid, assign parsed data to dailyAvailability
+        dailyAvailability = parsed;
+      } else {
+        throw new Error(
+          "Parsed daily availability does not match expected structure.",
+        );
+      }
+    } catch (error) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to parse daily availability settings.",
+      });
+    }
   }
 
   const dayOfWeek = DateTime.fromJSDate(date).setZone(
     location.timezone,
   ).weekdayLong!;
   // Extract schedule for the specific day of the week
-  const daySchedule = dailyAvailability[dayOfWeek as keyof DailyAvailability];
+  const daySchedule = dailyAvailability![dayOfWeek as keyof DailyAvailability];
 
   const openTimeISO = DateTime.fromISO(
     `${DateTime.fromJSDate(date).toISODate()}T${daySchedule.open}`,
