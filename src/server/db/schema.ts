@@ -1,18 +1,34 @@
 // Example model schema from the Drizzle docs
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
+// import {
+//   boolean,
+//   decimal,
+//   smallint,
+//   index,
+//   mysqlTableCreator,
+//   timestamp,
+//   varchar,
+//   datetime,
+//   bigint,
+//   json,
+// } from "drizzle-orm/mysql-core";
+
 import {
   boolean,
   decimal,
   smallint,
   index,
-  mysqlTableCreator,
+  //mysqlTableCreator,
+  pgTableCreator,
   timestamp,
   varchar,
-  datetime,
+  //datetime,
   bigint,
   json,
-} from "drizzle-orm/mysql-core";
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
+
 import { relations, sql } from "drizzle-orm";
 
 /**
@@ -21,7 +37,7 @@ import { relations, sql } from "drizzle-orm";
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
-export const createTable = mysqlTableCreator((name) => `beesly_${name}`);
+export const createTable = pgTableCreator((name) => `beesly_${name}`);
 
 export const users = createTable(
   "users",
@@ -41,10 +57,11 @@ export const users = createTable(
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: timestamp("updated_at").onUpdateNow(),
+    updatedAt: timestamp("updated_at"),
   },
   (table) => ({
     emailIndex: index("email_idx").on(table.email),
+    // TODO: We can do uniqueIndex as well, look into the difference
   }),
 );
 
@@ -78,7 +95,7 @@ export const locations = createTable(
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: timestamp("updated_at").onUpdateNow(),
+    updatedAt: timestamp("updated_at"),
   },
   (table) => ({
     ownerIdIdx: index("owner_id_idx").on(table.ownerId),
@@ -137,10 +154,12 @@ export const locationSettings = createTable(
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: timestamp("updated_at").onUpdateNow(),
+    updatedAt: timestamp("updated_at"),
   },
   (table) => ({
-    locationIdIdx: index("location_id_idx").on(table.locationId),
+    settingsLocationIdIdx: index("settings_location_id_idx").on(
+      table.locationId,
+    ),
     // timeZoneIdx: index("time_zone_idx").on(table.timeZone),
   }),
 );
@@ -166,10 +185,12 @@ export const resources = createTable(
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: timestamp("updated_at").onUpdateNow(),
+    updatedAt: timestamp("updated_at"),
   },
   (table) => ({
-    locationIdIdx: index("location_id_idx").on(table.locationId),
+    resourcesLocationIdIdx: index("resources_location_id_idx").on(
+      table.locationId,
+    ),
   }),
 );
 
@@ -188,8 +209,8 @@ export const bookings = createTable(
     customerName: varchar("customer_name", { length: 256 }).notNull(),
     customerEmail: varchar("customer_email", { length: 256 }).notNull(),
     customerPhone: varchar("customer_phone", { length: 50 }).notNull(),
-    startTime: datetime("start_time").notNull(),
-    endTime: datetime("end_time").notNull(),
+    startTime: timestamp("start_time").notNull(),
+    endTime: timestamp("end_time").notNull(),
     totalCost: decimal("total_cost", { precision: 10, scale: 2 }),
     taxAmount: decimal("tax_amount", { precision: 10, scale: 2 }),
     status: varchar("status", { length: 50 }).notNull(), // Enum: "ACTIVE", "CANCELLED", "COMPLETED"
@@ -200,7 +221,7 @@ export const bookings = createTable(
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: timestamp("updated_at").onUpdateNow(),
+    updatedAt: timestamp("updated_at"),
   },
   (table) => ({
     locationIdIdx: index("location_id_idx").on(table.locationId),
@@ -231,7 +252,7 @@ export const resourceBookings = createTable(
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: timestamp("updated_at").onUpdateNow(),
+    updatedAt: timestamp("updated_at"),
   },
   (table) => ({
     bookingIdIdx: index("booking_id_idx").on(table.bookingId),
