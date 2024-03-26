@@ -1,13 +1,7 @@
 //"use client";
 import type { Metadata } from "next";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDateRangePicker } from "@/components/dashboard/date-range-picker";
-import { notFound, redirect } from "next/navigation";
-import DailyBookings from "@/components/dashboard/DailyBookings";
 import { Suspense } from "react";
-import { api } from "@/trpc/server";
 import BookingsList from "@/components/dashboard/bookings/BookingsList";
-import { useLocationContext } from "@/context/LocationContext";
 
 export const metadata: Metadata = {
   title: "Dashboard",

@@ -1,14 +1,11 @@
 "use client";
 
-import { z, ZodError } from "zod";
-import { DateTime } from "luxon";
-import { CalendarIcon, Loader2, Trash2 } from "lucide-react";
-import { type SubmitHandler, useForm, Controller } from "react-hook-form";
+import { ZodError } from "zod";
+import { Loader2, Trash2 } from "lucide-react";
+import { type SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -18,46 +15,20 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  type BookingFormSchemaValues,
-  bookingFormSchema,
-} from "@/lib/schemas/bookingSchemas";
 
-import { useToast, toast } from "@/components/ui/use-toast";
+import { toast } from "@/components/ui/use-toast";
 import { api } from "@/trpc/react";
-import { notFound, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
-import type {
-  Booking,
-  Location,
-  LocationSetting,
-  Resource,
-} from "@/server/db/types";
+import type { Location } from "@/server/db/types";
 import {
   type UpdateLocationFormSchemaValues,
   updateLocationFormSchema,
 } from "@/lib/schemas/locationSchemas";
-import { r2 } from "@/lib/r2";
-import { set } from "date-fns";
-import { useDashboardData } from "@/hooks/useDashboardData";
 import { useLocationContext } from "@/context/LocationContext";
 
 interface LocationFormProps {
   location: Location;
-  locationSettings: LocationSetting;
 }
 
 // Define the form values type to include the logo as File | string | null

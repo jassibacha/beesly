@@ -1,20 +1,16 @@
 "use client";
 
-import { z, ZodError } from "zod";
-import { DateTime } from "luxon";
-import { CalendarIcon, Loader2, Trash2 } from "lucide-react";
+import { ZodError } from "zod";
 import {
   type SubmitHandler,
   useForm,
   Controller,
-  Control,
+  type Control,
   useWatch,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -24,11 +20,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+
 import {
   Select,
   SelectContent,
@@ -36,27 +28,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  type BookingFormSchemaValues,
-  bookingFormSchema,
-} from "@/lib/schemas/bookingSchemas";
 
-import { useToast, toast } from "@/components/ui/use-toast";
+import { toast } from "@/components/ui/use-toast";
 import { api } from "@/trpc/react";
-import { notFound, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
-import type {
-  Booking,
-  Location,
-  LocationSetting,
-  Resource,
-} from "@/server/db/types";
+import type { LocationSetting } from "@/server/db/types";
 import {
   locationSettingsFormSchema,
   type LocationSettingsFormSchemaValues,
 } from "@/lib/schemas/locationSchemas";
-import { Switch } from "../../../../../components/ui/switch";
+import { Switch } from "@/components/ui/switch";
 import { useLocationContext } from "@/context/LocationContext";
 
 interface LocationFormProps {
