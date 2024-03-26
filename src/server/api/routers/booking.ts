@@ -868,8 +868,19 @@ export const bookingRouter = createTRPCRouter({
         .orderBy(asc(bookings.startTime))
         .limit(limit);
 
+      // Get the count of bookings for the current date
+      const { existingBookings: bookingsForToday } = await getBookingsByDate(
+        locationId,
+        now,
+        BookingDetail.Basic,
+        ctx,
+      );
+
+      const countForToday = bookingsForToday?.length;
+
       return {
         bookings: upcomingBookings,
+        countForToday,
       };
     }),
 
@@ -883,6 +894,8 @@ export const bookingRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const { limit = 10, locationId } = input; // Default limit to 10 if not provided
+      const now = new Date();
+      const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
       const recentBookings = await ctx.db
         .select()
@@ -891,8 +904,22 @@ export const bookingRouter = createTRPCRouter({
         .orderBy(desc(bookings.createdAt))
         .limit(limit);
 
+      // Count all bookings in the last 24 hours, without the limit
+      const last24Hours = await ctx.db
+        .select()
+        .from(bookings)
+        .where(
+          and(
+            eq(bookings.locationId, locationId),
+            gte(bookings.createdAt, yesterday), // Filter bookings created in the last 24 hours
+          ),
+        ); // Count the number of bookings
+
+      const countInLast24Hours = last24Hours?.length;
+
       return {
         bookings: recentBookings,
+        countInLast24Hours,
       };
     }),
 

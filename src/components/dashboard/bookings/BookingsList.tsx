@@ -63,10 +63,11 @@ export default function BookingsList({
       },
     );
     bookings = bookingsData?.bookings ?? [];
+    const countForToday = bookingsData?.countForToday ?? "X"; // Get the count for today from the query result
     refetch = refetchUpcoming;
     isLoadingBookings = isLoadingUpcoming;
     title = "Upcoming Bookings";
-    desc = "There are X bookings today"; // TODO: Make this dynamic (additional query inside of trpc?)
+    desc = `There are ${countForToday} bookings today`;
   } else if (type === "recent") {
     const {
       data: bookingsData,
@@ -84,10 +85,11 @@ export default function BookingsList({
       },
     );
     bookings = bookingsData?.bookings ?? [];
+    const countInLast24Hours = bookingsData?.countInLast24Hours ?? "X"; // Get the count for the last 24 hours from the query result
     refetch = refetchRecent;
     isLoadingBookings = isLoadingRecent;
     title = "Recent Bookings";
-    desc = "You have X bookings in the past 24h"; // TODO: Make this dynamic (additional query inside of trpc?)
+    desc = `You have ${countInLast24Hours} bookings in the past 24h`;
   }
 
   const renderBookings = () => {
