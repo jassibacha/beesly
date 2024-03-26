@@ -16,29 +16,33 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import { useLocationContext } from "@/context/LocationContext";
 /* eslint-disable @typescript-eslint/no-empty-function, @typescript-eslint/no-misused-promises */
 
 interface BookingsListProps {
   //bookings: Booking[];
   type: "upcoming" | "recent";
-  timezone: string;
-  location: Location;
-  locationSettings: LocationSetting;
-  resources: Resource[];
+  //timezone: string;
+  // location: Location;
+  // locationSettings: LocationSetting;
+  // resources: Resource[];
   limit?: number;
 }
 
 export default function BookingsList({
   type,
-  timezone,
-  location,
-  locationSettings,
-  resources,
+  // timezone,
+  // location,
+  // locationSettings,
+  // resources,
   limit = 5,
 }: BookingsListProps) {
+  const { location, locationSettings, resources, isLoading } =
+    useLocationContext();
+
   let bookings: Booking[] = [];
   let refetch: () => void = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
-  let isLoading = false;
+  let isLoadingBookings = false;
   let title = "";
   let desc = "";
 
@@ -47,13 +51,20 @@ export default function BookingsList({
       data: bookingsData,
       refetch: refetchUpcoming,
       isLoading: isLoadingUpcoming,
-    } = api.booking.listUpcomingBookings.useQuery({
-      locationId: location.id,
-      limit: limit,
-    });
+    } = api.booking.listUpcomingBookings.useQuery(
+      {
+        locationId: location?.id ?? "",
+        limit: limit,
+      },
+      {
+        enabled: !isLoading && !!location,
+        refetchOnMount: "always", // Refetch always on mount or re-mount
+        refetchInterval: 300000, // Refetch every 5 minutes
+      },
+    );
     bookings = bookingsData?.bookings ?? [];
     refetch = refetchUpcoming;
-    isLoading = isLoadingUpcoming;
+    isLoadingBookings = isLoadingUpcoming;
     title = "Upcoming Bookings";
     desc = "There are X bookings today"; // TODO: Make this dynamic (additional query inside of trpc?)
   } else if (type === "recent") {
@@ -61,19 +72,32 @@ export default function BookingsList({
       data: bookingsData,
       refetch: refetchRecent,
       isLoading: isLoadingRecent,
-    } = api.booking.listRecentBookings.useQuery({
-      locationId: location.id,
-      limit: limit,
-    });
+    } = api.booking.listRecentBookings.useQuery(
+      {
+        locationId: location?.id ?? "",
+        limit: limit,
+      },
+      {
+        enabled: !isLoading && !!location,
+        refetchOnMount: "always", // Refetch always on mount or re-mount
+        refetchInterval: 300000, // Refetch every 5 minutes
+      },
+    );
     bookings = bookingsData?.bookings ?? [];
     refetch = refetchRecent;
-    isLoading = isLoadingRecent;
+    isLoadingBookings = isLoadingRecent;
     title = "Recent Bookings";
     desc = "You have X bookings in the past 24h"; // TODO: Make this dynamic (additional query inside of trpc?)
   }
 
   const renderBookings = () => {
-    if (isLoading) {
+    if (
+      isLoadingBookings ||
+      isLoading ||
+      !location ||
+      !locationSettings ||
+      !resources
+    ) {
       return (
         <div className="flex items-center justify-center space-x-2">
           <Loader2 className="animate-spin" />{" "}
@@ -97,7 +121,7 @@ export default function BookingsList({
           <BookingItem
             key={booking.id}
             booking={booking}
-            timezone={timezone}
+            timezone={location?.timezone}
             location={location}
             locationSettings={locationSettings}
             resources={resources}

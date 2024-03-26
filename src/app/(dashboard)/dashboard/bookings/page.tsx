@@ -1,4 +1,4 @@
-"use client";
+//"use client";
 import type { Metadata } from "next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDateRangePicker } from "@/components/dashboard/date-range-picker";
@@ -15,12 +15,13 @@ import { useLocationContext } from "@/context/LocationContext";
 // };
 
 export default function BookingsPage() {
-  const { location, locationSettings, resources, isLoading } =
-    useLocationContext();
+  // const { location, locationSettings, resources, isLoading } =
+  //   useLocationContext();
 
-  if (isLoading || !location || !locationSettings || !resources) {
-    return <div>Loading...</div>;
-  }
+  // if (isLoading || !location || !locationSettings || !resources) {
+  //   return <div>Loading...</div>;
+  //}
+
   // const location = await api.location.getLocationByUserId.query();
 
   // if (!location) {
@@ -51,7 +52,7 @@ export default function BookingsPage() {
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-3xl font-bold tracking-tight">Bookings</h2>
         </div>
-        <Tabs defaultValue="bookings" className="space-y-4">
+        {/* <Tabs defaultValue="bookings" className="space-y-4">
           <TabsList>
             <TabsTrigger value="bookings">Bookings</TabsTrigger>
             <TabsTrigger value="search">Search</TabsTrigger>
@@ -59,36 +60,36 @@ export default function BookingsPage() {
               Notifications
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="bookings" className="space-y-4">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-1 lg:grid-cols-2">
-              <Suspense fallback={<div>Loading...</div>}>
-                <BookingsList
-                  // bookings={upcomingBookings.bookings}
-                  type="upcoming"
-                  timezone={location.timezone}
-                  location={location}
-                  locationSettings={locationSettings}
-                  resources={resources}
-                />
-              </Suspense>
-              <Suspense fallback={<div>Loading...</div>}>
-                <BookingsList
-                  // bookings={recentBookings.bookings}
-                  type="recent"
-                  timezone={location.timezone}
-                  location={location}
-                  locationSettings={locationSettings}
-                  resources={resources}
-                />
-              </Suspense>
-            </div>
-          </TabsContent>
+          <TabsContent value="bookings" className="space-y-4"> */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-1 lg:grid-cols-2">
+          <Suspense fallback={<div>Loading...</div>}>
+            <BookingsList
+              // bookings={upcomingBookings.bookings}
+              type="upcoming"
+              // timezone={location.timezone}
+              // location={location}
+              // locationSettings={locationSettings}
+              // resources={resources}
+            />
+          </Suspense>
+          <Suspense fallback={<div>Loading...</div>}>
+            <BookingsList
+              // bookings={recentBookings.bookings}
+              type="recent"
+              // timezone={location.timezone}
+              // location={location}
+              // locationSettings={locationSettings}
+              // resources={resources}
+            />
+          </Suspense>
+        </div>
+        {/* </TabsContent>
           <TabsContent value="search" className="space-y-4">
             <div className="grid h-screen gap-4 overflow-auto md:grid-cols-1 lg:grid-cols-1">
               Search will go here
             </div>
           </TabsContent>
-        </Tabs>
+        </Tabs> */}
       </div>
     </>
   );
