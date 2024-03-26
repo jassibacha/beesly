@@ -218,8 +218,9 @@ export function LocationForm() {
           title: "Location Updated",
           description: "Your location has been successfully updated.",
         });
-        void refetchLocation();
-        reset(updatedData);
+        //void refetchLocation();
+        setLocation(updatedData as Location); // Update the context with the new location data
+        reset(updatedData); // Reset the form with the updated data
       },
       onError: (error) => {
         console.error("Failed to update location:", error);

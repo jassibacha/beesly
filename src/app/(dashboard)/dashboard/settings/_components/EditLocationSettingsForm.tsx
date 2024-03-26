@@ -1,6 +1,6 @@
 "use client";
 
-import { ZodError } from "zod";
+import { api } from "@/trpc/react";
 import {
   type SubmitHandler,
   useForm,
@@ -9,6 +9,7 @@ import {
   useWatch,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ZodError } from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +21,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
 import {
   Select,
   SelectContent,
@@ -28,16 +28,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import { toast } from "@/components/ui/use-toast";
-import { api } from "@/trpc/react";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+
 import type { LocationSetting } from "@/server/db/types";
 import {
   locationSettingsFormSchema,
   type LocationSettingsFormSchemaValues,
 } from "@/lib/schemas/locationSchemas";
-import { Switch } from "@/components/ui/switch";
 import { useLocationContext } from "@/context/LocationContext";
 
 interface LocationFormProps {
@@ -146,7 +145,11 @@ const timeSlots = [
 //   locationSettings,
 // }: LocationFormProps) {
 export function EditLocationSettingsForm() {
-  const { locationSettings: ls, refetchSettings } = useLocationContext();
+  const {
+    locationSettings: ls,
+    setSettings,
+    refetchSettings,
+  } = useLocationContext();
 
   //const ls = locationSettings ?? "";
 
@@ -248,8 +251,9 @@ export function EditLocationSettingsForm() {
           title: "Advanced Settings Updated",
           description: "Your location has been successfully updated.",
         });
-        void refetchSettings();
-        reset(resetData);
+        // void refetchSettings();
+        setSettings(updatedData as LocationSetting); // Update the context with the new settings
+        reset(resetData); // Reset the form with the original reset data
       },
       onError: (error) => {
         console.error("Failed to update location:", error);

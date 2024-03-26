@@ -1,26 +1,13 @@
 //"use client";
 import type { Metadata } from "next";
-import Image from "next/image";
 
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDateRangePicker } from "@/components/dashboard/date-range-picker";
-// import { Overview } from "@/components/dashboard/overview";
-import { RecentSales } from "@/components/dashboard/recent-sales";
-import { api } from "@/trpc/server";
-import dynamic from "next/dynamic";
+
 import { LocationForm } from "./_components/EditLocationForm";
 import { EditLocationSettingsForm } from "./_components/EditLocationSettingsForm";
-import { useDashboardData } from "@/hooks/useDashboardData";
+
 import { Suspense } from "react";
-import { useLocationContext } from "@/context/LocationContext";
 
 export const metadata: Metadata = {
   title: "Settings",
