@@ -61,42 +61,61 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
   );
   const [resources, setResources] = useState<Resource[] | null>(null);
 
-  // Sync the user from clerk to the server
+  const [locationId, setLocationId] = useState<string | null>(null);
+
+  // Update locationId whenever location changes
+  useEffect(() => {
+    if (location?.id && location?.id !== locationId) {
+      setLocationId(location.id);
+    }
+  }, [location, locationId]);
+
+  // Grab the location from the db and set it
   const { refetch: refetchLocation, isLoading: isLoadingLocation } =
     api.location.getLocationByUserId.useQuery(undefined, {
       onSettled: (data) => {
         if (data) {
-          setLocation(data); // Set the user in the context if we get a valid user object
+          // Set the location in the context if we get a valid object
+          setLocation(data);
         }
       },
-      enabled: !location, // Enable the query only if there is no user set
+      // Enable the query only if there is no location set
+      enabled: !location,
     });
 
+  //if (location && location.id) {
+  // Grab the location settings from the db and set them
   const { refetch: refetchSettings, isLoading: isLoadingSettings } =
     api.location.getLocationSettingsByLocationId.useQuery(
-      { locationId: location!.id },
+      { locationId: locationId ?? "" },
       {
         onSettled: (data) => {
           if (data) {
+            // Set the locationSettings in the context if we get a valid object
             setSettings(data);
           }
         },
-        enabled: !!location && !locationSettings,
+        // Enable the query only if there is a locationId set and no settings set
+        enabled: !!locationId && !locationSettings,
       },
     );
 
+  // Grab the resources from the db and set them
   const { refetch: refetchResources, isLoading: isLoadingResources } =
     api.resource.getResourcesByLocationId.useQuery(
-      { locationId: location!.id },
+      { locationId: locationId ?? "" },
       {
         onSettled: (data) => {
           if (data) {
+            // Set the resources in the context if we get a valid object
             setResources(data);
           }
         },
-        enabled: !!location && !resources,
+        // Enable the query only if there is a locationId set and no resources set
+        enabled: !!locationId && !resources,
       },
     );
+  //}
 
   // useEffect(() => {
   //   console.log("LocationContext: useEffect");
@@ -112,12 +131,10 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
 
   const refetchAll = async (): Promise<void> => {
     console.log("LocationContext: refetchAll");
-    await refetchLocation();
-    if (location && !isLoadingLocation) {
-      // Run these void in parallel
-      void refetchSettings();
-      void refetchResources();
-    }
+    // Run these void in parallel
+    void refetchLocation();
+    void refetchSettings();
+    void refetchResources();
   };
 
   return (

@@ -53,6 +53,7 @@ import {
 import { r2 } from "@/lib/r2";
 import { set } from "date-fns";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useLocationContext } from "@/context/LocationContext";
 
 interface LocationFormProps {
   location: Location;
@@ -68,6 +69,8 @@ export function LocationForm({
   location,
   locationSettings,
 }: LocationFormProps) {
+  const { setLocation, refetchLocation } = useLocationContext();
+
   const defaultValues = {
     name: location.name,
     slug: location.slug,
@@ -230,7 +233,7 @@ export function LocationForm({
           title: "Location Updated",
           description: "Your location has been successfully updated.",
         });
-
+        void refetchLocation();
         reset(updatedData);
       },
       onError: (error) => {

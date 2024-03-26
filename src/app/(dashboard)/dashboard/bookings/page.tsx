@@ -1,3 +1,4 @@
+"use client";
 import type { Metadata } from "next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDateRangePicker } from "@/components/dashboard/date-range-picker";
@@ -6,36 +7,43 @@ import DailyBookings from "@/components/dashboard/DailyBookings";
 import { Suspense } from "react";
 import { api } from "@/trpc/server";
 import BookingsList from "@/components/dashboard/bookings/BookingsList";
+import { useLocationContext } from "@/context/LocationContext";
 
-export const metadata: Metadata = {
-  title: "Dashboard",
-  description: "Example dashboard app built using the components.",
-};
+// export const metadata: Metadata = {
+//   title: "Dashboard",
+//   description: "Example dashboard app built using the components.",
+// };
 
-export default async function BookingsPage() {
-  const location = await api.location.getLocationByUserId.query();
+export default function BookingsPage() {
+  const { location, locationSettings, resources, isLoading } =
+    useLocationContext();
 
-  if (!location) {
-    return notFound();
+  if (isLoading || !location || !locationSettings || !resources) {
+    return <div>Loading...</div>;
   }
+  // const location = await api.location.getLocationByUserId.query();
 
-  const [locationSettings, resources, upcomingBookings, recentBookings] =
-    await Promise.all([
-      api.location.getLocationSettingsByLocationId.query({
-        locationId: location.id,
-      }),
-      api.resource.getResourcesByLocationId.query({ locationId: location.id }),
-      api.booking.listUpcomingBookings.query({
-        locationId: location.id,
-        limit: 5,
-      }),
-      api.booking.listRecentBookings.query({
-        locationId: location.id,
-        limit: 5,
-      }),
+  // if (!location) {
+  //   return notFound();
+  // }
 
-      // api.resource.getResourcesByLocationId.query({ locationId: location.id }),
-    ]);
+  // const [locationSettings, resources, upcomingBookings, recentBookings] =
+  //   await Promise.all([
+  //     api.location.getLocationSettingsByLocationId.query({
+  //       locationId: location.id,
+  //     }),
+  //     api.resource.getResourcesByLocationId.query({ locationId: location.id }),
+  //     api.booking.listUpcomingBookings.query({
+  //       locationId: location.id,
+  //       limit: 5,
+  //     }),
+  //     api.booking.listRecentBookings.query({
+  //       locationId: location.id,
+  //       limit: 5,
+  //     }),
+
+  //     // api.resource.getResourcesByLocationId.query({ locationId: location.id }),
+  //   ]);
 
   return (
     <>

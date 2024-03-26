@@ -1,4 +1,4 @@
-// "use client";
+"use client";
 import type { Metadata } from "next";
 import Image from "next/image";
 
@@ -20,22 +20,30 @@ import { LocationForm } from "./_components/EditLocationForm";
 import { EditLocationSettingsForm } from "./_components/EditLocationSettingsForm";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { Suspense } from "react";
+import { useLocationContext } from "@/context/LocationContext";
 
-export const metadata: Metadata = {
-  title: "Settings",
-  description: "Example dashboard app built using the components.",
-};
+// export const metadata: Metadata = {
+//   title: "Settings",
+//   description: "Example dashboard app built using the components.",
+// };
 
-export default async function Page() {
-  const location = await api.location.getLocationByUserId.query();
+export default function Page() {
+  const { location, locationSettings, resources, isLoading } =
+    useLocationContext();
 
-  const locationSettings =
-    await api.location.getLocationSettingsByLocationId.query({
-      locationId: location.id,
-    });
+  if (isLoading || !location || !locationSettings || !resources) {
+    return <div>Loading...</div>;
+  }
 
-  // const { location, locationSettings, resources, isLoading, refetchAll } =
-  //   useDashboardData();
+  // const location = await api.location.getLocationByUserId.query();
+
+  // const locationSettings =
+  //   await api.location.getLocationSettingsByLocationId.query({
+  //     locationId: location.id,
+  //   });
+
+  // // const { location, locationSettings, resources, isLoading, refetchAll } =
+  // //   useDashboardData();
 
   return (
     <>

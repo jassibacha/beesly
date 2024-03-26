@@ -38,6 +38,7 @@ import type {
   LocationSetting,
   Resource,
 } from "@/server/db/types";
+import { useLocationContext } from "@/context/LocationContext";
 
 interface DailyBookingProps {
   location: Location;
@@ -69,14 +70,18 @@ interface BookingsResponse {
   isOpen: boolean;
 }
 
-export default function DailyBookings({
-  location,
-  locationSettings,
-  resources,
-}: DailyBookingProps) {
+// export default function DailyBookings({
+//   location,
+//   locationSettings,
+//   resources,
+// }: DailyBookingProps) {
+export default function DailyBookings() {
+  const { location, locationSettings, resources, isLoading } =
+    useLocationContext();
+
   const form = useForm({
     defaultValues: {
-      date: DateTime.now().setZone(location.timezone).toJSDate(),
+      date: DateTime.now().setZone(location?.timezone).toJSDate(),
     },
   });
 
@@ -92,11 +97,6 @@ export default function DailyBookings({
   // Watching the date field for changes
   const selectedDate = watch("date");
 
-  // Use `useQuery` to fetch bookings. Note that we're not calling `.query` directly;
-  // useQuery is the hook provided by TRPC for React.
-  // Adjust the query key accordingly if your procedure expects any parameters.
-  // const { data, isLoading, error } = api.booking.listBookings.useQuery();
-
   // tRPC query to fetch time slots (available and unavailable)
   const {
     data: bookingsData,
@@ -105,13 +105,23 @@ export default function DailyBookings({
     refetch: refetchBookings,
   } = api.booking.listBookingsByDate.useQuery<BookingsResponse>(
     {
-      locationId: location.id,
+      locationId: location?.id ?? "",
       date: selectedDate,
     },
     {
-      enabled: !!selectedDate,
+      enabled: !isLoading && !!selectedDate,
     },
   );
+
+  if (!location || !locationSettings || !resources) {
+    return (
+      <div className="flex items-center justify-center space-x-2">
+        <Loader2 className="h-10 w-10 animate-spin" />
+        {/* {" "}
+        <span>Loading time slots...</span> */}
+      </div>
+    );
+  }
 
   const hours = Array.from({ length: 24 }, (_, i) => i * 60); // Generate an array of minutes [0, 60, 120, ..., 1380]
 
@@ -139,11 +149,10 @@ export default function DailyBookings({
   const reducedOffsetInPixels = offsetInPixels - 100;
 
   const renderBookings = () => {
-    if (bookingsIsLoading)
+    if (bookingsIsLoading || isLoading)
       return (
         <div className="flex items-center justify-center space-x-2">
           <Loader2 className="animate-spin" />{" "}
-          {/* Loading icon with spin animation */}
           <span>Loading time slots...</span>
         </div>
       );

@@ -57,6 +57,7 @@ import {
   type LocationSettingsFormSchemaValues,
 } from "@/lib/schemas/locationSchemas";
 import { Switch } from "../../../../../components/ui/switch";
+import { useLocationContext } from "@/context/LocationContext";
 
 interface LocationFormProps {
   locationSettings: LocationSetting;
@@ -165,6 +166,8 @@ export function EditLocationSettingsForm({
 }: LocationFormProps) {
   const ls = locationSettings;
 
+  const { refetchSettings } = useLocationContext();
+
   // Parse dailyAvailability and taxSettings into objects
   let dailyAvailability: DailyAvailability = {
     Monday: { open: "", close: "", isOpen: true },
@@ -261,7 +264,7 @@ export function EditLocationSettingsForm({
           title: "Advanced Settings Updated",
           description: "Your location has been successfully updated.",
         });
-
+        void refetchSettings();
         reset(resetData);
       },
       onError: (error) => {
