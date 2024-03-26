@@ -161,12 +161,15 @@ const timeSlots = [
   "24:00",
 ];
 
-export function EditLocationSettingsForm({
-  locationSettings,
-}: LocationFormProps) {
-  const ls = locationSettings;
+// export function EditLocationSettingsForm({
+//   locationSettings,
+// }: LocationFormProps) {
+export function EditLocationSettingsForm() {
+  const { locationSettings: ls, refetchSettings } = useLocationContext();
 
-  const { refetchSettings } = useLocationContext();
+  //const ls = locationSettings ?? "";
+
+  //const { refetchSettings } = useLocationContext();
 
   // Parse dailyAvailability and taxSettings into objects
   let dailyAvailability: DailyAvailability = {
@@ -181,11 +184,11 @@ export function EditLocationSettingsForm({
 
   // Check if dailyAvailability is an object or a string
   // And parse it if necessary
-  if (typeof locationSettings.dailyAvailability === "object") {
-    dailyAvailability = ls.dailyAvailability as unknown as DailyAvailability;
+  if (typeof ls?.dailyAvailability === "object") {
+    dailyAvailability = ls?.dailyAvailability as unknown as DailyAvailability;
     console.log("dailyAvailability is an object already.");
-  } else if (typeof locationSettings.dailyAvailability === "string") {
-    dailyAvailability = JSON.parse(ls.dailyAvailability) as DailyAvailability;
+  } else if (typeof ls?.dailyAvailability === "string") {
+    dailyAvailability = JSON.parse(ls?.dailyAvailability) as DailyAvailability;
     console.log("dailyAvailability is a string and was parsed.");
   }
   // try {
@@ -208,15 +211,15 @@ export function EditLocationSettingsForm({
     // dailyAvailability: ls.dailyAvailability ?? [],
     // taxSettings
     dailyAvailability: dailyAvailability,
-    taxSettings: ls.taxSettings ?? "",
-    initialCostOfBooking: ls.initialCostOfBooking ?? "",
-    initialBookingLength: ls.initialBookingLength ?? "",
-    bookingLengthIncrements: ls.bookingLengthIncrements ?? "",
-    maxAdvanceBookingDays: ls.maxAdvanceBookingDays ?? "",
-    sameDayLeadTimeBuffer: ls.sameDayLeadTimeBuffer ?? "",
-    bufferTime: ls.bufferTime ?? "",
-    timeSlotIncrements: ls.timeSlotIncrements ?? "",
-    displayUnavailableSlots: ls.displayUnavailableSlots ?? false,
+    taxSettings: ls?.taxSettings ?? "",
+    initialCostOfBooking: ls?.initialCostOfBooking ?? "",
+    initialBookingLength: ls?.initialBookingLength ?? 0,
+    bookingLengthIncrements: ls?.bookingLengthIncrements ?? 0,
+    maxAdvanceBookingDays: ls?.maxAdvanceBookingDays ?? 0,
+    sameDayLeadTimeBuffer: ls?.sameDayLeadTimeBuffer ?? 0,
+    bufferTime: ls?.bufferTime ?? 0,
+    timeSlotIncrements: ls?.timeSlotIncrements ?? 0,
+    displayUnavailableSlots: ls?.displayUnavailableSlots ?? false,
   };
 
   const form = useForm<LocationSettingsFormSchemaValues>({
@@ -248,9 +251,9 @@ export function EditLocationSettingsForm({
 
     const updatedData = {
       ...values,
-      id: locationSettings.id,
+      id: ls?.id ?? "",
       dailyAvailability: dailyAvailabilityString,
-      locationId: locationSettings.locationId,
+      locationId: ls?.locationId ?? "",
       // updatedAt: DateTime.now().toJSDate(),
       //id: locationSettings.id,
     };

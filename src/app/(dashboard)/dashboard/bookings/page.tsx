@@ -9,10 +9,10 @@ import { api } from "@/trpc/server";
 import BookingsList from "@/components/dashboard/bookings/BookingsList";
 import { useLocationContext } from "@/context/LocationContext";
 
-// export const metadata: Metadata = {
-//   title: "Dashboard",
-//   description: "Example dashboard app built using the components.",
-// };
+export const metadata: Metadata = {
+  title: "Dashboard",
+  description: "Example dashboard app built using the components.",
+};
 
 export default function BookingsPage() {
   // const { location, locationSettings, resources, isLoading } =

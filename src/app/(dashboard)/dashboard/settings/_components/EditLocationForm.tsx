@@ -65,28 +65,32 @@ type FormValues = UpdateLocationFormSchemaValues & {
   logo: File | string | null;
 };
 
-export function LocationForm({
-  location,
-  locationSettings,
-}: LocationFormProps) {
+// export function LocationForm({
+//   location,
+//   locationSettings,
+// }: LocationFormProps) {
+export function LocationForm() {
   const { setLocation, refetchLocation } = useLocationContext();
+  let { location } = useLocationContext();
 
   const defaultValues = {
-    name: location.name,
-    slug: location.slug,
-    logo: location.logo, // File, string or null
-    phone: location.phone ?? "",
-    email: location.email ?? "",
-    website: location.website ?? "",
-    streetAddress: location.streetAddress ?? "",
-    city: location.city ?? "",
-    state: location.state ?? "",
-    zipCode: location.zipCode ?? "",
-    country: location.country ?? "",
-    timezone: location.timezone ?? "",
+    name: location?.name,
+    slug: location?.slug,
+    logo: location?.logo, // File, string or null
+    phone: location?.phone ?? "",
+    email: location?.email ?? "",
+    website: location?.website ?? "",
+    streetAddress: location?.streetAddress ?? "",
+    city: location?.city ?? "",
+    state: location?.state ?? "",
+    zipCode: location?.zipCode ?? "",
+    country: location?.country ?? "",
+    timezone: location?.timezone ?? "",
   };
 
-  const [currentLogo, setCurrentLogo] = useState<string | null>(location.logo);
+  const [currentLogo, setCurrentLogo] = useState<string | null>(
+    location?.logo ?? null,
+  );
   const form = useForm<UpdateLocationFormSchemaValues>({
     resolver: zodResolver(updateLocationFormSchema),
     defaultValues: defaultValues,
@@ -105,9 +109,19 @@ export function LocationForm({
 
   const { data: uploadData, isLoading: isUploadLoading } =
     api.r2.getLogoUploadUrl.useQuery({
-      locationId: location.id,
+      locationId: location?.id ?? "",
       extension: "png",
     });
+
+  if (!location) {
+    return (
+      <div className="flex items-center justify-center space-x-2">
+        <Loader2 className="h-10 w-10 animate-spin" />
+        {/* {" "}
+        <span>Loading time slots...</span> */}
+      </div>
+    );
+  }
 
   const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1 MB
 
@@ -159,9 +173,9 @@ export function LocationForm({
   const deleteLogoMutation = api.r2.deleteLogo.useMutation();
 
   const handleDeleteLogo = async () => {
-    if (location.logo) {
+    if (location?.logo) {
       deleteLogoMutation.mutate(
-        { imageUrl: location.logo, locationId: location.id },
+        { imageUrl: location?.logo, locationId: location?.id },
         {
           onSuccess: () => {
             toast({
@@ -200,7 +214,7 @@ export function LocationForm({
     console.log("Form errors:", form.formState.errors);
 
     // Use the existing logo URL as the default
-    let logoUrl: string | null = location.logo ?? null;
+    let logoUrl: string | null = location?.logo ?? null;
     // check if values.logo is truthy and is an object, and then we check if it
     // has a name property, which is a property of a File object.
     if (
@@ -220,7 +234,7 @@ export function LocationForm({
 
     const updatedData = {
       ...values,
-      id: location.id,
+      id: location?.id ?? "",
       logo: logoUrl,
     };
 

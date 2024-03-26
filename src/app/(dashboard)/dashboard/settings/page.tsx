@@ -1,4 +1,4 @@
-"use client";
+//"use client";
 import type { Metadata } from "next";
 import Image from "next/image";
 
@@ -22,18 +22,18 @@ import { useDashboardData } from "@/hooks/useDashboardData";
 import { Suspense } from "react";
 import { useLocationContext } from "@/context/LocationContext";
 
-// export const metadata: Metadata = {
-//   title: "Settings",
-//   description: "Example dashboard app built using the components.",
-// };
+export const metadata: Metadata = {
+  title: "Settings",
+  description: "Example dashboard app built using the components.",
+};
 
 export default function Page() {
-  const { location, locationSettings, resources, isLoading } =
-    useLocationContext();
+  // const { location, locationSettings, resources, isLoading } =
+  //   useLocationContext();
 
-  if (isLoading || !location || !locationSettings || !resources) {
-    return <div>Loading...</div>;
-  }
+  // if (isLoading || !location || !locationSettings || !resources) {
+  //   return <div>Loading...</div>;
+  // }
 
   // const location = await api.location.getLocationByUserId.query();
 
@@ -68,8 +68,8 @@ export default function Page() {
                 <CardContent className="">
                   <Suspense fallback={<div>Loading...</div>}>
                     <LocationForm
-                      location={location}
-                      locationSettings={locationSettings}
+                    // location={location}
+                    // locationSettings={locationSettings}
                     />
                   </Suspense>
                 </CardContent>
@@ -85,7 +85,7 @@ export default function Page() {
                 <CardContent className="">
                   <Suspense fallback={<div>Loading...</div>}>
                     <EditLocationSettingsForm
-                      locationSettings={locationSettings}
+                    //locationSettings={locationSettings}
                     />
                   </Suspense>
                 </CardContent>
