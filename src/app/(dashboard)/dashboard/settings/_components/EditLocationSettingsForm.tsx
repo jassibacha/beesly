@@ -151,10 +151,6 @@ export function EditLocationSettingsForm() {
     refetchSettings,
   } = useLocationContext();
 
-  //const ls = locationSettings ?? "";
-
-  //const { refetchSettings } = useLocationContext();
-
   // Parse dailyAvailability and taxSettings into objects
   let dailyAvailability: DailyAvailability = {
     Monday: { open: "", close: "", isOpen: true },
@@ -175,21 +171,8 @@ export function EditLocationSettingsForm() {
     dailyAvailability = JSON.parse(ls?.dailyAvailability) as DailyAvailability;
     console.log("dailyAvailability is a string and was parsed.");
   }
-  // try {
-  //   dailyAvailability = JSON.parse(ls.dailyAvailability) as DailyAvailability;
-  //   console.log("dailyAvailability:", dailyAvailability);
-  // } catch (error) {
-  //   console.error("Error parsing dailyAvailability:", error);
-  // }
 
-  console.log(dailyAvailability);
-
-  // try {
-  //   taxSettings = JSON.parse(ls.taxSettings) as TaxSettings;
-  //   console.log("taxSettings:", taxSettings);
-  // } catch (error) {
-  //   console.error("Error parsing taxSettings:", error);
-  // }
+  //console.log(dailyAvailability);
 
   const defaultValues = {
     // dailyAvailability: ls.dailyAvailability ?? [],
@@ -275,23 +258,6 @@ export function EditLocationSettingsForm() {
       },
     });
   };
-
-  // /**
-  //  * Converts a time string to 12-hour format.
-  //  * @param time - The time string in 24-hour format (e.g., "13:30").
-  //  * @returns The time string in 12-hour format (e.g., "1:30 PM").
-  //  * @throws Error if the time string is in an invalid format.
-  //  */
-  // function convertTo12HourFormat(time: string) {
-  //   const [hours, minutes] = time.split(":");
-  //   if (hours === undefined || minutes === undefined) {
-  //     throw new Error(`Invalid time format: ${time}`);
-  //   }
-  //   const hour = parseInt(hours, 10);
-  //   const suffix = hour >= 12 ? "PM" : "AM";
-  //   const displayHour = hour % 12 || 12;
-  //   return `${displayHour}:${minutes} ${suffix}`;
-  // }
 
   return (
     <Form {...form}>
