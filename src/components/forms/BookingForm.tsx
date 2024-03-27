@@ -835,25 +835,12 @@ export function BookingForm({
             </div>
 
             <div className="flex space-x-2">
+              {/* Create / Update Button */}
               {!isCancelled && !isCompleted && (
                 <Button type="submit">{isEditing ? "Update" : "Create"}</Button>
               )}
 
-              {isEditing &&
-                !isCancelled &&
-                !isCompleted &&
-                (isDialog || isDashboard) && (
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    onClick={handleCancelBooking}
-                  >
-                    Cancel
-                  </Button>
-                )}
-
-              {/* Specific close for the dialog */}
-
+              {/* Dialog Close Button */}
               {isDialog && (
                 <>
                   <DialogClose asChild>
@@ -861,17 +848,18 @@ export function BookingForm({
                       Close
                     </Button>
                   </DialogClose>
-                  <Button
+                  {/* <Button
                     type="button"
                     variant="secondary"
                     onClick={closeDialog}
                     className="ml-2"
                   >
                     Close2
-                  </Button>
+                  </Button> */}
                 </>
               )}
 
+              {/* Back Button */}
               {isDashboard && (
                 <Button
                   type="button"
@@ -887,6 +875,24 @@ export function BookingForm({
                   Back
                 </Button>
               )}
+
+              {/* Cancel Button */}
+              {isEditing &&
+                !isCancelled &&
+                !isCompleted &&
+                (isDialog || isDashboard) && (
+                  <>
+                    {/* This div will push the Cancel button to the right */}
+                    <div className="flex-grow"></div>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={handleCancelBooking}
+                    >
+                      Cancel
+                    </Button>
+                  </>
+                )}
             </div>
           </form>
         </Form>
