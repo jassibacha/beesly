@@ -69,22 +69,22 @@ import { BookingForm } from "@/components/forms/BookingForm";
 export default async function Page() {
   //const id = params.id;
 
-  const location = await api.location.getLocationByUserId.query();
+  // const location = await api.location.getLocationByUserId.query();
 
-  if (!location) {
-    notFound();
-  }
+  // if (!location) {
+  //   notFound();
+  // }
 
-  const [locationSettings, resources] = await Promise.all([
-    api.location.getLocationSettingsByLocationId.query({
-      locationId: location.id,
-    }),
-    api.resource.getResourcesByLocationId.query({ locationId: location.id }),
-  ]);
+  // const [locationSettings, resources] = await Promise.all([
+  //   api.location.getLocationSettingsByLocationId.query({
+  //     locationId: location.id,
+  //   }),
+  //   api.resource.getResourcesByLocationId.query({ locationId: location.id }),
+  // ]);
 
-  if (!locationSettings || !resources) {
-    notFound();
-  }
+  // if (!locationSettings || !resources) {
+  //   notFound();
+  // }
 
   return (
     <>
@@ -104,9 +104,9 @@ export default async function Page() {
           <CardContent>
             <Suspense fallback={<div>Loading...</div>}>
               <BookingForm
-                location={location}
-                locationSettings={locationSettings}
-                resources={resources}
+                // location={location}
+                // locationSettings={locationSettings}
+                // resources={resources}
                 viewContext="dashboard"
               />
             </Suspense>

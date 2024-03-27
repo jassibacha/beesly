@@ -8,12 +8,24 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { DateTime } from "luxon";
 import Link from "next/link";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { EditBookingButton } from "../bookings/EditBookingButton";
 
 // Add timezone to booking type to ensure date/time is displayed correctly
 type BookingWithTimezone = Omit<Booking, "startTime" | "endTime"> & {
   timezone: string;
   startTime: string;
   endTime: string;
+};
+
+const convertToBooking = (
+  bookingWithTimezone: BookingWithTimezone,
+): Booking => {
+  const { timezone, ...booking } = bookingWithTimezone;
+  return {
+    ...booking,
+    startTime: new Date(bookingWithTimezone.startTime),
+    endTime: new Date(bookingWithTimezone.endTime),
+  };
 };
 
 export const columns: ColumnDef<BookingWithTimezone>[] = [
@@ -33,9 +45,11 @@ export const columns: ColumnDef<BookingWithTimezone>[] = [
     },
     cell: ({ row }) => {
       return (
-        <Badge variant={getBadgeVariant(row.original.status)} className="">
-          {row.original.status}
-        </Badge>
+        <div className="flex items-center justify-center">
+          <Badge variant={getBadgeVariant(row.original.status)} className="">
+            {row.original.status}
+          </Badge>
+        </div>
       );
     },
   },
@@ -116,10 +130,21 @@ export const columns: ColumnDef<BookingWithTimezone>[] = [
     header: "",
     // This could eventually be an area where they could re-send emails, etc.
     cell: ({ row }) => {
+      const booking = convertToBooking(row.original);
       return (
-        <Button size="sm" variant="outline" asChild>
-          <Link href={`/dashboard/bookings/edit/${row.original.id}`}>Edit</Link>
-        </Button>
+        <>
+          <EditBookingButton
+            variant="outline"
+            size="sm"
+            buttonType="IconOnly"
+            booking={booking}
+          />
+          {/* <Button size="sm" variant="outline" asChild>
+            <Link href={`/dashboard/bookings/edit/${row.original.id}`}>
+              Edit
+            </Link>
+          </Button> */}
+        </>
       );
     },
     enableHiding: false,

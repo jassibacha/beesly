@@ -19,34 +19,41 @@ export type NewLocation = InferInsertModel<typeof locations>;
 export type UpdateLocation = Partial<InferInsertModel<typeof locations>>;
 
 // LocationSettings Types
-//export type LocationSetting = InferSelectModel<typeof locationSettings>;
+export type LocationSettingOrig = InferSelectModel<typeof locationSettings>;
 // This automated infer was giving errors with the json fields, they were coming back as 'unknown' and messing with type safety from FE > BE
 
-export type LocationSetting = {
-  id: string;
-  locationId: string;
-  //timeZone: string;
-  // This is a temporary fix for the trpc firing on booking email
-  // Realistically we should either modularize the string>object conversion
-  // Or we should parse the dailyAvailability string and taxSettings in the trpc
-  // That fetches locationSettings in the first place
-  dailyAvailability: string; // in db these are a json string
-  taxSettings: string; // in db these are a json string
-
-  //dailyAvailability: Record<string, { open: string; close: string }>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //taxSettings: Record<string, any>;
-  initialCostOfBooking: string;
-  initialBookingLength: number;
-  bookingLengthIncrements: number;
-  maxAdvanceBookingDays: number;
-  sameDayLeadTimeBuffer: number;
-  bufferTime: number;
-  timeSlotIncrements: number;
-  displayUnavailableSlots: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+export type LocationSetting = Omit<LocationSettingOrig, "dailyAvailability"> & {
+  dailyAvailability: Record<
+    string,
+    { open: string; close: string; isOpen: boolean }
+  >;
 };
+
+// export type LocationSetting = {
+//   id: string;
+//   locationId: string;
+//   //timeZone: string;
+//   // This is a temporary fix for the trpc firing on booking email
+//   // Realistically we should either modularize the string>object conversion
+//   // Or we should parse the dailyAvailability string and taxSettings in the trpc
+//   // That fetches locationSettings in the first place
+//   dailyAvailability: object; // in db these are a json string
+//   taxSettings: number; // in db these are a json string
+
+//   //dailyAvailability: Record<string, { open: string; close: string }>;
+//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//   //taxSettings: Record<string, any>;
+//   initialCostOfBooking: string;
+//   initialBookingLength: number;
+//   bookingLengthIncrements: number;
+//   maxAdvanceBookingDays: number;
+//   sameDayLeadTimeBuffer: number;
+//   bufferTime: number;
+//   timeSlotIncrements: number;
+//   displayUnavailableSlots: boolean;
+//   createdAt: Date;
+//   updatedAt: Date;
+// };
 
 export type NewLocationSetting = InferInsertModel<typeof locationSettings>;
 export type UpdateLocationSetting = Partial<

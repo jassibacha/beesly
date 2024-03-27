@@ -51,10 +51,12 @@ import { EmailTemplateType } from "@/types/emailTypes";
 import { error } from "console";
 import { Badge, badgeVariants } from "../ui/badge";
 
+import { useLocationContext } from "@/context/LocationContext";
+
 interface BookingFormProps {
-  location: Location;
-  locationSettings: LocationSetting;
-  resources?: Resource[];
+  // location: Location;
+  // locationSettings: LocationSetting;
+  // resources?: Resource[];
   booking?: Booking;
   viewContext: "dashboard" | "dialog" | "portal";
   closeDialog?: () => void;
@@ -168,9 +170,9 @@ function TempInfoDisplay({
 }
 
 export function BookingForm({
-  location,
-  locationSettings,
-  resources,
+  // location,
+  // locationSettings,
+  // resources,
   booking,
   viewContext,
   closeDialog,
@@ -182,6 +184,9 @@ export function BookingForm({
   const isDialog = viewContext === "dialog"; // Determine if we are in a dialog
   const isDashboard = viewContext === "dashboard"; // Determine if we are on a dashboard page
   //const isDialog = !!isInDialog; // Determine if we are in a dialog
+
+  const { location, locationSettings, resources, isLoading } =
+    useLocationContext();
 
   const router = useRouter();
 
@@ -226,7 +231,7 @@ export function BookingForm({
     error: timeSlotError,
   } = api.booking.getAvailableTimeSlots.useQuery(
     {
-      locationId: location.id,
+      locationId: location?.id ?? "",
       date: selectedDate,
       duration: selectedDuration,
       //includeAllSlots: isEditing, // Set to true when editing
@@ -263,7 +268,7 @@ export function BookingForm({
         const bookingStartTime = DateTime.fromISO(
           booking.startTime.toISOString(),
         )
-          .setZone(location.timezone)
+          .setZone(location?.timezone)
           .toISO();
         setSelectedTimeSlot(bookingStartTime);
         //console.log(`selectedTimeSlot edited: ${selectedTimeSlot}`);
@@ -292,6 +297,21 @@ export function BookingForm({
   let badgeVariant;
   if (booking) {
     badgeVariant = getBadgeVariant(booking.status);
+  }
+
+  const createBookingMutation = api.booking.book.useMutation();
+  const updateBookingMutation = api.booking.update.useMutation();
+  const cancelBookingMutation = api.booking.cancel.useMutation();
+  const sendBookingEmailMutation = api.email.sendBookingEmail.useMutation();
+
+  if (!location || !locationSettings || !resources) {
+    return (
+      <div className="flex items-center justify-center space-x-2">
+        <Loader2 className="h-10 w-10 animate-spin" />
+        {/* {" "}
+        <span>Loading time slots...</span> */}
+      </div>
+    );
   }
 
   // Time slot button logic
@@ -323,7 +343,7 @@ export function BookingForm({
         type="button" // Not the submit button!
       >
         {DateTime.fromISO(slot.startTime)
-          .setZone(location.timezone)
+          .setZone(location?.timezone)
           .toFormat("h:mm a")}
         {/* -{" "}{DateTime.fromISO(slot.endTime).toFormat("h:mm a")} */}
       </Button>
@@ -359,11 +379,6 @@ export function BookingForm({
       </div>
     );
   };
-
-  const createBookingMutation = api.booking.book.useMutation();
-  const updateBookingMutation = api.booking.update.useMutation();
-  const cancelBookingMutation = api.booking.cancel.useMutation();
-  const sendBookingEmailMutation = api.email.sendBookingEmail.useMutation();
 
   const handleCancelBooking = () => {
     if (booking && location) {
@@ -408,7 +423,7 @@ export function BookingForm({
 
     // Prepare data for the backend. This might include formatting dates and times.
     const commonData = {
-      locationId: location.id,
+      locationId: location?.id,
       startTime: DateTime.fromISO(values.timeSlot).toJSDate(),
       endTime: DateTime.fromISO(values.timeSlot)
         .plus({ minutes: parseFloat(values.duration) * 60 })
@@ -510,7 +525,7 @@ export function BookingForm({
 
             // Redirect to thank-you page with booking details as query parameters
             if (viewContext === "portal") {
-              router.push(`/${location.slug}/thank-you/${data.booking.id}`);
+              router.push(`/${location?.slug}/thank-you/${data.booking.id}`);
             } else if (viewContext === "dashboard") {
               router.push("/dashboard");
             } else if (viewContext === "dialog") {

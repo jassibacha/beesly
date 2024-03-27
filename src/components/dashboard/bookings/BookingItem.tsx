@@ -13,6 +13,7 @@ import type {
   Resource,
 } from "@/server/db/types";
 import { getBadgeVariant } from "@/lib/utils";
+import { EditBookingButton } from "./EditBookingButton";
 interface BookingItemProps {
   booking: Booking;
   // booking: {
@@ -94,7 +95,16 @@ export function BookingItem({
           </p>
         </div>
       </div>
-      <Button variant="outline" size="sm" asChild className="ml-2 md:hidden">
+      <EditBookingButton
+        key={booking.id}
+        booking={booking}
+        variant="outline"
+        size="sm"
+        buttonType="IconOnly"
+        refetch={refetch}
+        className="ml-2"
+      />
+      {/* <Button variant="outline" size="sm" asChild className="ml-2 md:hidden">
         <Link href={`/dashboard/bookings/edit/${booking.id}`}>
           <Pencil className="h-4 w-4" />
         </Link>
@@ -102,9 +112,9 @@ export function BookingItem({
       <div className="ml-2 hidden md:block">
         <EditBookingDialog
           key={`edit${booking.id}`}
-          location={location}
-          locationSettings={locationSettings}
-          resources={resources}
+          // location={location}
+          // locationSettings={locationSettings}
+          // resources={resources}
           //id={booking.id}
           booking={booking}
           variant="outline"
@@ -112,7 +122,7 @@ export function BookingItem({
           buttonType="IconOnly"
           refetch={refetch}
         />
-      </div>
+      </div> */}
     </div>
   );
 }

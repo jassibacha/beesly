@@ -63,9 +63,9 @@ export function BookingPage({
           <p>&nbsp;</p>
           <p>&nbsp;</p>
           <BookingForm
-            location={location}
-            locationSettings={locationSettings}
-            resources={resources}
+            // location={location}
+            // locationSettings={locationSettings}
+            // resources={resources}
             viewContext="portal"
           />
         </div>

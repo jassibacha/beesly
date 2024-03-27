@@ -39,6 +39,7 @@ import type {
   Resource,
 } from "@/server/db/types";
 import { useLocationContext } from "@/context/LocationContext";
+import { EditBookingButton } from "./bookings/EditBookingButton";
 
 interface DailyBookingProps {
   location: Location;
@@ -239,7 +240,14 @@ export default function DailyBookings() {
                     {start.toFormat("h:mm a")} - {end.toFormat("h:mm a")}
                   </div>
 
-                  <Button
+                  <EditBookingButton
+                    key={booking.id}
+                    booking={bookingData}
+                    variant="secondary"
+                    size="sm"
+                  />
+
+                  {/* <Button
                     variant="secondary"
                     size="sm"
                     className="mt-2 md:hidden"
@@ -253,16 +261,16 @@ export default function DailyBookings() {
                   <div className="hidden md:block">
                     <EditBookingDialog
                       key={`edit${index}`}
-                      location={location}
-                      locationSettings={locationSettings}
-                      resources={resources}
+                      // location={location}
+                      // locationSettings={locationSettings}
+                      // resources={resources}
                       //id={booking.id}
                       booking={bookingData}
                       variant="secondary"
                       size="sm"
                       refetch={refetchBookings}
                     />
-                  </div>
+                  </div> */}
                 </div>
               );
             })}

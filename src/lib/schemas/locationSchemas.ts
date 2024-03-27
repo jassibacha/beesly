@@ -124,8 +124,13 @@ export const dailyAvailabilitySchema = z.record(
     "Sunday",
   ]),
   z.object({
-    open: z.string(),
-    close: z.string(),
+    open: z
+      .string()
+      .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
+    close: z
+      .string()
+      .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
+    isOpen: z.boolean().default(true),
   }),
 );
 
@@ -135,21 +140,9 @@ export const locationSettingsSchema = z.object({
   locationId: z.string().min(1, "Location ID is required."),
   //timeZone: z.string().min(1, "Time zone is required."),
   // second version
-  // dailyAvailability: z.record(
-  //   z.enum([
-  //     "Monday",
-  //     "Tuesday",
-  //     "Wednesday",
-  //     "Thursday",
-  //     "Friday",
-  //     "Saturday",
-  //     "Sunday",
-  //   ]),
-  //   z.object({
-  //     open: z.string(),
-  //     close: z.string(),
-  //   }),
-  // ),
+  dailyAvailability: dailyAvailabilitySchema,
+  //dailyAvailability: z.object(),
+  taxSettings: z.string().min(1, "Tax must be a positive number."),
 
   // dailyAvailability: dailyAvailabilitySchema,
 
@@ -158,8 +151,8 @@ export const locationSettingsSchema = z.object({
   // Or we should parse the dailyAvailability string and taxSettings in the trpc
   // That fetches locationSettings in the first place .. look at
   // for more information (Alternatively we just keep this as string since it's unparsed)
-  dailyAvailability: z.string().min(1, "Not empty"),
-  taxSettings: z.string().min(1, "Not empty"),
+  //dailyAvailability: z.string().min(1, "Not empty"),
+  //taxSettings: z.string().min(1, "Not empty"),
 
   // first version
   // dailyAvailability: z.record(
@@ -199,33 +192,14 @@ export const locationSettingsSchema = z.object({
     .min(0, "Time slot in minutes must be a positive number."),
   displayUnavailableSlots: z.boolean().default(false),
   createdAt: z.date(),
-  updatedAt: z.date(),
+  updatedAt: z.date().nullable(),
 });
 export type LocationSettingsSchemaValues = z.infer<
   typeof locationSettingsSchema
 >;
 
 export const locationSettingsFormSchema = z.object({
-  dailyAvailability: z.record(
-    z.enum([
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday",
-    ]),
-    z.object({
-      open: z
-        .string()
-        .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
-      close: z
-        .string()
-        .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
-      isOpen: z.boolean().default(true),
-    }),
-  ),
+  dailyAvailability: dailyAvailabilitySchema,
   taxSettings: z.string().min(0, "Tax must be zero or a positive number."),
   initialCostOfBooking: z
     .string()
@@ -258,7 +232,8 @@ export type LocationSettingsFormSchemaValues = z.infer<
 export const updateLocationSettingsSchema = z.object({
   id: z.string().min(1, "ID is required."),
   locationId: z.string().min(1, "Location ID is required."),
-  dailyAvailability: z.string().min(1, "Daily availability is required."),
+  dailyAvailability: dailyAvailabilitySchema,
+  //dailyAvailability: z.string().min(1, "Daily availability is required."),
   taxSettings: z.string().min(1, "Tax settings are required."),
   initialCostOfBooking: z
     .string()

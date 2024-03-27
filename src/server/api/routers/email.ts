@@ -44,6 +44,14 @@ export const emailRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       const { templateType, booking, location, locationSettings } = input;
 
+      console.log(
+        "sendBookingEmail",
+        templateType,
+        booking,
+        location,
+        locationSettings,
+      );
+
       // Build the dynamic data based on the template type, booking, location, and location settings
       const email = buildBookingEmail(
         templateType,
@@ -54,6 +62,7 @@ export const emailRouter = createTRPCRouter({
 
       try {
         await sendEmail(email.text, email.templateId, email.dynamicData);
+        console.log("Email sent successfully");
         return { success: true, message: "Email sent successfully" };
       } catch (error) {
         console.error("Failed to send booking email:", error);

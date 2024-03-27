@@ -24,9 +24,9 @@ import type {
 } from "@/server/db/types";
 
 interface BookingDialogProps {
-  location: Location;
-  locationSettings: LocationSetting;
-  resources: Resource[];
+  // location: Location;
+  // locationSettings: LocationSetting;
+  // resources: Resource[];
   booking: Booking;
   buttonType?: "IconOnly" | "Normal";
   variant:
@@ -41,9 +41,9 @@ interface BookingDialogProps {
 }
 
 export function EditBookingDialog({
-  location,
-  locationSettings,
-  resources,
+  // location,
+  // locationSettings,
+  // resources,
   booking,
   buttonType = "Normal",
   variant,
@@ -52,7 +52,7 @@ export function EditBookingDialog({
 }: BookingDialogProps) {
   const [openEditDialog, setOpenEditDialog] = useState(false);
 
-  if (!location || !locationSettings || !resources || !booking) {
+  if (!booking) {
     notFound();
   }
 
@@ -93,9 +93,9 @@ export function EditBookingDialog({
         </DialogHeader>
         <Suspense fallback={<div>Loading...</div>}>
           <BookingForm
-            location={location}
-            locationSettings={locationSettings}
-            resources={resources}
+            // location={location}
+            // locationSettings={locationSettings}
+            // resources={resources}
             booking={booking}
             viewContext="dialog"
             closeDialog={() => setOpenEditDialog(false)}

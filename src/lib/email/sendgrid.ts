@@ -50,7 +50,7 @@ export const sendEmail = async (
 
   try {
     await sgMail.send(msg);
-    //console.log(`Email sent to ${toEmail} [SG]`);
+    console.log(`Email sent to ${toEmail} [SG]`);
   } catch (error) {
     console.error(`Email failed to send to ${toEmail} [SG]`, error);
   }

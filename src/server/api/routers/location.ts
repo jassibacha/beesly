@@ -356,6 +356,18 @@ export const locationRouter = createTRPCRouter({
             });
           }
 
+          // Parse the dailyAvailability object to a string
+          const dailyAvailabilityString = JSON.stringify(
+            input.dailyAvailability,
+          );
+
+          // Merge the updated data with the dailyAvailability string
+          const updatedData = {
+            ...input,
+            dailyAvailability: dailyAvailabilityString,
+            updatedAt: new Date(), // Update the updatedAt timestamp
+          };
+
           //console.log("Logo input", input.logo);
 
           // Update the location
@@ -377,23 +389,28 @@ export const locationRouter = createTRPCRouter({
           //   })
           //   .where(eq(locations.id, input.id));
 
-          //Update the timeZone in locationSettings (REWORKING)
+          // Update the locationSettings
           await tx
             .update(locationSettings)
-            .set({
-              dailyAvailability: input.dailyAvailability,
-              taxSettings: input.taxSettings,
-              initialCostOfBooking: input.initialCostOfBooking,
-              initialBookingLength: input.initialBookingLength,
-              bookingLengthIncrements: input.bookingLengthIncrements,
-              maxAdvanceBookingDays: input.maxAdvanceBookingDays,
-              sameDayLeadTimeBuffer: input.sameDayLeadTimeBuffer,
-              bufferTime: input.bufferTime,
-              timeSlotIncrements: input.timeSlotIncrements,
-              displayUnavailableSlots: input.displayUnavailableSlots,
-              updatedAt: new Date(),
-            })
+            .set(updatedData)
             .where(eq(locationSettings.locationId, input.locationId));
+
+          // await tx
+          //   .update(locationSettings)
+          //   .set({
+          //     dailyAvailability: input.dailyAvailability,
+          //     taxSettings: input.taxSettings,
+          //     initialCostOfBooking: input.initialCostOfBooking,
+          //     initialBookingLength: input.initialBookingLength,
+          //     bookingLengthIncrements: input.bookingLengthIncrements,
+          //     maxAdvanceBookingDays: input.maxAdvanceBookingDays,
+          //     sameDayLeadTimeBuffer: input.sameDayLeadTimeBuffer,
+          //     bufferTime: input.bufferTime,
+          //     timeSlotIncrements: input.timeSlotIncrements,
+          //     displayUnavailableSlots: input.displayUnavailableSlots,
+          //     updatedAt: new Date(),
+          //   })
+          //   .where(eq(locationSettings.locationId, input.locationId));
 
           return {
             success: true,

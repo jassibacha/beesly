@@ -61,9 +61,7 @@ type Props = {
 export default async function Page({ params }: Props) {
   const id = params.id;
 
-  const location = await api.location.getLocationByUserId.query();
-
-  if (!id || !location) {
+  if (!id) {
     notFound();
   }
 
@@ -73,15 +71,21 @@ export default async function Page({ params }: Props) {
   //   return notFound();
   // }
 
-  const [locationSettings, resources, booking] = await Promise.all([
-    api.location.getLocationSettingsByLocationId.query({
-      locationId: location.id,
-    }),
-    api.resource.getResourcesByLocationId.query({ locationId: location.id }),
-    api.booking.getBookingById.query({ bookingId: id }),
-  ]);
+  // const [locationSettings, resources, booking] = await Promise.all([
+  //   api.location.getLocationSettingsByLocationId.query({
+  //     locationId: location.id,
+  //   }),
+  //   api.resource.getResourcesByLocationId.query({ locationId: location.id }),
+  //   api.booking.getBookingById.query({ bookingId: id }),
+  // ]);
 
-  if (!locationSettings || !resources || !booking) {
+  // if (!locationSettings || !resources || !booking) {
+  //   notFound();
+  // }
+
+  const booking = await api.booking.getBookingById.query({ bookingId: id });
+
+  if (!booking) {
     notFound();
   }
 
@@ -99,9 +103,9 @@ export default async function Page({ params }: Props) {
         </div>
         <Suspense fallback={<div>Loading...</div>}>
           <BookingForm
-            location={location}
-            locationSettings={locationSettings}
-            resources={resources}
+            // location={location}
+            // locationSettings={locationSettings}
+            // resources={resources}
             booking={booking}
             viewContext="dashboard"
           />

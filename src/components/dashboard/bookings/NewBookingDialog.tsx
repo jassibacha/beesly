@@ -22,11 +22,11 @@ import { BookingForm } from "@/components/forms/BookingForm";
 import type { Location, LocationSetting, Resource } from "@/server/db/types";
 import { useDashboardUser } from "@/context/UserContext";
 
-interface NewBookingDialogProps {
-  location: Location;
-  locationSettings: LocationSetting;
-  resources: Resource[];
-}
+// interface NewBookingDialogProps {
+//   location: Location;
+//   locationSettings: LocationSetting;
+//   resources: Resource[];
+// }
 
 // export function NewBookingDialog({
 //   location,
@@ -34,27 +34,27 @@ interface NewBookingDialogProps {
 //   resources,
 // }: NewBookingDialogProps) {
 export function NewBookingDialog() {
-  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openNewDialog, setOpenNewDialog] = useState(false);
 
   //const { user } = useDashboardUser();
 
-  const { data: location } = api.location.getLocationByUserId.useQuery();
-  const { data: locationSettings } =
-    api.location.getLocationSettingsByLocationId.useQuery(
-      { locationId: location?.id ?? "" },
-      { enabled: !!location },
-    );
-  const { data: resources } = api.resource.getResourcesByLocationId.useQuery(
-    { locationId: location?.id ?? "" },
-    { enabled: !!location },
-  );
+  // const { data: location } = api.location.getLocationByUserId.useQuery();
+  // const { data: locationSettings } =
+  //   api.location.getLocationSettingsByLocationId.useQuery(
+  //     { locationId: location?.id ?? "" },
+  //     { enabled: !!location },
+  //   );
+  // const { data: resources } = api.resource.getResourcesByLocationId.useQuery(
+  //   { locationId: location?.id ?? "" },
+  //   { enabled: !!location },
+  // );
 
-  if (!location || !locationSettings || !resources) {
-    return <Skeleton className="h-8 w-32 rounded-md" />;
-  }
+  // if (!location || !locationSettings || !resources) {
+  //   return <Skeleton className="h-8 w-32 rounded-md" />;
+  // }
 
   return (
-    <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
+    <Dialog open={openNewDialog} onOpenChange={setOpenNewDialog}>
       <DialogTrigger asChild>
         <Button variant="default" size="sm">
           <PlusCircle className="mr-1 h-4 w-4" />
@@ -68,11 +68,11 @@ export function NewBookingDialog() {
         </DialogHeader>
         <Suspense fallback={<div>Loading...</div>}>
           <BookingForm
-            location={location}
-            locationSettings={locationSettings}
-            resources={resources}
+            // location={location}
+            // locationSettings={locationSettings}
+            // resources={resources}
             viewContext="dialog"
-            closeDialog={() => setOpenEditDialog(false)}
+            closeDialog={() => setOpenNewDialog(false)}
           />
         </Suspense>
         {/* <div className="flex items-center space-x-2">

@@ -32,7 +32,7 @@ import { toast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 
-import type { LocationSetting } from "@/server/db/types";
+import type { LocationSetting, LocationSettingOrig } from "@/server/db/types";
 import {
   locationSettingsFormSchema,
   type LocationSettingsFormSchemaValues,
@@ -219,7 +219,7 @@ export function EditLocationSettingsForm() {
     const updatedData = {
       ...values,
       id: ls?.id ?? "",
-      dailyAvailability: dailyAvailabilityString,
+      // dailyAvailability: dailyAvailabilityString,
       locationId: ls?.locationId ?? "",
       // updatedAt: DateTime.now().toJSDate(),
       //id: locationSettings.id,
