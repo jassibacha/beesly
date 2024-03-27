@@ -29,14 +29,7 @@ interface BookingsListProps {
   limit?: number;
 }
 
-export default function BookingsList({
-  type,
-  // timezone,
-  // location,
-  // locationSettings,
-  // resources,
-  limit = 5,
-}: BookingsListProps) {
+export default function BookingsList({ type, limit = 5 }: BookingsListProps) {
   const { location, locationSettings, resources, isLoading } =
     useLocationContext();
 
