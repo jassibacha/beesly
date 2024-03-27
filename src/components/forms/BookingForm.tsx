@@ -54,9 +54,9 @@ import { Badge, badgeVariants } from "../ui/badge";
 import { useLocationContext } from "@/context/LocationContext";
 
 interface BookingFormProps {
-  // location: Location;
-  // locationSettings: LocationSetting;
-  // resources?: Resource[];
+  location?: Location;
+  locationSettings?: LocationSetting;
+  resources?: Resource[];
   booking?: Booking;
   viewContext: "dashboard" | "dialog" | "portal";
   closeDialog?: () => void;
@@ -170,9 +170,9 @@ function TempInfoDisplay({
 }
 
 export function BookingForm({
-  // location,
-  // locationSettings,
-  // resources,
+  location: propLocation,
+  locationSettings: propLocationSettings,
+  resources: propResources,
   booking,
   viewContext,
   closeDialog,
@@ -185,8 +185,19 @@ export function BookingForm({
   const isDashboard = viewContext === "dashboard"; // Determine if we are on a dashboard page
   //const isDialog = !!isInDialog; // Determine if we are in a dialog
 
-  const { location, locationSettings, resources, isLoading } =
-    useLocationContext();
+  // Grab location, settings and resources from context if not provided as props
+  const {
+    location: contextLocation,
+    locationSettings: contextLocationSettings,
+    resources: contextResources,
+    isLoading,
+  } = useLocationContext();
+
+  // Specify the location, settings and resources based on portal or context
+  const location = viewContext === "portal" ? propLocation : contextLocation;
+  const locationSettings =
+    viewContext === "portal" ? propLocationSettings : contextLocationSettings;
+  const resources = viewContext === "portal" ? propResources : contextResources;
 
   const router = useRouter();
 
