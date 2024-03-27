@@ -963,13 +963,13 @@ export const bookingRouter = createTRPCRouter({
       }
 
       const matchingBookings = await ctx.db.query.bookings.findMany({
-        where: (bookings, { and, or, like, eq }) =>
+        where: (bookings, { and, or, ilike, eq }) =>
           and(
             eq(bookings.locationId, locationId),
             or(
-              like(bookings.customerName, `%${query}%`),
-              like(bookings.customerEmail, `%${query}%`),
-              like(bookings.customerPhone, `%${query}%`),
+              ilike(bookings.customerName, `%${query}%`),
+              ilike(bookings.customerEmail, `%${query}%`),
+              ilike(bookings.customerPhone, `%${query}%`),
             ),
           ),
       });

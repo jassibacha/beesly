@@ -1,24 +1,20 @@
 "use client";
-import { useState } from "react";
-
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
+
 interface SearchInputProps {
   placeholder: string;
 }
 
-function SearchInput({ placeholder }: { placeholder: string }) {
+function SearchInput({ placeholder }: SearchInputProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  //const { replace } = useRouter();
 
   const handleSearch = useDebouncedCallback((term: string) => {
-    //console.log(`Searching... ${term}`);
     const params = new URLSearchParams(searchParams);
-    params.set("p", "1");
 
     if (term) {
       params.set("q", term);
@@ -26,7 +22,6 @@ function SearchInput({ placeholder }: { placeholder: string }) {
       params.delete("q");
     }
     router.replace(`${pathname}?${params.toString()}`);
-    //replace(`${pathname}?${params.toString()}`);
   }, 300);
 
   return (
