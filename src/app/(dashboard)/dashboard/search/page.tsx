@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { api } from "@/trpc/server";
 import SearchResults from "@/components/dashboard/search/SearchResults";
+import SearchResultsDtS from "@/components/dashboard/search/SearchResultsDtS";
 import SearchInput from "@/components/dashboard/search/SearchInput";
 
 export const metadata: Metadata = {
