@@ -245,6 +245,7 @@ export default function DailyBookings() {
                     booking={bookingData}
                     variant="secondary"
                     size="sm"
+                    refetch={refetchBookings}
                   />
 
                   {/* <Button
