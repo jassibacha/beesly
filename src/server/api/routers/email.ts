@@ -207,6 +207,113 @@ export const emailRouter = createTRPCRouter({
       message: `Email reminders sent. Success: ${successCount}, Failed: ${errorCount}`,
     };
   }),
+  // Send booking completion emails to ACTIVE emails that ended between 3 and 6 hours ago
+  sendBookingCompletions: publicProcedure.query(async ({ ctx }) => {
+    const secretKey = ctx.headers.get("x-secret-key");
+    if (secretKey !== process.env.EASYCRON_SECRET_KEY) {
+      console.log("sendBookingCompletions Error: Invalid secret key");
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Invalid secret key",
+      });
+    }
+
+    const now = DateTime.now(); // Get the current time
+    const completionTimeStart = now.minus({ hours: 6 }); // 6 hours ago from now
+    const completionTimeEnd = now.minus({ hours: 3 }); // 3 hours ago from now
+
+    // Fetch bookings that ended between 3 and 6 hours ago, are still ACTIVE
+    const bookingsToSendCompletion = await ctx.db
+      .select()
+      .from(bookings)
+      .where(
+        and(
+          eq(bookings.status, "ACTIVE"),
+          gte(bookings.endTime, completionTimeStart.toJSDate()),
+          lt(bookings.endTime, completionTimeEnd.toJSDate()),
+        ),
+      )
+      .execute();
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    const locationsCache: Record<string, Location> = {};
+    const locationSettingsCache: Record<string, LocationSetting> = {};
+
+    for (const booking of bookingsToSendCompletion) {
+      try {
+        // Fetch and cache location data if not already in cache
+        if (!locationsCache[booking.locationId]) {
+          //console.log(`locationsCache not found for ${booking.locationId}`);
+          const location = await ctx.db.query.locations.findFirst({
+            where: (locations, { eq }) => eq(locations.id, booking.locationId),
+          });
+          if (!location) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: "Location not found",
+            });
+          }
+          locationsCache[booking.locationId] = location as Location;
+        }
+
+        // Fetch and cache location settings data if not already in cache
+        if (!locationSettingsCache[booking.locationId]) {
+          // console.log(
+          //   `locationSettingsCache not found for ${booking.locationId}`,
+          // );
+          const locationSettings =
+            await ctx.db.query.locationSettings.findFirst({
+              where: (locationSettings, { eq }) =>
+                eq(locationSettings.locationId, booking.locationId),
+            });
+          if (!locationSettings) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: "Location settings not found",
+            });
+          }
+          locationSettingsCache[booking.locationId] =
+            locationSettings as LocationSetting;
+        }
+
+        const completionEmail = buildBookingEmail(
+          EmailTemplateType.BookingComplete,
+          booking,
+          locationsCache[booking.locationId]!,
+          locationSettingsCache[booking.locationId]!,
+        );
+
+        await sendEmail(
+          completionEmail.text,
+          completionEmail.templateId,
+          completionEmail.dynamicData,
+        );
+
+        // Update booking to mark emailCompletionSent as true and status as COMPLETED
+        await ctx.db
+          .update(bookings)
+          .set({ status: "COMPLETED" })
+          .where(eq(bookings.id, booking.id))
+          .execute();
+
+        successCount++;
+      } catch (error) {
+        console.error(
+          `Failed to send booking completion email for booking ID: ${booking.id}`,
+          error,
+        );
+        errorCount++;
+      }
+    }
+
+    return {
+      success: errorCount === 0,
+      message: `Completion emails sent. Success: ${successCount}, Failed: ${errorCount}`,
+    };
+  }),
+
   // Add a new procedure for sending an email
   // sendEmail: publicProcedure
   //   .input(sendEmailSchema)
