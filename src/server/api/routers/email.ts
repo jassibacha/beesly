@@ -258,6 +258,9 @@ function buildBookingEmail(
   const date = DateTime.fromJSDate(booking.startTime)
     .setZone(tz)
     .toFormat("DDDD");
+  const dateNoDay = DateTime.fromJSDate(booking.startTime)
+    .setZone(tz)
+    .toFormat("MMMM dd, yyyy");
   const startTime = DateTime.fromJSDate(booking.startTime)
     .setZone(tz)
     .toFormat("h:mm a");
@@ -267,7 +270,7 @@ function buildBookingEmail(
 
   switch (templateType) {
     case EmailTemplateType.BookingConfirmation:
-      subject = `Booking Confirmation - ${startTime} ${date}`;
+      subject = `Booking Confirmation - ${startTime} - ${dateNoDay}`;
       preheader = `We'll see you at ${startTime} ${date}.`;
       heading = "Booking Confirmed!";
       bodyHeading = "We're excited to see you!";
@@ -275,7 +278,7 @@ function buildBookingEmail(
       templateId = "d-bef6d1c8eb924c238bfb75195cb8705c";
       break;
     case EmailTemplateType.BookingUpdate:
-      subject = `Booking Updated - ${startTime} ${date}`;
+      subject = `Booking Updated - ${startTime} - ${dateNoDay}`;
       preheader = `Your booking on ${date} has been updated.`;
       heading = "Booking Updated";
       bodyHeading = "Your booking has changed.";
@@ -283,11 +286,27 @@ function buildBookingEmail(
       templateId = "d-bef6d1c8eb924c238bfb75195cb8705c";
       break;
     case EmailTemplateType.BookingReminder:
-      subject = `Booking Reminder - ${startTime} ${date}`;
+      subject = `Booking Reminder - ${startTime} - ${dateNoDay}`;
       preheader = `Your booking on ${date} is coming up soon.`;
       heading = "Booking Reminder";
       bodyHeading = "It's almost time!";
       textBody = `Dear ${booking.customerName}, your booking for ${date} at ${startTime} is coming up soon.`;
+      templateId = "d-bef6d1c8eb924c238bfb75195cb8705c";
+      break;
+    case EmailTemplateType.BookingCancellation:
+      subject = `Booking Cancellation - ${startTime} - ${dateNoDay}`;
+      preheader = `We're sorry to see you go. Let us know if there's anything we can do.`;
+      heading = "Booking Cancelled";
+      bodyHeading = "We're sorry to see you go.";
+      textBody = `Dear ${booking.customerName}, your booking for ${date} at ${startTime} has been cancelled.`;
+      templateId = "d-bef6d1c8eb924c238bfb75195cb8705c";
+      break;
+    case EmailTemplateType.BookingComplete:
+      subject = `Thanks For Visiting!`;
+      preheader = `How was it? We're dying to know!`;
+      heading = `Thanks for visiting ${location.name}.`;
+      bodyHeading = "How was your visit?";
+      textBody = `Dear ${booking.customerName}, we hope you had a fantastic time during your booking on ${date} at ${startTime}. Your experience is important to us, and we'd love to hear your feedback. Thank you for choosing ${location.name}. We look forward to welcoming you back soon!`;
       templateId = "d-bef6d1c8eb924c238bfb75195cb8705c";
       break;
   }

@@ -396,12 +396,21 @@ export function BookingForm({
       cancelBookingMutation.mutate(
         { bookingId: booking.id, locationId: location.id },
         {
-          onSuccess: () => {
+          onSuccess: (data) => {
             toast({
               variant: "success",
               title: "Booking Cancelled",
               description: "The booking has been successfully cancelled.",
             });
+            if (data?.booking) {
+              sendBookingEmailMutation.mutate({
+                templateType: EmailTemplateType.BookingCancellation,
+                booking: data.booking,
+                location,
+                locationSettings,
+              });
+            }
+
             if (isDashboard) {
               // If dashboard page, go to dashboard home
               router.push("/dashboard");

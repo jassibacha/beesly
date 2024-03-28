@@ -27,4 +27,6 @@ export enum EmailTemplateType {
   BookingConfirmation,
   BookingUpdate,
   BookingReminder,
+  BookingCancellation,
+  BookingComplete,
 }
