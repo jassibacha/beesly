@@ -11,37 +11,39 @@ import {
 import MaxWidthWrapper from "@/components/MaxWidthWrapper";
 import { ArrowRight, CalendarCheck2, Clock, Smile, Star } from "lucide-react";
 import Footer from "@/components/landing/LandingFooter";
+import Image from "next/image";
 
 export default async function Home() {
   noStore();
 
   return (
     <>
+      {/* Hero Section */}
+      <div className="flex w-full items-center justify-center bg-gradient-to-tr from-violet-100 to-violet-300">
+        <div className="flex max-w-4xl flex-col items-center pt-12 text-center">
+          <h1 className="mb-8 max-w-2xl text-6xl font-bold leading-tight">
+            Effortlessly optimize your{" "}
+            <span className="text-primary">VR bookings</span>
+          </h1>
+          <p className="mb-4 text-lg leading-relaxed text-slate-700 dark:text-white/85">
+            Our advanced booking system is designed for VR lounges to manage
+            appointments, group bookings, and station allocations efficiently,
+            ensuring a seamless experience for both customers and lounge owners.
+          </p>
+          <Link
+            href="/sign-up"
+            className={buttonVariants({
+              size: "lg",
+              className: "mb-4 mt-5 px-10 py-7 text-lg font-semibold",
+            })}
+          >
+            Get started <ArrowRight className="ml-2 h-5 w-5" />
+          </Link>
+          <Image src="/hero-image.png" alt="Beesly" width={600} height={337} />
+        </div>
+      </div>
       <div className="min-h-screen bg-gray-100 dark:bg-black ">
-        <MaxWidthWrapper className="flex flex-col items-center justify-center pb-12 pt-28 text-center sm:pt-40">
-          {/* Hero Section */}
-          <div className="flex max-w-4xl flex-col items-center py-10 text-center">
-            <h1 className="mb-8 max-w-2xl text-6xl font-bold leading-tight">
-              Effortlessly optimize your{" "}
-              <span className="text-primary">VR bookings</span>
-            </h1>
-            <p className="mb-4 text-lg leading-relaxed text-slate-700 dark:text-white/85">
-              Our advanced booking system is designed for VR lounges to manage
-              appointments, group bookings, and station allocations efficiently,
-              ensuring a seamless experience for both customers and lounge
-              owners.
-            </p>
-            <Link
-              href="/sign-up"
-              className={buttonVariants({
-                size: "lg",
-                className: "mt-5 px-10 py-7 text-lg font-semibold",
-              })}
-            >
-              Get started <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
-          </div>
-
+        <MaxWidthWrapper className="flex flex-col items-center justify-center pb-12 pt-12 text-center sm:pt-12">
           {/* Stats Section */}
           <section className="my-10 w-full ">
             <div className="grid w-full grid-cols-2 gap-6 text-center md:grid-cols-2 lg:grid-cols-4">
@@ -85,7 +87,13 @@ export default async function Home() {
                 {/* <Button>Learn more</Button> */}
               </div>
               {/* Add image or placeholder here */}
-              <div className="h-64 w-full rounded-md bg-gray-300"></div>
+              <Image
+                src="/vr-goggles.png"
+                alt="VR Goggles"
+                width={800}
+                height={638}
+              />
+              {/* <div className="h-64 w-full rounded-md bg-gray-300"></div> */}
             </div>
           </section>
 
@@ -116,8 +124,13 @@ export default async function Home() {
               Frequently Asked <span className="text-primary">Questions</span>
             </h2>
             <div className="grid grid-cols-3 gap-20">
-              <div className="col-span-1 h-64 w-full rounded-md bg-gray-300">
-                {/* Add image or placeholder here */}
+              <div className="col-span-1 ">
+                <Image
+                  src="/woman-in-vr-headset.png"
+                  alt="Woman In VR Headset"
+                  width={800}
+                  height={777}
+                />
               </div>
               <div className="col-span-2 flex flex-col items-center justify-center md:mb-0">
                 <Accordion
