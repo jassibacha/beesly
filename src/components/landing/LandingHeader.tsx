@@ -12,14 +12,21 @@ import {
   SignUpButton,
 } from "@clerk/nextjs";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
+
 async function Header() {
   return (
     <nav className="background-blur-lg sticky inset-x-0 top-0 z-30 h-14 w-full border-b bg-white/75 transition-all dark:bg-black/75">
       {/* <MaxWidthWrapper> */}
       <div className="container mx-auto">
         <div className="border- flex h-14 items-center justify-between">
-          <Link href="/" className="z-40 flex font-semibold">
-            <span>Beesly</span>
+          <Link href="/" className="z-40 flex items-center">
+            <FontAwesomeIcon
+              icon={faCalendarDays}
+              className="mr-1 inline h-4 w-4 text-primary"
+            />
+            <span className="font-semibold">Beesly</span>
           </Link>
 
           {/* <MobileNav isAuth={!!user} /> */}

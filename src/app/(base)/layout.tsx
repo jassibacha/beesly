@@ -4,6 +4,7 @@ import "@/styles/globals.css";
 
 import { Toaster } from "@/components/ui/toaster";
 import Header from "@/components/landing/LandingHeader";
+import { ThemeProvider } from "../providers";
 
 export const metadata = {
   title: "Beesly.io",
@@ -14,9 +15,17 @@ export const metadata = {
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <Header />
-      {children}
-      <Toaster />
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="light"
+        enableSystem={false}
+        disableTransitionOnChange
+        forcedTheme="light"
+      >
+        <Header />
+        {children}
+        <Toaster />
+      </ThemeProvider>
     </>
   );
 }
