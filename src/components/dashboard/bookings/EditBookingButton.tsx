@@ -62,7 +62,7 @@ export function EditBookingButton({
       title = `Booking: ${booking.id}`;
       description = "This booking has been completed.";
       buttonText = "View";
-      IconComponent = View;
+      IconComponent = Eye;
       break;
     case "CANCELLED":
       title = `Booking: ${booking.id}`;
