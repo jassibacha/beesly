@@ -20,12 +20,12 @@ export default async function Home() {
     <>
       {/* Hero Section */}
       <div className="flex w-full items-center justify-center bg-gradient-to-tr from-violet-100 to-violet-300">
-        <div className="flex max-w-4xl flex-col items-center pt-12 text-center">
-          <h1 className="mb-8 max-w-2xl text-6xl font-bold leading-tight">
+        <div className="flex max-w-4xl flex-col items-center pt-16 text-center">
+          <h1 className="mb-8 max-w-2xl text-4xl font-bold leading-tight md:text-6xl">
             Effortlessly optimize your{" "}
             <span className="text-primary">VR bookings</span>
           </h1>
-          <p className="mb-4 text-lg leading-relaxed text-slate-700 dark:text-white/85">
+          <p className="mb-4 text-base leading-relaxed text-slate-700 dark:text-white/85 md:text-lg">
             Our advanced booking system is designed for VR lounges to manage
             appointments, group bookings, and station allocations efficiently,
             ensuring a seamless experience for both customers and lounge owners.
@@ -47,53 +47,68 @@ export default async function Home() {
           {/* Stats Section */}
           <section className="my-10 w-full ">
             <div className="grid w-full grid-cols-2 gap-6 text-center md:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-md bg-violet-100 p-6 shadow-md">
-                <Smile className="mx-auto mb-2 h-16 w-16 text-primary" />
-                <p className="mb-2 text-3xl font-extrabold text-primary">20+</p>
-                <p className="text-lg text-primary">Happy Customers</p>
+              <div className="rounded-md bg-violet-100 p-4 shadow-md md:p-6">
+                <Smile className="mx-auto mb-2 h-12 w-12 text-primary md:h-16 md:w-16" />
+                <p className="mb-2 text-2xl font-extrabold text-primary md:text-3xl">
+                  20+
+                </p>
+                <p className="text-base text-primary md:text-lg">
+                  Happy Customers
+                </p>
               </div>
-              <div className="rounded-md bg-violet-100 p-6 shadow-md">
-                <CalendarCheck2 className="mx-auto mb-2 h-16 w-16 text-primary" />
-                <p className="mb-2 text-3xl font-extrabold text-primary">3K+</p>
-                <p className="text-lg text-primary">Monthly Bookings</p>
+              <div className="rounded-md bg-violet-100 p-4 shadow-md md:p-6">
+                <CalendarCheck2 className="mx-auto mb-2 h-12 w-12 text-primary md:h-16 md:w-16" />
+                <p className="mb-2 text-2xl font-extrabold text-primary md:text-3xl">
+                  3K+
+                </p>
+                <p className="text-base text-primary md:text-lg">
+                  Monthly Bookings
+                </p>
               </div>
-              <div className="rounded-md bg-violet-100 p-6 shadow-md">
-                <Star className="mx-auto mb-2 h-16 w-16 text-primary" />
-                <p className="mb-2 text-3xl font-extrabold text-primary">
+              <div className="rounded-md bg-violet-100 p-4 shadow-md md:p-6">
+                <Star className="mx-auto mb-2 h-12 w-12 text-primary md:h-16 md:w-16" />
+                <p className="mb-2 text-2xl font-extrabold text-primary md:text-3xl">
                   100%
                 </p>
-                <p className="text-lg text-primary">Positive Feedback</p>
+                <p className="text-base text-primary md:text-lg">
+                  Positive Feedback
+                </p>
               </div>
-              <div className="rounded-md bg-violet-100 p-6 shadow-md">
-                <Clock className="mx-auto mb-2 h-16 w-16 text-primary" />
-                <p className="mb-2 text-3xl font-extrabold text-primary">40%</p>
-                <p className="text-lg text-primary">Save Time</p>
+              <div className="rounded-md bg-violet-100 p-4 shadow-md md:p-6">
+                <Clock className="mx-auto mb-2 h-12 w-12 text-primary md:h-16 md:w-16" />
+                <p className="mb-2 text-2xl font-extrabold text-primary md:text-3xl">
+                  40%
+                </p>
+                <p className="text-base text-primary md:text-lg">Save Time</p>
               </div>
             </div>
           </section>
 
           {/* Features Section */}
-          <section className="my-10 w-full">
-            <div className="grid grid-cols-2 gap-20">
+          <section className="my-10 max-w-[1000px]">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-20">
               <div className="flex flex-col items-center justify-center md:mb-0">
-                <h2 className="mb-5 text-5xl font-bold">
+                <h2 className="mb-5 text-3xl font-bold md:text-5xl">
                   <span className="text-primary">Smarter</span> scheduling for
                   your VR lounge
                 </h2>
-                <p className="mb-5 text-lg  leading-relaxed text-slate-700 dark:text-white/85">
+                <p className="mb-5 text-base leading-relaxed text-slate-700 dark:text-white/85 md:text-lg">
                   Our smart system is designed to manage multiple VR station
                   bookings and group reservations with ease.
                 </p>
                 {/* <Button>Learn more</Button> */}
               </div>
               {/* Add image or placeholder here */}
-              <Image
-                src="/vr-goggles.png"
-                alt="VR Goggles"
-                width={800}
-                height={638}
-              />
-              {/* <div className="h-64 w-full rounded-md bg-gray-300"></div> */}
+              <div className="flex justify-center">
+                <Image
+                  src="/vr-goggles.png"
+                  alt="VR Goggles"
+                  width={800}
+                  height={638}
+                  loading="lazy"
+                  className="w-full max-w-[400px] md:w-auto"
+                />
+              </div>
             </div>
           </section>
 
@@ -101,10 +116,10 @@ export default async function Home() {
           <section className="my-10 w-full">
             <div className="rounded-[20px] bg-primary p-12 text-white">
               <div className="flex flex-col items-center justify-center md:mb-0">
-                <h2 className="mb-6 text-5xl font-bold text-white">
+                <h2 className="mb-6 text-3xl font-bold text-white md:text-5xl">
                   Upgrade Your VR Journey
                 </h2>
-                <p className="mb-6 max-w-2xl text-lg leading-relaxed text-white">
+                <p className="mb-6 max-w-2xl text-base leading-relaxed text-white md:text-lg">
                   Leverage our specialized VR scheduling platform to orchestrate
                   your lounge&apos;s reservations, events, and customer
                   experiences. Equipped with smart reminders and the ability to
@@ -120,19 +135,11 @@ export default async function Home() {
 
           {/* FAQ Section */}
           <section className="my-10 w-full">
-            <h2 className="mb-5 text-4xl font-bold">
+            <h2 className="mb-5 text-2xl font-bold md:text-4xl">
               Frequently Asked <span className="text-primary">Questions</span>
             </h2>
-            <div className="grid grid-cols-3 gap-20">
-              <div className="col-span-1 ">
-                <Image
-                  src="/woman-in-vr-headset.png"
-                  alt="Woman In VR Headset"
-                  width={800}
-                  height={777}
-                />
-              </div>
-              <div className="col-span-2 flex flex-col items-center justify-center md:mb-0">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-3 md:gap-20">
+              <div className="flex flex-col items-center justify-center md:order-last md:col-span-2 md:mb-0">
                 <Accordion
                   type="single"
                   defaultValue="item-1"
@@ -140,10 +147,10 @@ export default async function Home() {
                   className="w-full bg-white"
                 >
                   <AccordionItem value="item-1">
-                    <AccordionTrigger className="p-5 text-lg font-bold">
+                    <AccordionTrigger className="p-5 text-base font-bold md:text-lg">
                       How does it optimize my lounge&apos;s operations?
                     </AccordionTrigger>
-                    <AccordionContent className="px-5 pb-5 text-left text-lg">
+                    <AccordionContent className="px-5 pb-5 text-left text-base md:text-lg">
                       Our system streamlines your lounge&apos;s operations by
                       providing an intuitive booking platform, efficient
                       scheduling, and real-time updates. This allows for better
@@ -153,10 +160,10 @@ export default async function Home() {
                     </AccordionContent>
                   </AccordionItem>
                   <AccordionItem value="item-2">
-                    <AccordionTrigger className="p-5 text-lg font-bold">
+                    <AccordionTrigger className="p-5 text-base font-bold md:text-lg">
                       Is customer and booking data secure with your system?
                     </AccordionTrigger>
-                    <AccordionContent className="px-5 pb-5 text-left text-lg">
+                    <AccordionContent className="px-5 pb-5 text-left text-base md:text-lg">
                       Yes, customer and booking data security is our top
                       priority. Our system employs state-of-the-art encryption
                       and secure protocols to protect your data at all times. We
@@ -166,10 +173,10 @@ export default async function Home() {
                     </AccordionContent>
                   </AccordionItem>
                   <AccordionItem value="item-3">
-                    <AccordionTrigger className="p-5 text-lg font-bold">
+                    <AccordionTrigger className="p-5 text-base font-bold md:text-lg">
                       Can I integrate with my current booking software?
                     </AccordionTrigger>
-                    <AccordionContent className="px-5 pb-5 text-left text-lg">
+                    <AccordionContent className="px-5 pb-5 text-left text-base md:text-lg">
                       Integration with existing booking software is on our
                       roadmap, but currently, our app is designed to be a
                       comprehensive standalone solution for booking and managing
@@ -179,6 +186,16 @@ export default async function Home() {
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
+              </div>
+              <div className="order-last flex items-center justify-center pt-8 md:order-first md:col-span-1 md:pt-0">
+                <Image
+                  src="/woman-in-vr-headset.png"
+                  alt="Woman In VR Headset"
+                  width={800}
+                  height={777}
+                  loading="lazy"
+                  className="md:max-w-auto w-full max-w-[400px]"
+                />
               </div>
             </div>
           </section>

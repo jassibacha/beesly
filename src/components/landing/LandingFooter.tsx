@@ -23,12 +23,18 @@ export default async function Footer() {
               />
               Beesly
             </div>
-            <div className="mb-4">Text goes here</div>
-            <div className="flex space-x-4">
-              <FontAwesomeIcon icon={faFacebookF} className="h-6 w-6" />
-              <FontAwesomeIcon icon={faTwitter} className="h-6 w-6" />
-              <FontAwesomeIcon icon={faInstagram} className="h-6 w-6" />
-              <FontAwesomeIcon icon={faLinkedinIn} className="h-6 w-6" />
+            <div className="grid grid-cols-1 sm:gap-5 md:grid-cols-3 md:gap-20">
+              <div className="col-span-1 mb-4 md:col-span-2">
+                Beesly is your premier VR lounge management solution. Streamline
+                your bookings and optimize your operations with our intuitive
+                platform.
+              </div>
+              <div className="col-span-1 flex space-x-4 md:col-span-1 md:text-right">
+                <FontAwesomeIcon icon={faFacebookF} className="h-6 w-6" />
+                <FontAwesomeIcon icon={faTwitter} className="h-6 w-6" />
+                <FontAwesomeIcon icon={faInstagram} className="h-6 w-6" />
+                <FontAwesomeIcon icon={faLinkedinIn} className="h-6 w-6" />
+              </div>
             </div>
           </div>
 
@@ -36,7 +42,7 @@ export default async function Footer() {
         </div>
         {/* Sub Footer */}
 
-        <div className="flex items-center justify-between py-4">
+        <div className="flex flex-col items-center justify-between py-4 md:flex-row">
           <div className="">
             Copyright &copy; {new Date().getFullYear()} Beesly. All rights
             reserved.
