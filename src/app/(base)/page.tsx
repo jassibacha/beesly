@@ -12,6 +12,23 @@ import MaxWidthWrapper from "@/components/MaxWidthWrapper";
 import { ArrowRight, CalendarCheck2, Clock, Smile, Star } from "lucide-react";
 import Footer from "@/components/landing/LandingFooter";
 import Image from "next/image";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Beesly - Optimize Your VR Bookings",
+  description:
+    "Effortlessly manage and optimize your VR lounge bookings with Beesly.",
+  openGraph: {
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Beesly - Optimize Your VR Bookings",
+      },
+    ],
+  },
+};
 
 export default async function Home() {
   noStore();
