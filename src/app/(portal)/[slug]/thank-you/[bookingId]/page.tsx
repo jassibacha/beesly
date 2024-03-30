@@ -3,59 +3,59 @@ import ThankYouPage from "./_components/ThankYouPage";
 import LocationHeader from "./_components/LocationHeader";
 import { type Metadata, type ResolvingMetadata } from "next/types";
 import { api } from "@/trpc/server";
-import { Booking } from "@/server/db/types";
+import type { Booking, Location } from "@/server/db/types";
 import { Globe, Mail, Phone, XOctagon } from "lucide-react";
 import { TRPCError } from "@trpc/server";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { DateTime } from "luxon";
 
 type Props = {
   params: {
     slug: string;
     bookingId: string;
   };
-  // query?: {
-  //   booking?: string;
-  // };
 };
 export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
-  // const event = await api.event.get.query({ eventId: params.eventId });
-  // if (!event) {
-  //   return {
-  //     title: "No event found | Soonlist",
-  //     openGraph: {
-  //       images: [],
-  //     },
-  //   };
-  // }
+  const { slug, bookingId } = params;
+
   const location = await api.location.getLocationBySlug.query({
-    slug: params.slug,
+    slug,
   });
   if (!location) {
     return {
       title: "Not Found",
-      openGraph: {
-        images: [],
-      },
+      // openGraph: {
+      //   images: [],
+      // },
     };
   }
 
-  // optionally access and extend (rather than replace) parent metadata
-  // images are in the order of square, 4:3, 16:9, cropped
-  // const hasAllImages = eventData.images && eventData.images.length === 4;
-  // const previewImage = hasAllImages ? eventData.images?.slice(2, 3) : undefined;
+  const booking = await api.booking.getBookingByIdOrNull.query({ bookingId });
+  if (!booking) {
+    return {
+      title: "Not Found",
+      // openGraph: {
+      //   images: [],
+      // },
+    };
+  }
+
+  const startDate = DateTime.fromJSDate(booking.startTime).toFormat(
+    "LLLL dd, yyyy",
+  );
+  const startTime = DateTime.fromJSDate(booking.startTime).toFormat("hh:mm a");
 
   return {
-    title: `Thank You | ${location.name}`,
+    title: `Thank you from ${location.name}`,
+    description: `We'll see you on ${startDate} at ${startTime}!`,
     openGraph: {
-      title: `Thank You | ${location.name}`,
-      // description: `(${eventData.startDate} ${eventData.startTime}-${eventData.endTime}) ${eventData.description}`,
+      title: `Thank you from ${location.name}`,
+      description: `Your booking is confirmed for ${startDate} at ${startTime}.`,
       url: `${process.env.NEXT_PUBLIC_URL}/${location.slug}`,
-      // type: "article",
-      // images: previewImage || (await parent).openGraph?.images || [],
     },
   };
 }

@@ -13,43 +13,29 @@ type Props = {
   };
 };
 
-// REMOVE: Referenced from SL event/[eventid]/page.tsx
-
 export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
-  // const event = await api.event.get.query({ eventId: params.eventId });
-  // if (!event) {
-  //   return {
-  //     title: "No event found | Soonlist",
-  //     openGraph: {
-  //       images: [],
-  //     },
-  //   };
-  // }
   const location = await api.location.getLocationBySlug.query({
     slug: params.slug,
   });
   if (!location) {
     return {
       title: "Not Found",
-      openGraph: {
-        images: [],
-      },
+      description: "Location not found",
+      // openGraph: {
+      //   images: [],
+      // },
     };
   }
 
-  // optionally access and extend (rather than replace) parent metadata
-  // images are in the order of square, 4:3, 16:9, cropped
-  // const hasAllImages = eventData.images && eventData.images.length === 4;
-  // const previewImage = hasAllImages ? eventData.images?.slice(2, 3) : undefined;
-
   return {
     title: `Book a Session | ${location.name}`,
+    description: `Book a VR session at ${location.name} today!`,
     openGraph: {
-      title: `Book a Session | ${location.name}`,
-      // description: `(${eventData.startDate} ${eventData.startTime}-${eventData.endTime}) ${eventData.description}`,
+      title: `${location.name} | Book a Session`,
+      description: `Book a VR session at ${location.name} today!`,
       url: `${process.env.NEXT_PUBLIC_URL}/${location.slug}`,
       // type: "article",
       // images: previewImage || (await parent).openGraph?.images || [],
