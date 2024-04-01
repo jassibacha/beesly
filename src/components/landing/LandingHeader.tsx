@@ -15,7 +15,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
 
-async function Header() {
+export default function Header() {
   return (
     <nav className="background-blur-lg sticky inset-x-0 top-0 z-30 h-14 w-full border-b bg-white/75 transition-all dark:bg-black/75">
       {/* <MaxWidthWrapper> */}
@@ -72,5 +72,3 @@ async function Header() {
     </nav>
   );
 }
-
-export default Header;

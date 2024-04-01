@@ -7,7 +7,7 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 import { faCalendarDays, faHeart } from "@fortawesome/free-solid-svg-icons";
 
-export default async function Footer() {
+export default function Footer() {
   return (
     <footer className="background-blur-lg w-full bg-white/75 transition-all dark:bg-black/75">
       {/* <MaxWidthWrapper> */}
