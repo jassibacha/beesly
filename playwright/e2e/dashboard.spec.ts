@@ -4,7 +4,8 @@ test.describe("Dashboard pages", () => {
   test("Dashboard", async ({ page }) => {
     await page.goto("/dashboard");
     // Wait until Daily Bookings is visible
-    await expect(page.getByText("Daily Bookings")).toBeVisible();
+    //await expect(page.getByText("Daily Bookings")).toBeVisible();
+    await page.waitForSelector('text="Daily Bookings"', { state: "visible" });
 
     // Wait for the "Loading time slots" text to disappear
     await page.waitForSelector('text="Loading time slots"', {
@@ -40,9 +41,24 @@ test.describe("Dashboard pages", () => {
       page.getByRole("heading", { name: "Settings", exact: true }),
     ).toBeVisible();
 
-    // Find General Settings subheading
+    // Find General Settings subheading, confirm we're there.
     await expect(
       page.getByRole("heading", { name: "General Settings", exact: true }),
     ).toBeVisible();
+
+    // Locate the business name label
+    await page.waitForSelector('text="Business Name"', { state: "visible" });
+
+    await page.waitForSelector('button:has-text("Advanced Settings")', {
+      state: "visible",
+    });
+    await page.click('button:has-text("Advanced Settings")');
+    // Find Advanced Settings subheading, confirm we're there.
+    await expect(
+      page.getByRole("heading", { name: "Advanced Settings", exact: true }),
+    ).toBeVisible();
+
+    // Locate the text Monday
+    await page.waitForSelector('text="Monday"', { state: "visible" });
   });
 });

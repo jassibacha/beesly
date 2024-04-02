@@ -1,4 +1,7 @@
 import { test as setup, expect } from "@playwright/test";
+import dotenv from "dotenv";
+
+dotenv.config(); // Load environment variables from .env file
 
 // https://playwright.dev/docs/auth
 //
@@ -7,9 +10,12 @@ const authFile = "playwright/.auth/user.json";
 setup("authenticate", async ({ page }) => {
   // Perform clerk authentication steps.
   await page.goto("/sign-in");
-  await page.fill('input[name="identifier"]', "klikster@gmail.com");
+  await page.fill(
+    'input[name="identifier"]',
+    process.env.PLAYWRIGHT_USER_EMAIL!,
+  );
   await page.getByRole("button", { name: "Continue", exact: true }).click();
-  await page.fill('input[name="password"]', "testPass22");
+  await page.fill('input[name="password"]', process.env.PLAYWRIGHT_USER_PASS!);
   await page.getByRole("button", { name: "Continue", exact: true }).click();
   // Wait until the page receives the cookies.
   //

@@ -26,6 +26,7 @@ import {
   updateLocationFormSchema,
 } from "@/lib/schemas/locationSchemas";
 import { useLocationContext } from "@/context/LocationContext";
+import Image from "next/image";
 
 interface LocationFormProps {
   location: Location;
