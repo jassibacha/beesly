@@ -7,6 +7,14 @@
 
 # testing
 /coverage
+/playwright/.auth
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# TEMP GITHUB WORKFLOWS
+/.github/workflows
 
 # database
 /prisma/db.sqlite

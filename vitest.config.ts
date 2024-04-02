@@ -7,8 +7,8 @@ export default defineConfig({
   test: {
     globals: true, // Inject describe, it and expect into global testing scope
     environment: "jsdom",
+    exclude: [...configDefaults.exclude, "**/playwright/**"], // Exclude playwright tests
     alias: {
-      //"@": "/src",
       "@/": fileURLToPath(new URL("./src/", import.meta.url)),
     },
     setupFiles: ["dotenv/config"],

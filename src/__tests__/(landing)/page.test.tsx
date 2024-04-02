@@ -8,10 +8,4 @@ test("Landing Homepage", () => {
     name: /Effortlessly optimize your VR bookings/i,
   });
   expect(heading).toBeDefined();
-  // expect(
-  //   screen.getByRole("heading", {
-  //     level: 1,
-  //     name: "Effortlessly optimize your VR bookings",
-  //   }),
-  // ).toBeDefined();
 });
