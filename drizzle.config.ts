@@ -2,10 +2,6 @@ import { type Config } from "drizzle-kit";
 
 import { env } from "@/env";
 
-// Use a different database URL for E2E testing
-const databaseUrl: string =
-  process.env.NODE_ENV === "test" ? env.TEST_DATABASE_URL : env.DATABASE_URL;
-
 export default {
   schema: "./src/server/db/schema.ts",
   out: "./db/migrations",

@@ -33,7 +33,7 @@ if (
 
   //await migrate(db, { migrationsFolder: "./db/migrations" });
 } else {
-  console.log("Using Local Postgres");
+  console.log("Using Local Postgres for Testing");
   const migrationClient = postgres(process.env.TEST_DATABASE_URL!); // removed 'as string'
   db = LocalDrizzle(migrationClient);
 }
