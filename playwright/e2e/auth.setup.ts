@@ -18,7 +18,10 @@ setup("authenticate", async ({ page }) => {
   await page.waitForURL("/dashboard");
   // Alternatively, you can wait until the page reaches a state where all cookies are set.
   await expect(page.getByText("Daily Bookings")).toBeVisible();
-
+  // When time slots are done loading, we should have LocationContext working
+  await page.waitForSelector('text="Loading time slots"', {
+    state: "hidden",
+  });
   // End of authentication steps.
   await page.context().storageState({ path: authFile });
 });
