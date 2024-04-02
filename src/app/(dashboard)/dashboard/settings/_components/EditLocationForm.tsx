@@ -84,6 +84,11 @@ export function LocationForm() {
       extension: "png",
     });
 
+  const deleteLogoMutation = api.r2.deleteLogo.useMutation();
+
+  //const createBookingMutation = api.booking.book.useMutation();
+  const updateLocationMutation = api.location.update.useMutation();
+
   if (!location) {
     return (
       <div className="flex items-center justify-center space-x-2">
@@ -141,8 +146,6 @@ export function LocationForm() {
     }
   };
 
-  const deleteLogoMutation = api.r2.deleteLogo.useMutation();
-
   const handleDeleteLogo = async () => {
     if (location?.logo) {
       deleteLogoMutation.mutate(
@@ -174,9 +177,6 @@ export function LocationForm() {
       );
     }
   };
-
-  //const createBookingMutation = api.booking.book.useMutation();
-  const updateLocationMutation = api.location.update.useMutation();
 
   const onSubmit: SubmitHandler<UpdateLocationFormSchemaValues> = async (
     values,
