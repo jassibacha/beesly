@@ -1,6 +1,5 @@
 import * as schema from "./schema";
 import { sql } from "@vercel/postgres";
-import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 import {
   drizzle as VercelDrizzle,
@@ -11,37 +10,45 @@ import {
   drizzle as LocalDrizzle,
   type PostgresJsDatabase,
 } from "drizzle-orm/postgres-js";
-//import type { VercelPgClient } from "drizzle-orm/vercel-postgres";
 import { env } from "@/env";
 
 // https://www.thisdot.co/blog/configure-your-project-with-drizzle-for-local-and-deployed-databases
 // Reconfigured for test (local) and production (vercel+supabase) databases following this guide as a baseline
 
-let db:
-  | VercelPgDatabase<Record<string, never>>
-  | PostgresJsDatabase<Record<string, never>>;
+// let db:
+//   | VercelPgDatabase<Record<string, never>>
+//   | PostgresJsDatabase<Record<string, never>>;
 
+// Define a type that represents the structure of the database schema.
+type MySchema = typeof schema;
+
+// Define a variable 'db' that can be either a VercelPgDatabase or a PostgresJsDatabase,
+// both typed with the schema structure.
+let db: VercelPgDatabase<MySchema> | PostgresJsDatabase<MySchema>;
+
+// Check the environment to determine which database to use.
 if (
   process.env.NODE_ENV === "production" ||
   process.env.NODE_ENV === "development"
 ) {
-  console.log("Using Vercel Postgres (supabase)");
-  db = VercelDrizzle(sql);
-  // const migrationClient = postgres(process.env.TEST_DATABASE_URL!); // removed 'as string'
-  // db = LocalDrizzle(migrationClient);
-  //console.log("db", db);
-
-  //await migrate(db, { migrationsFolder: "./db/migrations" });
+  // In production or development, use Vercel Postgres with the defined schema.
+  db = VercelDrizzle(sql as VercelPgClient, { schema });
+  //db = VercelDrizzle(sql);
+  //console.log("Using Vercel Postgres (supabase)");
 } else {
-  console.log("Using Local Postgres for Testing");
-  const migrationClient = postgres(process.env.TEST_DATABASE_URL!); // removed 'as string'
-  db = LocalDrizzle(migrationClient);
+  // In the test environment, use a local Postgres database.
+  // The TEST_DATABASE_URL environment variable should contain the connection string.
+  const migrationClient = postgres(process.env.TEST_DATABASE_URL!); // removed 'as string' from end
+  // Initialize the database with the local Postgres client and the defined schema.
+  db = LocalDrizzle(migrationClient, { schema });
+  //db = LocalDrizzle(migrationClient);
+  //console.log("Using Local Postgres for Testing");
 }
 
 export { db };
 
-// Original Export
-// export const db = VercelDrizzle(sql as VercelPgClient, { schema });
+// Original Vercel/Supabase Export
+//export const db = VercelDrizzle(sql as VercelPgClient, { schema });
 
 // import { env } from "@/env";
 // import { drizzle } from "drizzle-orm/postgres-js";
