@@ -8,10 +8,11 @@ const databaseUrl: string =
 
 export default {
   schema: "./src/server/db/schema.ts",
+  out: "./db/migrations",
   driver: "pg",
   dbCredentials: {
-    connectionString: env.TEST_DATABASE_URL,
-    // This connectionString doesn't affect the actual DB
+    connectionString: env.DATABASE_URL,
+    // This connectionString doesn't affect the actual DB for the app
     // But changing it DID affect Drizzle Studio
   },
   tablesFilter: ["beesly_*"],

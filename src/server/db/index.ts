@@ -26,9 +26,9 @@ if (
   process.env.NODE_ENV === "development"
 ) {
   console.log("Using Vercel Postgres (supabase)");
-  //db = VercelDrizzle(sql);
-  const migrationClient = postgres(process.env.TEST_DATABASE_URL!); // removed 'as string'
-  db = LocalDrizzle(migrationClient);
+  db = VercelDrizzle(sql);
+  // const migrationClient = postgres(process.env.TEST_DATABASE_URL!); // removed 'as string'
+  // db = LocalDrizzle(migrationClient);
   //console.log("db", db);
 
   //await migrate(db, { migrationsFolder: "./db/migrations" });
