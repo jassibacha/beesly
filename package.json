@@ -9,6 +9,7 @@
     "db:generate": "drizzle-kit generate:pg",
     "db:push": "drizzle-kit push:pg",
     "db:studio": "drizzle-kit studio",
+    "db:studio-test": "APP_ENV=test drizzle-kit studio",
     "db:migrate": "node --import tsx --env-file .env ./src/server/db/migrate.mts",
     "db:seed": "node --import tsx --env-file .env ./src/server/db/seeds/seed.ts",
     "db:generate-test-bookings": "node --import tsx --env-file .env ./src/server/db/seeds/generateTestBookings.ts",
