@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import dotenv from "dotenv";
 
 /**
  * Read environment variables from file.
@@ -90,9 +91,15 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://127.0.0.1:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
+  webServer: {
+    command: "pnpm dev:test",
+    url: "http://127.0.0.1:3000",
+    reuseExistingServer: !process.env.CI,
+    // Set environment variables for all tests
+    // env: {
+    //   APP_ENV: "test",
+    //   ENVIRONMENT: "test",
+    //   // Add other environment variables here
+    // },
+  },
 });

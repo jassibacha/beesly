@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "next build",
+    "build:test": "APP_ENV=test next build",
     "db:generate": "drizzle-kit generate:pg",
     "db:push": "drizzle-kit push:pg",
     "db:studio": "drizzle-kit studio",
@@ -12,11 +13,12 @@
     "db:seed": "node --import tsx --env-file .env ./src/server/db/seeds/seed.ts",
     "db:generate-test-bookings": "node --import tsx --env-file .env ./src/server/db/seeds/generateTestBookings.ts",
     "dev": "next dev",
+    "dev:test": "APP_ENV=test next dev",
     "lint": "next lint",
     "start": "next start",
-    "test": "vitest",
-    "test:e2e": "exec playwright test",
-    "test:e2e-ui": "exec playwright test --ui"
+    "test": "exec vitest",
+    "test:e2e": "playwright test",
+    "test:e2e-ui": "playwright test --ui"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.513.0",
@@ -29,6 +31,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.5.1",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@hookform/resolvers": "^3.3.4",
+    "@neondatabase/serverless": "^0.9.0",
     "@planetscale/database": "^1.11.0",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-avatar": "^1.0.4",
@@ -92,6 +95,7 @@
     "@typescript-eslint/parser": "^6.11.0",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.14",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
     "drizzle-kit": "^0.20.9",
     "eslint": "^8.54.0",
