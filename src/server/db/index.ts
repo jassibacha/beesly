@@ -47,11 +47,11 @@ console.log("APP_ENV: ", process.env.APP_ENV);
 // Check custom APP_ENV variable to determine which database to use
 if (process.env.APP_ENV === "test") {
   // In the test environment, use neon database. TEST_DATABASE_URL is connectionString
-  // Http
+  // Http - Threw error
   const sql = neon(process.env.TEST_DATABASE_URL!);
   db = NeonDrizzle(sql, { schema });
 
-  // Serverless
+  // Serverless - Threw errors with middleware.ts trying to query the db and find the user via auth.userId.. ?
   // const pool = new Pool({ connectionString: process.env.TEST_DATABASE_URL });
   // db = NeonDrizzle(pool);
   console.log("Using Neon Postgres for Testing");

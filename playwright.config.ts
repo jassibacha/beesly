@@ -95,11 +95,5 @@ export default defineConfig({
     command: "pnpm dev:test",
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
-    // Set environment variables for all tests
-    // env: {
-    //   APP_ENV: "test",
-    //   ENVIRONMENT: "test",
-    //   // Add other environment variables here
-    // },
   },
 });
