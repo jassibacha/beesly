@@ -22,7 +22,18 @@ import { relations, sql } from "drizzle-orm";
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
+
+// Original, single export
 export const createTable = pgTableCreator((name) => `beesly_${name}`);
+
+// // Modify the table creator to use an environment-specific prefix
+// export const createTable = pgTableCreator((name) => {
+//   // Determine the prefix based on the environment
+//   const prefix = process.env.APP_ENV === "test" ? "beesly_test_" : "beesly_";
+
+//   console.log("PG Table Prefix: ", prefix);
+//   return `${prefix}${name}`;
+// });
 
 export const users = createTable(
   "users",
