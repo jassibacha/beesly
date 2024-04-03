@@ -11,14 +11,14 @@ import {
   type PostgresJsDatabase,
 } from "drizzle-orm/postgres-js";
 import { neon, Pool } from "@neondatabase/serverless";
-// import {
-//   drizzle as NeonDrizzle,
-//   type NeonHttpDatabase as NeonDatabase,
-// } from "drizzle-orm/neon-http";
 import {
   drizzle as NeonDrizzle,
-  type NeonDatabase,
-} from "drizzle-orm/neon-serverless";
+  type NeonHttpDatabase as NeonDatabase,
+} from "drizzle-orm/neon-http";
+// import {
+//   drizzle as NeonDrizzle,
+//   type NeonDatabase,
+// } from "drizzle-orm/neon-serverless";
 import { env } from "@/env";
 
 // https://www.thisdot.co/blog/configure-your-project-with-drizzle-for-local-and-deployed-databases
@@ -48,12 +48,12 @@ console.log("APP_ENV: ", process.env.APP_ENV);
 if (process.env.APP_ENV === "test") {
   // In the test environment, use neon database. TEST_DATABASE_URL is connectionString
   // Http
-  // const sql = neon(process.env.TEST_DATABASE_URL!);
-  // db = NeonDrizzle(sql, { schema });
+  const sql = neon(process.env.TEST_DATABASE_URL!);
+  db = NeonDrizzle(sql, { schema });
 
   // Serverless
-  const pool = new Pool({ connectionString: process.env.TEST_DATABASE_URL });
-  db = NeonDrizzle(pool);
+  // const pool = new Pool({ connectionString: process.env.TEST_DATABASE_URL });
+  // db = NeonDrizzle(pool);
   console.log("Using Neon Postgres for Testing");
 } else {
   // In production or development, use Vercel Postgres with the defined schema.

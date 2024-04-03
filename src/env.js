@@ -14,13 +14,13 @@ export const env = createEnv({
         (str) => !str.includes("YOUR_PSQL_URL_HERE"),
         "You forgot to change the default URL",
       ),
-    TEST_DATABASE_URL: z
-      .string()
-      .url()
-      .refine(
-        (str) => !str.includes("YOUR_TEST_PSQL_URL_HERE"),
-        "You forgot to change the test URL",
-      ),
+    // TEST_DATABASE_URL: z
+    //   .string()
+    //   .url()
+    //   .refine(
+    //     (str) => !str.includes("YOUR_TEST_PSQL_URL_HERE"),
+    //     "You forgot to change the test URL",
+    //   ),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -43,7 +43,7 @@ export const env = createEnv({
    */
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
-    TEST_DATABASE_URL: process.env.TEST_DATABASE_URL,
+    //TEST_DATABASE_URL: process.env.TEST_DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     // APP_ENV: process.env.APP_ENV,
     // ENVIRONMENT: process.env.ENVIRONMENT,
