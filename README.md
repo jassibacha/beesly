@@ -1,28 +1,24 @@
-# Create T3 App
+# Beesly
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+Beesly is a booking system designed for VR lounges, built with Next.js 14 and the T3 stack. It provides a seamless experience for customers to make reservations and for staff to manage bookings and lounge settings.
 
-## What's next? How do I make an app with this?
+## Features
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+- **Booking Portal:** Allows customers to book VR sessions with ease, even for multiple stations and group experiences.
+- **Dashboard:** Provides staff with a comprehensive view of daily bookings, enabling them to manage bookings, including adding, editing, and canceling, with ease.
+- **Settings Management:** Staff can adjust lounge settings, such as business name, hours of operation, booking conditions, and cleaning buffer times.
+- **Automated Communication:** Sends email notifications for booking confirmations, reminders, and updates to customers.
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Tech Stack
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+- **Frontend:** [Next.js](https://nextjs.org), [Tailwind CSS](https://tailwindcss.com), [Shadcn-ui](https://github.com/shadcn/ui)
+- **Backend:** [tRPC](https://trpc.io), [DrizzleORM](https://drizzle-orm.github.io), [PostgreSQL](https://www.postgresql.org), [Sendgrid](https://sendgrid.com)
+- **Authentication:** [Clerk](https://)
+- **Testing:** [Playwright](https://playwright.dev), [Vitest](https://vitest.dev)
+- **Deployment:** [Vercel](https://vercel.com), [Supabase](https://supabase.com)
 
-## Learn More
+## Schema
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+![Schema](assets/schema.png)
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
-
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
-
-## How do I deploy this?
-
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+_More detailed schema info coming soon._
