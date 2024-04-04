@@ -6,8 +6,10 @@ import { TRPCReactProvider } from "@/trpc/react";
 // import { ClerkProvider } from "@clerk/nextjs";
 // import { Toaster } from "@/components/ui/toaster";
 // import NavBar from "@/components/NavBar";
-import { Providers, ThemeProvider } from "./providers";
+import { Providers } from "./providers";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -30,14 +32,12 @@ export default function RootLayout({
       <body className={`font-sans ${inter.variable} grainy antialiased`}>
         <ClerkProvider>
           <TRPCReactProvider>
-            {/* <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            > */}
-            <Providers>{children}</Providers>
-            {/* </ThemeProvider> */}
+            {/* ThemeProvider is set per layout later */}
+            <Providers>
+              {children}
+              <SpeedInsights />
+              <Analytics />
+            </Providers>
           </TRPCReactProvider>
         </ClerkProvider>
       </body>
