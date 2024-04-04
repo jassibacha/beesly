@@ -17,6 +17,10 @@ Beesly is a booking system designed for VR lounges, built with Next.js 14 and th
 - **Testing:** [Playwright](https://playwright.dev), [Vitest](https://vitest.dev)
 - **Deployment:** [Vercel](https://vercel.com), [Supabase](https://supabase.com)
 
+## Conclusion
+
+Beesly revolutionizes the booking process for VR lounges by providing a tailored solution that addresses their industries unique challenges. With its user-friendly interface and robust backend, Beesly enhances the booking experience for customers and streamlines operational management for lounge owners.
+
 ## Schema
 
 ![Schema](assets/schema.png)
